@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,7 +28,7 @@
         .title {
             font-size: 2.5em;
             font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
             margin-bottom: 20px;
         }
 
@@ -35,7 +36,7 @@
             border: 3px solid #fff;
             border-radius: 10px;
             background: #000;
-            box-shadow: 0 0 20px rgba(255,255,255,0.3);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
         }
 
         .top-ui {
@@ -46,7 +47,7 @@
         }
 
         .player-top-info {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             padding: 10px;
             border-radius: 10px;
             backdrop-filter: blur(10px);
@@ -54,7 +55,7 @@
         }
 
         .player-panel {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             padding: 8px;
             border-radius: 8px;
             min-width: 150px;
@@ -88,7 +89,7 @@
             width: 30px;
             height: 30px;
             border-radius: 4px;
-            border: 2px solid rgba(255,255,255,0.3);
+            border: 2px solid rgba(255, 255, 255, 0.3);
         }
 
         .skill-cooldown {
@@ -153,7 +154,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0, 0, 0, 0.9);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -162,7 +163,7 @@
         }
 
         .selection-panel {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             padding: 30px;
             border-radius: 15px;
             backdrop-filter: blur(10px);
@@ -183,7 +184,7 @@
         }
 
         .selection-option {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             padding: 15px;
             border-radius: 10px;
             cursor: pointer;
@@ -192,12 +193,12 @@
         }
 
         .selection-option:hover {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
             border-color: #fff;
         }
 
         .selection-option.selected {
-            background: rgba(0,255,0,0.3);
+            background: rgba(0, 255, 0, 0.3);
             border-color: #0f0;
         }
 
@@ -232,6 +233,24 @@
             cursor: not-allowed;
         }
 
+        .random-button {
+            background: #9c27b0;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.3s ease;
+            width: 100%;
+            max-width: 250px;
+        }
+
+        .random-button:hover {
+            background: #7b1fa2;
+        }
+
         .hidden {
             display: none;
         }
@@ -245,7 +264,7 @@
         }
 
         .skills-cooldown-panel .player-panel {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             padding: 8px;
             border-radius: 8px;
             backdrop-filter: blur(10px);
@@ -269,11 +288,11 @@
         }
 
         .stats-display {
-            background: rgba(0,0,0,0.8);
+            background: rgba(0, 0, 0, 0.8);
             padding: 12px;
             border-radius: 10px;
             backdrop-filter: blur(10px);
-            border: 2px solid rgba(255,255,255,0.2);
+            border: 2px solid rgba(255, 255, 255, 0.2);
             width: 200px;
             max-width: 200px;
         }
@@ -284,8 +303,8 @@
             text-align: center;
             margin-bottom: 10px;
             color: #4CAF50;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-            border-bottom: 2px solid rgba(255,255,255,0.2);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
             padding-bottom: 8px;
         }
 
@@ -299,7 +318,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.05);
             padding: 4px 8px;
             border-radius: 4px;
             border-left: 3px solid #4CAF50;
@@ -320,31 +339,31 @@
             font-size: 0.7em;
             font-weight: bold;
             color: #4CAF50;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 45%;
             text-align: right;
         }
-
     </style>
 </head>
+
 <body>
     <div class="game-container">
         <div class="title">Ball Battle Arena</div>
-        
+
         <!-- Skills Cooldown UI - Above HP bars -->
         <div class="skills-cooldown-panel">
             <div class="player-panel">
                 <div class="skill-display" id="player1Skills"></div>
             </div>
-            
+
             <div class="player-panel">
                 <div class="skill-display" id="player2Skills"></div>
             </div>
         </div>
-        
+
         <!-- Top UI - Names and HP -->
         <div class="top-ui">
             <div class="player-top-info">
@@ -356,7 +375,7 @@
                     <div class="shield-fill" id="player1Shield" style="width: 0%"></div>
                 </div>
             </div>
-            
+
             <div class="player-top-info">
                 <div class="player-name" id="player2Name">Player 2</div>
                 <div class="hp-bar">
@@ -367,12 +386,12 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Game Area - Canvas only -->
         <div class="game-area">
             <canvas id="gameCanvas" width="400" height="300"></canvas>
         </div>
-        
+
         <!-- Stats Display - Below Canvas -->
         <div class="stats-container">
             <!-- Left Stats Display -->
@@ -409,7 +428,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Right Stats Display -->
             <div class="stats-display" id="player2Stats">
                 <div class="stats-title">Player 2 Stats</div>
@@ -452,15 +471,22 @@
         <div class="selection-panel">
             <div class="selection-title" id="selectionTitle">Enter Player Names</div>
             <div id="selectionContent">
-                <input type="text" id="player1Input" placeholder="Player 1 Name" style="margin: 10px; padding: 10px; font-size: 1.1em; border-radius: 5px; border: none;">
+                <input type="text" id="player1Input" placeholder="Player 1 Name"
+                    style="margin: 10px; padding: 10px; font-size: 1.1em; border-radius: 5px; border: none;">
                 <br>
-                <input type="text" id="player2Input" placeholder="Player 2 Name" style="margin: 10px; padding: 10px; font-size: 1.1em; border-radius: 5px; border: none;">
+                <input type="text" id="player2Input" placeholder="Player 2 Name"
+                    style="margin: 10px; padding: 10px; font-size: 1.1em; border-radius: 5px; border: none;">
                 <br>
                 <button class="next-button" id="nextButton">Next</button>
+            </div>
+            <div id="selectionFooter"
+                style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+                <button class="random-button" id="randomMatchButton">🎲 Random Match</button>
             </div>
         </div>
     </div>
 
     <script src="game.js"></script>
 </body>
+
 </html>

@@ -456,6 +456,10 @@ class Game {
 
     setupEventListeners() {
         document.getElementById('nextButton').addEventListener('click', () => this.nextSelectionStep());
+        const randomBtn = document.getElementById('randomMatchButton');
+        if (randomBtn) {
+            randomBtn.addEventListener('click', () => this.startRandomMatch());
+        }
     }
 
     showSelectionScreen() {
@@ -1032,6 +1036,44 @@ class Game {
 
         // Re-setup event listener
         document.getElementById('nextButton').addEventListener('click', () => this.nextSelectionStep());
+    }
+
+    startRandomMatch() {
+        const name1Input = document.getElementById('player1Input');
+        const name2Input = document.getElementById('player2Input');
+
+        const name1 = name1Input ? (name1Input.value.trim() || 'Player 1') : (this.player1 ? this.player1.name : 'Player 1');
+        const name2 = name2Input ? (name2Input.value.trim() || 'Player 2') : (this.player2 ? this.player2.name : 'Player 2');
+
+        this.player1 = { name: name1 };
+        this.player2 = { name: name2 };
+
+        const races = ['human', 'demon', 'orc', 'elf', 'dwarf', 'barbarian'];
+        const weapons = ['bow', 'dualSword', 'sword', 'staff', 'crossbow', 'unarmed'];
+        const activeSkills = this.getAllActiveSkills();
+        const ultimateSkills = this.getAllUltimateSkills();
+
+        // Randomize Player 1
+        this.selectedRace1 = races[Math.floor(Math.random() * races.length)];
+        const p1Passives = this.getPassiveSkillsForRace(this.selectedRace1);
+        this.selectedPassive1 = p1Passives[Math.floor(Math.random() * p1Passives.length)].id;
+        this.selectedWeapon1 = weapons[Math.floor(Math.random() * weapons.length)];
+        const p1Attacks = this.getAttacksForWeapon(this.selectedWeapon1);
+        this.selectedAttack1 = p1Attacks[Math.floor(Math.random() * p1Attacks.length)].id;
+        this.selectedSkill1 = activeSkills[Math.floor(Math.random() * activeSkills.length)].id;
+        this.selectedUltimate1 = ultimateSkills[Math.floor(Math.random() * ultimateSkills.length)].id;
+
+        // Randomize Player 2
+        this.selectedRace2 = races[Math.floor(Math.random() * races.length)];
+        const p2Passives = this.getPassiveSkillsForRace(this.selectedRace2);
+        this.selectedPassive2 = p2Passives[Math.floor(Math.random() * p2Passives.length)].id;
+        this.selectedWeapon2 = weapons[Math.floor(Math.random() * weapons.length)];
+        const p2Attacks = this.getAttacksForWeapon(this.selectedWeapon2);
+        this.selectedAttack2 = p2Attacks[Math.floor(Math.random() * p2Attacks.length)].id;
+        this.selectedSkill2 = activeSkills[Math.floor(Math.random() * activeSkills.length)].id;
+        this.selectedUltimate2 = ultimateSkills[Math.floor(Math.random() * ultimateSkills.length)].id;
+
+        this.startGame();
     }
 
     startGame() {
@@ -3507,7 +3549,7 @@ class Projectile {
                 if (window.gameInstance && window.gameInstance.images.arrow) {
                     const img = window.gameInstance.images.arrow;
                     if (img.complete) {
-                        const size = 40; // Increased from 20 to 40
+                        const size = 80; // Doubled from 40 to 80 as requested
                         const angle = Math.atan2(this.vy, this.vx) + Math.PI / 2; // Add 90 degrees to correct orientation
 
                         ctx.save();
@@ -3525,7 +3567,7 @@ class Projectile {
                 if (window.gameInstance && window.gameInstance.images.piercingArrow) {
                     const img = window.gameInstance.images.piercingArrow;
                     if (img.complete) {
-                        const size = 40; // Increased from 20 to 40
+                        const size = 80; // Doubled from 40 to 80 as requested
                         const angle = Math.atan2(this.vy, this.vx) + Math.PI / 2; // Add 90 degrees to correct orientation
 
                         ctx.save();
@@ -3763,10 +3805,19 @@ class Ball {
                 this.customImage = img;
             };
             img.onerror = () => {
-                this.imageLoaded = false;
-                this.customImage = null;
+                // If lowercase failed, try original case
+                const img2 = new Image();
+                img2.onload = () => {
+                    this.imageLoaded = true;
+                    this.customImage = img2;
+                };
+                img2.onerror = () => {
+                    this.imageLoaded = false;
+                    this.customImage = null;
+                };
+                img2.src = `player%20images/${encodeURIComponent(this.name)}.png`;
             };
-            img.src = `player images/${this.name}.png`;
+            img.src = `player%20images/${encodeURIComponent(this.name.toLowerCase())}.png`;
         }
 
         // Position and movement
@@ -8393,33 +8444,43 @@ class Ball {
             }
         }
 
-        // Normal ball rendering
         ctx.save();
-
-        // Get race color
-        const raceColors = {
-            human: '#FFD700',
-            demon: '#8B0000',
-            orc: '#228B22',
-            elf: '#90EE90',
-            dwarf: '#A0522D',
-            barbarian: '#DC143C'
-        };
-        ctx.fillStyle = raceColors[this.race] || '#666';
-
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.closePath();
+
+        // Draw fill (Image or Color)
+        ctx.save();
+        ctx.clip();
+
+        if (this.imageLoaded && this.customImage) {
+            // Draw image as fill
+            const size = this.radius * 2.5; // Scale to ensure coverage
+            ctx.drawImage(this.customImage, this.x - size / 2, this.y - size / 2, size, size);
+        } else {
+            // Draw color fill
+            const raceColors = {
+                human: '#FFD700',
+                demon: '#8B0000',
+                orc: '#228B22',
+                elf: '#90EE90',
+                dwarf: '#A0522D',
+                barbarian: '#DC143C'
+            };
+            ctx.fillStyle = raceColors[this.race] || '#666';
+            ctx.fill();
+        }
+        ctx.restore();
+
+        // Draw border (always)
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        ctx.stroke();
         this.renderFortifyOverlay(ctx);
         this.renderRuneChargeOverlay(ctx);
         this.renderBattleRoarOverlay(ctx);
         this.renderBloodFrenzyOverlay(ctx);
         this.renderUnstoppableStrengthOverlay(ctx);
-
-        // Draw border
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 2;
-        ctx.stroke();
 
         ctx.restore();
     }
