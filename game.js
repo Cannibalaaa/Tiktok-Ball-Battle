@@ -10,15 +10,15 @@ class Game {
         this.cancelledMessages = []; // Messages for cancelled moves
         this.gameState = 'selection'; // selection, playing, gameOver
         this.lastFrameTime = performance.now(); // Track frame timing for delta time
-        
+
         // Load images
         this.images = {};
         this.loadImages();
-        
+
         // Load sounds
         this.sounds = {};
         this.loadSounds();
-        
+
         this.currentSelectionStep = 'names';
         this.player1 = null;
         this.player2 = null;
@@ -32,8 +32,8 @@ class Game {
         this.selectedSkill2 = null;
         this.selectedUltimate1 = null;
         this.selectedUltimate2 = null;
-        
-        
+
+
         this.init();
     }
 
@@ -277,7 +277,7 @@ class Game {
             };
             img.src = path;
             this.images[key] = img;
-            
+
         });
     }
 
@@ -338,7 +338,7 @@ class Game {
             // Store using skillId as key for easy lookup
             this.sounds[skillId] = audio;
         });
-        
+
         // Load bow-specific sounds
         // Arrow hit body sounds (3 variations)
         for (let i = 1; i <= 3; i++) {
@@ -346,32 +346,32 @@ class Game {
             audio.preload = 'auto';
             this.sounds[`arrow_hit_body${i}`] = audio;
         }
-        
+
         // Smooth shoot sounds (3 variations)
         for (let i = 1; i <= 3; i++) {
             const audio = new Audio(`Sound Effects/Bow/smooth_shoot/smooth_shoot${i}.mp3`);
             audio.preload = 'auto';
             this.sounds[`smooth_shoot${i}`] = audio;
         }
-        
+
         // Load sword-specific sounds
         // Sword draw sound
         const swordDraw = new Audio(`Sound Effects/sword_&_dual_sword/sword_draw.mp3`);
         swordDraw.preload = 'auto';
         this.sounds['sword_draw'] = swordDraw;
-        
+
         // Dual sword draw sound
         const dualSwordDraw = new Audio(`Sound Effects/sword_&_dual_sword/dual_sword_draw.mp3`);
         dualSwordDraw.preload = 'auto';
         this.sounds['dual_sword_draw'] = dualSwordDraw;
-        
+
         // Sword hit sounds (11 variations)
         for (let i = 1; i <= 11; i++) {
             const audio = new Audio(`Sound Effects/sword_&_dual_sword/sword_hit${i}.mp3`);
             audio.preload = 'auto';
             this.sounds[`sword_hit${i}`] = audio;
         }
-        
+
         // Load staff-specific sounds
         // Staff low sounds (10 variations) for Arcane Bolt and Elemental Burst
         for (let i = 1; i <= 10; i++) {
@@ -379,21 +379,21 @@ class Game {
             audio.preload = 'auto';
             this.sounds[`staff_low${i}`] = audio;
         }
-        
+
         // Staff focused beam sounds (4 variations) for Focused Beam
         for (let i = 1; i <= 4; i++) {
             const audio = new Audio(`Sound Effects/staff/staff_focused_beam${i}.mp3`);
             audio.preload = 'auto';
             this.sounds[`staff_focused_beam${i}`] = audio;
         }
-        
+
         // Staff explosion sounds (5 variations) for Elemental Burst hit
         for (let i = 1; i <= 5; i++) {
             const audio = new Audio(`Sound Effects/staff/staff_explosion${i}.mp3`);
             audio.preload = 'auto';
             this.sounds[`staff_explosion${i}`] = audio;
         }
-        
+
         // Staff electric sounds (8 variations) for Arcane Bolt hit
         for (let i = 1; i <= 8; i++) {
             const audio = new Audio(`Sound Effects/staff/staff_electric${i}.mp3`);
@@ -401,37 +401,37 @@ class Game {
             this.sounds[`staff_electric${i}`] = audio;
         }
     }
-    
+
     playRandomBowShootSound() {
         const soundIndex = Math.floor(Math.random() * 3) + 1;
         this.playSound(`smooth_shoot${soundIndex}`);
     }
-    
+
     playRandomBowHitSound() {
         const soundIndex = Math.floor(Math.random() * 3) + 1;
         this.playSound(`arrow_hit_body${soundIndex}`);
     }
-    
+
     playRandomSwordHitSound() {
         const soundIndex = Math.floor(Math.random() * 11) + 1;
         this.playSound(`sword_hit${soundIndex}`);
     }
-    
+
     playRandomStaffLowSound() {
         const soundIndex = Math.floor(Math.random() * 10) + 1;
         this.playSound(`staff_low${soundIndex}`);
     }
-    
+
     playRandomStaffFocusedBeamSound() {
         const soundIndex = Math.floor(Math.random() * 4) + 1;
         this.playSound(`staff_focused_beam${soundIndex}`);
     }
-    
+
     playRandomStaffExplosionSound() {
         const soundIndex = Math.floor(Math.random() * 5) + 1;
         this.playSound(`staff_explosion${soundIndex}`);
     }
-    
+
     playRandomStaffElectricSound() {
         const soundIndex = Math.floor(Math.random() * 8) + 1;
         this.playSound(`staff_electric${soundIndex}`);
@@ -467,7 +467,7 @@ class Game {
     }
 
     nextSelectionStep() {
-        switch(this.currentSelectionStep) {
+        switch (this.currentSelectionStep) {
             case 'names':
                 this.handleNameSelection();
                 break;
@@ -516,12 +516,12 @@ class Game {
     handleNameSelection() {
         const name1 = document.getElementById('player1Input').value.trim();
         const name2 = document.getElementById('player2Input').value.trim();
-        
+
         if (!name1 || !name2) {
             alert('Please enter names for both players!');
             return;
         }
-        
+
         this.player1 = { name: name1 };
         this.player2 = { name: name2 };
         this.currentSelectionStep = 'race1';
@@ -531,9 +531,9 @@ class Game {
     showRaceSelection(playerNum) {
         const title = document.getElementById('selectionTitle');
         const content = document.getElementById('selectionContent');
-        
+
         title.textContent = `${this[`player${playerNum}`].name} - Choose Your Race`;
-        
+
         const races = [
             { id: 'human', name: 'Human', stats: 'HP: 220, Defense: 0, Crit: 10%' },
             { id: 'demon', name: 'Demon', stats: 'HP: 170, Defense: 1, Crit: 15%' },
@@ -542,7 +542,7 @@ class Game {
             { id: 'dwarf', name: 'Dwarf', stats: 'HP: 200, Defense: 1, Crit: 10%' },
             { id: 'barbarian', name: 'Barbarian', stats: 'HP: 180, Defense: 0, Crit: 20%' }
         ];
-        
+
         content.innerHTML = `
             <div class="selection-grid">
                 ${races.map(race => `
@@ -554,7 +554,7 @@ class Game {
             </div>
             <button class="next-button" id="nextButton" disabled>Next</button>
         `;
-        
+
         // Add click handlers
         document.querySelectorAll('.selection-option').forEach(option => {
             option.addEventListener('click', () => {
@@ -563,7 +563,7 @@ class Game {
                 document.getElementById('nextButton').disabled = false;
             });
         });
-        
+
         // Re-setup event listener
         document.getElementById('nextButton').addEventListener('click', () => this.nextSelectionStep());
     }
@@ -574,10 +574,10 @@ class Game {
             alert('Please select a race!');
             return;
         }
-        
+
         const raceId = selected.dataset.race;
         this[`selectedRace${playerNum}`] = raceId;
-        
+
         if (playerNum === 1) {
             this.currentSelectionStep = 'passive1';
             this.showPassiveSelection(1);
@@ -590,12 +590,12 @@ class Game {
     showPassiveSelection(playerNum) {
         const title = document.getElementById('selectionTitle');
         const content = document.getElementById('selectionContent');
-        
+
         title.textContent = `${this[`player${playerNum}`].name} - Choose Your Passive Skill`;
-        
+
         const race = this[`selectedRace${playerNum}`];
         const passiveSkills = this.getPassiveSkillsForRace(race);
-        
+
         content.innerHTML = `
             <div class="selection-grid">
                 ${passiveSkills.map(skill => `
@@ -607,7 +607,7 @@ class Game {
             </div>
             <button class="next-button" id="nextButton" disabled>Next</button>
         `;
-        
+
         // Add click handlers
         document.querySelectorAll('.selection-option').forEach(option => {
             option.addEventListener('click', () => {
@@ -616,7 +616,7 @@ class Game {
                 document.getElementById('nextButton').disabled = false;
             });
         });
-        
+
         // Re-setup event listener
         document.getElementById('nextButton').addEventListener('click', () => this.nextSelectionStep());
     }
@@ -672,7 +672,7 @@ class Game {
                 { id: 'ragingSpirit', name: 'Raging Spirit', description: 'Final attack before falling' }
             ]
         };
-        
+
         return passiveSkills[race] || [];
     }
 
@@ -682,10 +682,10 @@ class Game {
             alert('Please select a passive skill!');
             return;
         }
-        
+
         const passiveId = selected.dataset.passive;
         this[`selectedPassive${playerNum}`] = passiveId;
-        
+
         if (playerNum === 1) {
             this.currentSelectionStep = 'race2';
             this.showRaceSelection(2);
@@ -698,9 +698,9 @@ class Game {
     showWeaponSelection(playerNum) {
         const title = document.getElementById('selectionTitle');
         const content = document.getElementById('selectionContent');
-        
+
         title.textContent = `${this[`player${playerNum}`].name} - Choose Your Weapon`;
-        
+
         const weapons = [
             { id: 'bow', name: '🏹 Bow', description: 'Ranged precision weapon' },
             { id: 'dualSword', name: '⚔️ Dual Sword', description: 'Fast melee combat' },
@@ -709,7 +709,7 @@ class Game {
             { id: 'crossbow', name: '🎯 Crossbow', description: 'Heavy ranged weapon' },
             { id: 'unarmed', name: '✊ Unarmed', description: 'Hand-to-hand combat' }
         ];
-        
+
         content.innerHTML = `
             <div class="selection-grid">
                 ${weapons.map(weapon => `
@@ -721,7 +721,7 @@ class Game {
             </div>
             <button class="next-button" id="nextButton" disabled>Next</button>
         `;
-        
+
         // Add click handlers
         document.querySelectorAll('.selection-option').forEach(option => {
             option.addEventListener('click', () => {
@@ -730,7 +730,7 @@ class Game {
                 document.getElementById('nextButton').disabled = false;
             });
         });
-        
+
         // Re-setup event listener
         document.getElementById('nextButton').addEventListener('click', () => this.nextSelectionStep());
     }
@@ -741,10 +741,10 @@ class Game {
             alert('Please select a weapon!');
             return;
         }
-        
+
         const weaponId = selected.dataset.weapon;
         this[`selectedWeapon${playerNum}`] = weaponId;
-        
+
         if (playerNum === 1) {
             this.currentSelectionStep = 'weapon2';
             this.showWeaponSelection(2);
@@ -757,12 +757,12 @@ class Game {
     showAttackSelection(playerNum) {
         const title = document.getElementById('selectionTitle');
         const content = document.getElementById('selectionContent');
-        
+
         title.textContent = `${this[`player${playerNum}`].name} - Choose Your Attack Type`;
-        
+
         const weapon = this[`selectedWeapon${playerNum}`];
         const attacks = this.getAttacksForWeapon(weapon);
-        
+
         content.innerHTML = `
             <div class="selection-grid">
                 ${attacks.map(attack => `
@@ -774,7 +774,7 @@ class Game {
             </div>
             <button class="next-button" id="nextButton" disabled>Next</button>
         `;
-        
+
         // Add click handlers
         document.querySelectorAll('.selection-option').forEach(option => {
             option.addEventListener('click', () => {
@@ -783,7 +783,7 @@ class Game {
                 document.getElementById('nextButton').disabled = false;
             });
         });
-        
+
         // Re-setup event listener
         document.getElementById('nextButton').addEventListener('click', () => this.nextSelectionStep());
     }
@@ -821,7 +821,7 @@ class Game {
                 { id: 'grappleSlam', name: 'Grapple Slam', description: '5 damage, 1.2s cooldown' }
             ]
         };
-        
+
         return attackData[weapon] || [];
     }
 
@@ -831,10 +831,10 @@ class Game {
             alert('Please select an attack type!');
             return;
         }
-        
+
         const attackId = selected.dataset.attack;
         this[`selectedAttack${playerNum}`] = attackId;
-        
+
         if (playerNum === 1) {
             this.currentSelectionStep = 'attack2';
             this.showAttackSelection(2);
@@ -847,11 +847,11 @@ class Game {
     showSkillSelection(playerNum) {
         const title = document.getElementById('selectionTitle');
         const content = document.getElementById('selectionContent');
-        
+
         title.textContent = `${this[`player${playerNum}`].name} - Choose Your Active Skill`;
-        
+
         const skills = this.getAllActiveSkills();
-        
+
         content.innerHTML = `
             <div class="selection-grid">
                 ${skills.map(skill => `
@@ -863,7 +863,7 @@ class Game {
             </div>
             <button class="next-button" id="nextButton" disabled>Next</button>
         `;
-        
+
         // Add click handlers
         document.querySelectorAll('.selection-option').forEach(option => {
             option.addEventListener('click', () => {
@@ -872,7 +872,7 @@ class Game {
                 document.getElementById('nextButton').disabled = false;
             });
         });
-        
+
         // Re-setup event listener
         document.getElementById('nextButton').addEventListener('click', () => this.nextSelectionStep());
     }
@@ -884,31 +884,31 @@ class Game {
             { id: 'frenziedSlash', name: 'Frenzied Slash', description: '3x3 damage projectile (9 total)' },
             { id: 'warStomp', name: 'War Stomp', description: '8 damage + 0.8s stun on collision' },
             { id: 'battleCry', name: 'Battle Cry', description: '+25% attack speed, +3 damage for 3s' },
-            
+
             // Dwarf
             { id: 'hammerStrike', name: 'Hammer Strike', description: '5 damage + 1s stun projectile' },
             { id: 'stoneToss', name: 'Stone Toss', description: '6 damage + 1 burn/s for 3s' },
             { id: 'fortify', name: 'Fortify', description: '3 stacks of 50% damage reduction' },
             { id: 'runeCharge', name: 'Rune Charge', description: '3 stacks of +50% damage bonus' },
-            
+
             // Elf
             { id: 'arrowStorm', name: 'Arrow Storm', description: '10 damage projectile, 100px range' },
             { id: 'naturesGrasp', name: 'Nature\'s Grasp', description: '1.5s root' },
             { id: 'shadowstep', name: 'Shadowstep', description: '+5 damage on next attack' },
             { id: 'sylvanMark', name: 'Sylvan Mark', description: '15 damage projectile (delayed)' },
-            
+
             // Orc
             { id: 'throwingAxe', name: 'Throwing Axe', description: '7 damage projectile' },
             { id: 'battleRoar', name: 'Battle Roar', description: '3 stacks: +2 dmg self, -2 dmg enemy' },
             { id: 'headbutt', name: 'Headbutt', description: '4 damage + 0.8s stun on collision' },
             { id: 'bloodFrenzy', name: 'Blood Frenzy', description: '3 stacks of 50% lifesteal' },
-            
+
             // Human
             { id: 'shieldBash', name: 'Shield Bash', description: '5 damage + 0.8s stun + 3 def for 3s' },
             { id: 'tacticalRoll', name: 'Tactical Roll', description: '2x speed for 1.5s' },
             { id: 'battleFocus', name: 'Battle Focus', description: '3 stacks of +70% crit chance' },
             { id: 'executionStrike', name: 'Execution Strike', description: '3 stacks: +3/+6 dmg based on enemy HP' },
-            
+
             // Demon
             { id: 'hellfireBolt', name: 'Hellfire Bolt', description: '7 damage projectile' },
             { id: 'soulLeech', name: 'Soul Leech', description: '4 damage + heal 2 HP' },
@@ -923,10 +923,10 @@ class Game {
             alert('Please select a skill!');
             return;
         }
-        
+
         const skillId = selected.dataset.skill;
         this[`selectedSkill${playerNum}`] = skillId;
-        
+
         if (playerNum === 1) {
             this.currentSelectionStep = 'skill2';
             this.showSkillSelection(2);
@@ -939,11 +939,11 @@ class Game {
     showUltimateSelection(playerNum) {
         const title = document.getElementById('selectionTitle');
         const content = document.getElementById('selectionContent');
-        
+
         title.textContent = `${this[`player${playerNum}`].name} - Choose Your Ultimate Skill`;
-        
+
         const ultimates = this.getAllUltimateSkills();
-        
+
         content.innerHTML = `
             <div class="selection-grid">
                 ${ultimates.map(ultimate => `
@@ -955,7 +955,7 @@ class Game {
             </div>
             <button class="next-button" id="nextButton" disabled>Next</button>
         `;
-        
+
         // Add click handlers
         document.querySelectorAll('.selection-option').forEach(option => {
             option.addEventListener('click', () => {
@@ -964,7 +964,7 @@ class Game {
                 document.getElementById('nextButton').disabled = false;
             });
         });
-        
+
         // Re-setup event listener
         document.getElementById('nextButton').addEventListener('click', () => this.nextSelectionStep());
     }
@@ -974,24 +974,24 @@ class Game {
             // Barbarian
             { id: 'unstoppableRage', name: 'Unstoppable Rage', description: '+50% damage, +25% attack speed for 3s' },
             { id: 'earthshatter', name: 'Earthshatter', description: '12 damage + 1.5s stun (leap attack)' },
-            
+
             // Dwarf
             { id: 'anvilOfMountain', name: 'Anvil of the Mountain', description: '25 damage + 2s stun (anvil drop)' },
             { id: 'hammerOfMountain', name: 'Hammer of the Mountain', description: '14 damage + 1.2s stun (collision)' },
             { id: 'unbreakableBastion', name: 'Unbreakable Bastion', description: '5 damage + 1.3s taunt + 250 shield (wave)' },
-            
+
             // Elf
             { id: 'rainOfStars', name: 'Rain of Stars', description: '3 zones, 12 damage each (1.2s delay)' },
             { id: 'spiritOfForest', name: 'Spirit of the Forest', description: '1.8x speed + 3 HP/s regen for 4s' },
-            
+
             // Orc
             { id: 'wrathOfWarlord', name: 'Wrath of the Warlord', description: '15 damage + 1.3s fear (shockwave)' },
             { id: 'unstoppableStrength', name: 'Unstoppable Strength', description: '+30% damage, +50% speed, CC immune 3s' },
-            
+
             // Human
             { id: 'lastStand', name: 'Last Stand', description: '+20% damage + shield until broken' },
             { id: 'herosWrath', name: 'Heros Wrath', description: '7 damage x3 hits (collision-based)' },
-            
+
             // Demon
             { id: 'demonicAscension', name: 'Demonic Ascension', description: '+30% damage + 30% lifesteal for 4s' },
             { id: 'apocalypseFlame', name: 'Apocalypse Flame', description: '10 damage/s for 5s (random area)' }
@@ -1004,10 +1004,10 @@ class Game {
             alert('Please select an ultimate skill!');
             return;
         }
-        
+
         const ultimateId = selected.dataset.ultimate;
         this[`selectedUltimate${playerNum}`] = ultimateId;
-        
+
         if (playerNum === 1) {
             this.currentSelectionStep = 'ultimate2';
             this.showUltimateSelection(2);
@@ -1020,7 +1020,7 @@ class Game {
     showStartGame() {
         const title = document.getElementById('selectionTitle');
         const content = document.getElementById('selectionContent');
-        
+
         title.textContent = 'Ready to Battle!';
         content.innerHTML = `
             <div style="text-align: center;">
@@ -1029,7 +1029,7 @@ class Game {
                 <button class="next-button" id="nextButton">Start Battle!</button>
             </div>
         `;
-        
+
         // Re-setup event listener
         document.getElementById('nextButton').addEventListener('click', () => this.nextSelectionStep());
     }
@@ -1037,17 +1037,17 @@ class Game {
     startGame() {
         this.hideSelectionScreen();
         this.gameState = 'playing';
-        
+
         // Create balls
         this.balls = [
             new Ball(1, this.player1.name, this.selectedRace1, this.selectedWeapon1, this.selectedAttack1, this.selectedSkill1, this.selectedUltimate1, 100, 150, this.selectedPassive1),
             new Ball(2, this.player2.name, this.selectedRace2, this.selectedWeapon2, this.selectedAttack2, this.selectedSkill2, this.selectedUltimate2, 300, 150, this.selectedPassive2)
         ];
-        
+
         // Handle Jack of All Trades - copy opponent's passive skill
         const ball1 = this.balls[0];
         const ball2 = this.balls[1];
-        
+
         // Check if ball1 has Jack of All Trades
         if (ball1.passiveSkills.includes('jackOfAllTrades') && ball2.selectedPassive && ball2.selectedPassive !== 'jackOfAllTrades') {
             ball1.copiedPassive = ball2.selectedPassive;
@@ -1056,7 +1056,7 @@ class Game {
                 ball1.passiveSkills.push(ball2.selectedPassive);
             }
         }
-        
+
         // Check if ball2 has Jack of All Trades
         if (ball2.passiveSkills.includes('jackOfAllTrades') && ball1.selectedPassive && ball1.selectedPassive !== 'jackOfAllTrades') {
             ball2.copiedPassive = ball1.selectedPassive;
@@ -1065,20 +1065,20 @@ class Game {
                 ball2.passiveSkills.push(ball1.selectedPassive);
             }
         }
-        
+
         // Clear projectiles
         this.projectiles = [];
-        
+
         // Set global game instance for projectile creation
         window.gameInstance = this;
-        
+
         // Update UI
         document.getElementById('player1Name').textContent = this.player1.name;
         document.getElementById('player2Name').textContent = this.player2.name;
-        
+
         // Initialize frame timing
         this.lastFrameTime = performance.now();
-        
+
         // Start game loop
         this.gameLoop();
     }
@@ -1088,15 +1088,15 @@ class Game {
             requestAnimationFrame(() => this.gameLoop());
             return;
         }
-        
+
         // Calculate delta time (time since last frame in seconds)
         const currentTime = performance.now();
         const deltaTime = Math.min((currentTime - this.lastFrameTime) / 1000, 0.1); // Cap at 0.1s to prevent large jumps
         this.lastFrameTime = currentTime;
-        
+
         this.update(deltaTime);
         this.render();
-        
+
         requestAnimationFrame(() => this.gameLoop());
     }
 
@@ -1104,17 +1104,17 @@ class Game {
         this.balls.forEach(ball => {
             ball.update(this.balls, this.canvas.width, this.canvas.height, deltaTime);
         });
-        
+
         // Update projectiles
         this.projectiles = this.projectiles.filter(projectile => {
             return projectile.update(this.balls, this.canvas.width, this.canvas.height, deltaTime);
         });
-        
+
         // Update visual effects
         this.visualEffects = this.visualEffects.filter(effect => {
             return effect.update(deltaTime);
         });
-        
+
         this.updateUI();
     }
 
@@ -1123,34 +1123,34 @@ class Game {
         if (this.gameState === 'victory') {
             return;
         }
-        
+
         // Update HP bars
         const ball1 = this.balls[0];
         const ball2 = this.balls[1];
-        
+
         if (!ball1 || !ball2) return; // Safety check
-        
+
         const hp1Percent = (ball1.hp / ball1.maxHp) * 100;
         const hp2Percent = (ball2.hp / ball2.maxHp) * 100;
-        
+
         const hp1Element = document.getElementById('player1HP');
         const hp2Element = document.getElementById('player2HP');
-        
+
         if (hp1Element) hp1Element.style.width = hp1Percent + '%';
         if (hp2Element) hp2Element.style.width = hp2Percent + '%';
-        
+
         // Update shield bars
         this.updateShieldDisplay(1, ball1);
         this.updateShieldDisplay(2, ball2);
-        
+
         // Update cooldowns
         this.updateCooldownDisplay(1, ball1);
         this.updateCooldownDisplay(2, ball2);
-        
+
         // Update stats display (pass both balls so we can check target HP for Execution Strike)
         this.updateStatsDisplay(1, ball1, ball2);
         this.updateStatsDisplay(2, ball2, ball1);
-        
+
         // Check for game over
         if (ball1.hp <= 0 || ball2.hp <= 0) {
             this.gameState = 'gameOver';
@@ -1161,7 +1161,7 @@ class Game {
     updateShieldDisplay(playerNum, ball) {
         const shieldBar = document.getElementById(`player${playerNum}Shield`);
         if (!shieldBar) return; // Exit if element doesn't exist yet
-        
+
         if (ball.shield > 0) {
             const maxShield = Math.max(ball.maxHp * 0.3, ball.unbreakableBastionShieldMax || 0, ball.shield);
             const shieldPercent = (ball.shield / maxShield) * 100;
@@ -1174,12 +1174,12 @@ class Game {
     updateCooldownDisplay(playerNum, ball) {
         const skillDiv = document.getElementById(`player${playerNum}Skills`);
         if (!skillDiv) return; // Exit if element doesn't exist yet
-        
+
         // Get skill images and names
         const basicAttackImage = this.getSkillImage(ball.weapon, ball.attack);
         const activeSkillImage = this.getSkillImage('skill', ball.skill);
         const ultimateImage = this.getSkillImage('ultimate', ball.ultimate);
-        
+
         const basicAttackName = this.getSkillName(ball.attack);
         const activeSkillName = this.getSkillName(ball.skill);
         const ultimateName = this.getSkillName(ball.ultimate);
@@ -1201,7 +1201,7 @@ class Game {
         } else {
             activeSkillStatus = 'Ready';
         }
-        
+
         const unstoppableUltimateSelected = ball.ultimate === 'unstoppableStrength';
         let ultimateStatus;
         if (ball.feared && !unstoppableUltimateSelected) {
@@ -1215,7 +1215,7 @@ class Game {
         } else {
             ultimateStatus = 'Ready';
         }
-        
+
         skillDiv.innerHTML = `
             <div class="skill-item">
                 <div class="skill-name">${basicAttackName}:</div>
@@ -1241,13 +1241,13 @@ class Game {
         if (hpStatElement) {
             hpStatElement.textContent = `${Math.round(ball.hp)} / ${ball.maxHp}`;
         }
-        
+
         // Update Shield
         const shieldStatElement = document.getElementById(`player${playerNum}ShieldStat`);
         if (shieldStatElement) {
             shieldStatElement.textContent = Math.round(ball.shield || 0);
         }
-        
+
         // Update Basic Attack Damage
         const attackNameElement = document.getElementById(`player${playerNum}AttackName`);
         const attackDamageElement = document.getElementById(`player${playerNum}AttackDamage`);
@@ -1257,60 +1257,60 @@ class Game {
             const attackDamage = ball.getBasicAttackDamagePreview(target);
             attackDamageElement.textContent = attackDamage;
         }
-        
+
         // Update Active Skill Damage
         const skillNameElement = document.getElementById(`player${playerNum}SkillName`);
         const skillDamageElement = document.getElementById(`player${playerNum}SkillDamage`);
         if (skillNameElement && skillDamageElement) {
             const skillName = this.getSkillName(ball.skill) || 'Basic Skill';
             const skillValue = ball.getActiveSkillDamagePreview();
-            
+
             // Stack-based skills and utility skills - show "Skill Name:" without "Damage"
             const nonDamageSkills = [
-                'fortify', 'runeCharge', 'battleRoar', 'bloodFrenzy', 
+                'fortify', 'runeCharge', 'battleRoar', 'bloodFrenzy',
                 'battleFocus', 'executionStrike', 'shadowstep',
                 'battleCry', 'tacticalRoll', 'naturesGrasp'
             ];
-            
+
             if (nonDamageSkills.includes(ball.skill)) {
                 skillNameElement.textContent = `${skillName}:`;
             } else {
                 skillNameElement.textContent = `${skillName} Damage:`;
             }
-            
+
             skillDamageElement.textContent = skillValue;
         }
-        
+
         // Update Ultimate Skill
         const ultimateNameElement = document.getElementById(`player${playerNum}UltimateName`);
         const ultimateDamageElement = document.getElementById(`player${playerNum}UltimateDamage`);
         if (ultimateNameElement && ultimateDamageElement) {
             const ultimateName = this.getSkillName(ball.ultimate) || 'Ultimate';
             const ultimateValue = ball.getUltimateDamagePreview();
-            
+
             // Buff/utility ultimates - show without "Damage"
             const nonDamageUltimates = [
-                'unstoppableRage', 'spiritOfForest', 'unstoppableStrength', 
+                'unstoppableRage', 'spiritOfForest', 'unstoppableStrength',
                 'lastStand', 'demonicAscension', 'unbreakableBastion',
                 'hammerOfMountain', 'herosWrath'
             ];
-            
+
             if (nonDamageUltimates.includes(ball.ultimate)) {
                 ultimateNameElement.textContent = `${ultimateName}:`;
             } else {
                 ultimateNameElement.textContent = `${ultimateName} Damage:`;
             }
-            
+
             ultimateDamageElement.textContent = ultimateValue;
         }
-        
+
         // Update Crit Chance
         const critChanceElement = document.getElementById(`player${playerNum}CritChance`);
         if (critChanceElement) {
             const critChance = ball.getCritChance();
             critChanceElement.textContent = `${Math.round(critChance * 100)}%`;
         }
-        
+
         // Update Defence
         const defenceElement = document.getElementById(`player${playerNum}Defence`);
         if (defenceElement) {
@@ -1328,7 +1328,7 @@ class Game {
             'crossbow': 'basic attack/crossbow.png',
             'staff': 'basic attack/staff.png',
             'unarmed': 'basic attack/unarmed.png',
-            
+
             // Basic skills
             'axeThrow': 'Basic Skill/Axe Throw.png',
             'frenziedSlash': 'Basic Skill/Frenzied Slash.png',
@@ -1374,7 +1374,7 @@ class Game {
             'dreadAura': 'Basic Skill/Dread_aura_1.png',
             'infernalChains': 'Basic Skill/chain_root_flicker_frame_01.png',
             'battleCry': 'Basic Skill/Battle Cry.png',
-            
+
             // Ultimate skills
             'unstoppableRage': 'Ultimate Skill/unstoppable_rage_1.png',
             'earthshatter': 'Ultimate Skill/earthshatter_frame_07.png',
@@ -1391,7 +1391,7 @@ class Game {
             'demonicAscensionActive': 'Ultimate Skill/Demonic Ascension.png',
             'apocalypseFlame': 'Ultimate Skill/Apocalypse Flame.png'
         };
-        
+
         return imageMap[skillName] || 'basic attack/unarmed.png'; // Default fallback
     }
 
@@ -1416,7 +1416,7 @@ class Game {
             'ironFist': 'Iron Fist',
             'flurryOfBlows': 'Flurry of Blows',
             'grappleSlam': 'Grapple Slam',
-            
+
             // Basic skills
             'axeThrow': 'Axe Throw',
             'frenziedSlash': 'Frenzied Slash',
@@ -1442,7 +1442,7 @@ class Game {
             'soulLeech': 'Soul Leech',
             'dreadAura': 'Dread Aura',
             'infernalChains': 'Infernal Chains',
-            
+
             // Ultimate skills
             'unstoppableRage': 'Unstoppable Rage',
             'earthshatter': 'Earthshatter',
@@ -1458,29 +1458,29 @@ class Game {
             'demonicAscension': 'Demonic Ascension',
             'apocalypseFlame': 'Apocalypse Flame'
         };
-        
+
         return nameMap[skillName] || skillName; // Return original name if not found
     }
 
     showGameOver() {
         const winner = this.balls[0].hp > 0 ? this.balls[0] : this.balls[1];
         const loser = this.balls[0].hp <= 0 ? this.balls[0] : this.balls[1];
-        
+
         // Remove the loser's weapon effect
         if (loser.weaponEffect) {
             loser.weaponEffect.duration = 0;
             loser.weaponEffect = null;
         }
-        
+
         // Remove any visual effects that follow the loser
         this.visualEffects = this.visualEffects.filter(effect => effect.followTarget !== loser);
-        
+
         // Remove the loser ball from the array
         this.balls = this.balls.filter(ball => ball !== loser);
-        
+
         // Restore winner's HP to full
         winner.hp = winner.maxHp;
-        
+
         // Set game state to victory (keeps the game loop running)
         this.gameState = 'victory';
     }
@@ -1491,12 +1491,12 @@ class Game {
         if (data.imageKey) {
             console.log(`Creating visual effect with image: ${data.imageKey}`);
         }
-        
+
         // Special debug for anvil drop
         if (type === 'anvilDrop') {
             console.log(`ANVIL DROP: Created at (${x}, ${y}) with type ${type}`);
         }
-        
+
         return effect;
     }
 
@@ -1505,31 +1505,31 @@ class Game {
         // Clear canvas with white background
         this.ctx.fillStyle = '#ffffff';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        
+
         // Draw projectiles first (behind balls)
         this.projectiles.forEach(projectile => {
             projectile.render(this.ctx);
         });
-        
+
         // Draw behind-ball effects first
         this.visualEffects.forEach(effect => {
             if (effect.data && effect.data.behindBall) {
                 effect.render(this.ctx);
             }
         });
-        
+
         // Draw balls
         this.balls.forEach(ball => {
             ball.render(this.ctx);
         });
-        
+
         // Draw visual effects on top of balls (skip behind-ball effects)
         this.visualEffects.forEach(effect => {
             if (!effect.data || !effect.data.behindBall) {
                 effect.render(this.ctx);
             }
         });
-        
+
         // Draw CC dodge messages
         if (this.ccDodgeMessages) {
             this.ccDodgeMessages.forEach(message => {
@@ -1538,12 +1538,12 @@ class Game {
                     message.x = message.followTarget.x;
                     message.y = message.followTarget.y + message.offsetY;
                 }
-                
+
                 // Calculate fade based on duration
                 const elapsed = (Date.now() - message.startTime) / 1000;
                 const progress = elapsed / message.duration;
                 const alpha = Math.max(0, 1 - progress);
-                
+
                 if (alpha > 0) {
                     this.ctx.save();
                     this.ctx.globalAlpha = alpha;
@@ -1551,19 +1551,19 @@ class Game {
                     this.ctx.font = `bold ${message.fontSize}px Arial`;
                     this.ctx.textAlign = 'center';
                     this.ctx.textBaseline = 'middle';
-                    
+
                     // Add text shadow for visibility
                     this.ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
                     this.ctx.shadowBlur = 4;
                     this.ctx.shadowOffsetX = 2;
                     this.ctx.shadowOffsetY = 2;
-                    
+
                     this.ctx.fillText(message.text, message.x, message.y);
                     this.ctx.restore();
                 }
             });
         }
-        
+
         // Draw cancelled move messages
         if (this.cancelledMessages) {
             this.cancelledMessages.forEach(message => {
@@ -1572,12 +1572,12 @@ class Game {
                     message.x = message.followTarget.x;
                     message.y = message.followTarget.y + message.offsetY;
                 }
-                
+
                 // Calculate fade based on duration
                 const elapsed = (Date.now() - message.startTime) / 1000;
                 const progress = elapsed / message.duration;
                 const alpha = Math.max(0, 1 - progress);
-                
+
                 if (alpha > 0) {
                     this.ctx.save();
                     this.ctx.globalAlpha = alpha;
@@ -1585,36 +1585,36 @@ class Game {
                     this.ctx.font = `bold ${message.fontSize}px Arial`;
                     this.ctx.textAlign = 'center';
                     this.ctx.textBaseline = 'middle';
-                    
+
                     // Add text shadow for visibility
                     this.ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
                     this.ctx.shadowBlur = 4;
                     this.ctx.shadowOffsetX = 2;
                     this.ctx.shadowOffsetY = 2;
-                    
+
                     this.ctx.fillText(message.text, message.x, message.y);
                     this.ctx.restore();
                 }
             });
         }
-        
+
         // Draw floating damage texts
         if (this.floatingDamageTexts) {
             const currentTime = Date.now();
             this.floatingDamageTexts = this.floatingDamageTexts.filter(dmgText => {
                 const elapsed = (currentTime - dmgText.startTime) / 1000;
                 const progress = elapsed / dmgText.duration;
-                
+
                 if (progress >= 1) return false; // Remove expired texts
-                
+
                 // Calculate position - follow target and move upward
                 let x = dmgText.followTarget ? dmgText.followTarget.x : dmgText.x;
                 let y = dmgText.followTarget ? dmgText.followTarget.y + dmgText.offsetY : dmgText.y;
                 y -= elapsed * dmgText.moveSpeed; // Move upward over time
-                
+
                 // Calculate alpha for fade out
                 const alpha = Math.max(0, 1 - progress);
-                
+
                 // Draw the damage text with stored random color
                 this.ctx.save();
                 this.ctx.globalAlpha = alpha;
@@ -1622,37 +1622,37 @@ class Game {
                 this.ctx.font = 'bold 28px Arial';
                 this.ctx.textAlign = 'center';
                 this.ctx.textBaseline = 'middle';
-                
+
                 // Add text shadow for visibility
                 this.ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
                 this.ctx.shadowBlur = 3;
                 this.ctx.shadowOffsetX = 1;
                 this.ctx.shadowOffsetY = 1;
-                
+
                 this.ctx.fillText(dmgText.text, x, y);
                 this.ctx.restore();
-                
+
                 return true; // Keep this text
             });
         }
-        
+
         // Draw floating critical texts
         if (this.floatingCriticalTexts) {
             const currentTime = Date.now();
             this.floatingCriticalTexts = this.floatingCriticalTexts.filter(critText => {
                 const elapsed = (currentTime - critText.startTime) / 1000;
                 const progress = elapsed / critText.duration;
-                
+
                 if (progress >= 1) return false; // Remove expired texts
-                
+
                 // Calculate position - follow target and move upward
                 let x = critText.followTarget ? critText.followTarget.x : critText.x;
                 let y = critText.followTarget ? critText.followTarget.y + critText.offsetY : critText.y;
                 y -= elapsed * critText.moveSpeed; // Move upward over time
-                
+
                 // Calculate alpha for fade out
                 const alpha = Math.max(0, 1 - progress);
-                
+
                 // Draw the critical text in red
                 this.ctx.save();
                 this.ctx.globalAlpha = alpha;
@@ -1660,37 +1660,37 @@ class Game {
                 this.ctx.font = 'bold 32px Arial'; // Slightly larger than damage text
                 this.ctx.textAlign = 'center';
                 this.ctx.textBaseline = 'middle';
-                
+
                 // Add text shadow for visibility
                 this.ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
                 this.ctx.shadowBlur = 4;
                 this.ctx.shadowOffsetX = 2;
                 this.ctx.shadowOffsetY = 2;
-                
+
                 this.ctx.fillText(critText.text, x, y);
                 this.ctx.restore();
-                
+
                 return true; // Keep this text
             });
         }
-        
+
         // Draw floating dodge texts
         if (this.floatingDodgeTexts) {
             const currentTime = Date.now();
             this.floatingDodgeTexts = this.floatingDodgeTexts.filter(dodgeText => {
                 const elapsed = (currentTime - dodgeText.startTime) / 1000;
                 const progress = elapsed / dodgeText.duration;
-                
+
                 if (progress >= 1) return false; // Remove expired texts
-                
+
                 // Calculate position - follow target and move upward
                 let x = dodgeText.followTarget ? dodgeText.followTarget.x : dodgeText.x;
                 let y = dodgeText.followTarget ? dodgeText.followTarget.y + dodgeText.offsetY : dodgeText.y;
                 y -= elapsed * dodgeText.moveSpeed; // Move upward over time
-                
+
                 // Calculate alpha for fade out
                 const alpha = Math.max(0, 1 - progress);
-                
+
                 // Draw the dodge text in cyan/light blue
                 this.ctx.save();
                 this.ctx.globalAlpha = alpha;
@@ -1698,16 +1698,16 @@ class Game {
                 this.ctx.font = 'bold 32px Arial'; // Same size as critical text
                 this.ctx.textAlign = 'center';
                 this.ctx.textBaseline = 'middle';
-                
+
                 // Add text shadow for visibility
                 this.ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
                 this.ctx.shadowBlur = 4;
                 this.ctx.shadowOffsetX = 2;
                 this.ctx.shadowOffsetY = 2;
-                
+
                 this.ctx.fillText(dodgeText.text, x, y);
                 this.ctx.restore();
-                
+
                 return true; // Keep this text
             });
         }
@@ -1734,29 +1734,29 @@ class VisualEffect {
 
     update(deltaTime = 0.016) {
         this.duration -= deltaTime;
-        
-        
+
+
         // If this effect should follow a target, update position
         if (this.followTarget) {
             this.x = this.followTarget.x;
             this.y = this.followTarget.y;
-            
+
             // Apply offset if specified
             if (this.data.offsetY) {
                 this.y += this.data.offsetY;
             }
         }
-        
+
         return this.duration > 0;
     }
 
     render(ctx) {
         const progress = 1 - (this.duration / this.maxDuration);
         const alpha = Math.min(1, this.duration / 0.5); // Fade out in last 0.5 seconds
-        
+
         ctx.save();
         ctx.globalAlpha = alpha;
-        
+
         // Always handle hammer strike and stone toss explicitly so size/scaling are consistent
         if (this.type === 'hammerStrike') {
             this.renderHammerStrike(ctx, progress);
@@ -1795,7 +1795,7 @@ class VisualEffect {
             ctx.restore();
             return;
         }
-        
+
         // Check if this effect has an image
         if (this.imageKey && window.gameInstance && window.gameInstance.images[this.imageKey]) {
             // Special handling for anvilDrop, arrowStorm, and naturesGrasp - don't use renderImage
@@ -1842,7 +1842,7 @@ class VisualEffect {
             }
         } else {
             // Fallback to original rendering
-            switch(this.type) {
+            switch (this.type) {
                 case 'slash':
                     this.renderSlash(ctx, progress);
                     break;
@@ -1965,7 +1965,7 @@ class VisualEffect {
                     break;
             }
         }
-        
+
         ctx.restore();
     }
 
@@ -1989,51 +1989,51 @@ class VisualEffect {
         // Make skill images 1/4 the size
         let width = this.size * 2;
         let height = this.size * 2;
-        
+
         // Reduce size for skill images (not basic attacks)
-        if (this.imageKey === 'axeThrow' || this.imageKey === 'warStomp' || 
+        if (this.imageKey === 'axeThrow' || this.imageKey === 'warStomp' ||
             this.imageKey === 'anvilOfMountain' || this.imageKey === 'earthshatter' ||
             this.imageKey === 'battleFocus' || this.imageKey === 'shieldBash') {
             width = this.size * 0.5; // 1/4 of original size
             height = this.size * 0.5;
         }
-        
+
         // Last Stand should match the size we set in createLastStandEffect (half ball size)
         if (this.imageKey === 'lastStand') {
             width = this.size * 2; // Keep the size we set in createLastStandEffect
             height = this.size * 2;
         }
-        
+
         // Battle Cry should match the ball size (don't scale it down)
         if (this.imageKey === 'battleCry') {
             width = this.size * 2; // Same size as the ball
             height = this.size * 2;
         }
-        
+
         // Unstoppable Rage should match the ball size (don't scale it down)
         if (this.imageKey === 'unstoppableRage') {
             width = this.size * 2; // Same size as the ball
             height = this.size * 2;
         }
-        
+
         // Earthshatter should match the ball size (don't scale it down)
         if (this.imageKey === 'earthshatter') {
             width = this.size * 2; // Same size as the ball
             height = this.size * 2;
         }
-        
+
         // Attack effects should match the ball size (don't scale them down)
         if (this.imageKey === 'heavySlash' || this.imageKey === 'quickJab' || this.imageKey === 'shieldBreaker') {
             width = this.size * 2; // Same size as the ball
             height = this.size * 2;
         }
-        
+
         // Execution Strike should match ball size (don't scale it down)
         if (this.imageKey === 'executionStrike') {
             width = this.size * 2; // Keep the size we set in createExecutionStrikeEffect
             height = this.size * 2;
         }
-        
+
         // For weapons, position them around the ball
         let x, y;
         if (this.type === 'weapon' && this.followTarget) {
@@ -2058,18 +2058,18 @@ class VisualEffect {
                         const offsetDistance = 25; // Closer to the ball
                         const sideAngle1 = this.angle - Math.PI / 3; // 60 degrees to the left of enemy direction (more toward front)
                         const sideAngle2 = this.angle + Math.PI / 3; // 60 degrees to the right of enemy direction (more toward front)
-                        
+
                         const offsetX1 = this.x + Math.cos(sideAngle1) * offsetDistance;
                         const offsetY1 = this.y + Math.sin(sideAngle1) * offsetDistance;
                         const offsetX2 = this.x + Math.cos(sideAngle2) * offsetDistance;
                         const offsetY2 = this.y + Math.sin(sideAngle2) * offsetDistance;
-                        
+
                         // Draw first sword (left side)
                         ctx.translate(offsetX1, offsetY1);
                         ctx.rotate(this.angle + Math.PI / 4); // Point toward enemy with 45 degrees right tilt
                         ctx.drawImage(img, -width / 2, -height / 2, width, height);
                         ctx.restore();
-                        
+
                         // Draw second sword (right side)
                         ctx.save();
                         ctx.translate(offsetX2, offsetY2);
@@ -2079,7 +2079,7 @@ class VisualEffect {
                         // For bow, staff, and sword, position them outside the ball and rotate to face enemy
                         const offsetDistance = 25; // Closer to the ball (same as dual sword)
                         let offsetX, offsetY;
-                        
+
                         if (this.data && this.data.weaponType === 'sword') {
                             // For single sword, position it at front-left angle (like dual sword positioning)
                             const sideAngle = this.angle - Math.PI / 3; // 60 degrees to the left of enemy direction
@@ -2090,7 +2090,7 @@ class VisualEffect {
                             offsetX = this.x + Math.cos(this.angle) * offsetDistance;
                             offsetY = this.y + Math.sin(this.angle) * offsetDistance;
                         }
-                        
+
                         // Rotate the weapon image to face the enemy direction
                         ctx.translate(offsetX, offsetY);
                         if (this.data && this.data.weaponType === 'sword') {
@@ -2104,14 +2104,14 @@ class VisualEffect {
                     // For other weapons, rotate around the ball center
                     ctx.translate(this.x, this.y);
                     ctx.rotate(this.angle);
-                    
+
                     // Special handling for unarmed attacks - position around ball and rotate image
                     if (this.imageKey === 'unarmed') {
                         // Position the image around the ball (orbit)
                         const offsetDistance = 30; // Distance from ball center
                         const offsetX = Math.cos(this.angle) * offsetDistance;
                         const offsetY = Math.sin(this.angle) * offsetDistance;
-                        
+
                         // Rotate the image to match its position
                         ctx.rotate(this.angle);
                         ctx.drawImage(img, offsetX - width / 2, offsetY - height / 2, width, height);
@@ -2149,7 +2149,7 @@ class VisualEffect {
         gradient.addColorStop(0, this.color);
         gradient.addColorStop(0.7, this.color + '80');
         gradient.addColorStop(1, 'transparent');
-        
+
         ctx.fillStyle = gradient;
         ctx.beginPath();
         ctx.arc(this.x, this.y, radius, 0, Math.PI * 2);
@@ -2242,7 +2242,7 @@ class VisualEffect {
         gradient.addColorStop(0, '#ff4400');
         gradient.addColorStop(0.5, '#ff8800');
         gradient.addColorStop(1, 'transparent');
-        
+
         ctx.fillStyle = gradient;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size * progress, 0, Math.PI * 2);
@@ -2280,19 +2280,19 @@ class VisualEffect {
 
     renderTrail(ctx, progress) {
         if (!this.followTarget) return;
-        
+
         // Draw a trail behind the ball
         ctx.save();
         ctx.strokeStyle = this.color;
         ctx.lineWidth = this.size * 0.5;
         ctx.globalAlpha = 0.6;
-        
+
         // Draw trail line
         ctx.beginPath();
         ctx.moveTo(this.x - this.data.trailLength, this.y);
         ctx.lineTo(this.x, this.y);
         ctx.stroke();
-        
+
         ctx.restore();
     }
 
@@ -2301,17 +2301,17 @@ class VisualEffect {
         if (progress < 0.1) { // Only log at the start
             console.log(`Rendering anvil drop at position: (${this.x}, ${this.y})`);
         }
-        
+
         // Calculate drop position - starts high and drops down
         const startY = -100; // Start above the canvas
         const endY = this.y;
         const currentY = startY + (endY - startY) * progress;
-        
+
         // Calculate size - starts 3x bigger and gets smaller as it drops
         const startSize = this.size * 3; // Start 3x as big
         const endSize = this.size;
         const currentSize = startSize - (startSize - endSize) * progress;
-        
+
         // Draw shadow on the ground that gets darker as anvil approaches
         const shadowAlpha = 0.2 + (0.6 * progress); // Shadow gets darker as anvil approaches
         ctx.save();
@@ -2321,7 +2321,7 @@ class VisualEffect {
         ctx.ellipse(this.x, this.y + 10, this.size * 0.8, this.size * 0.3, 0, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
-        
+
         // Draw the anvil image with proper scaling
         const img = window.gameInstance.images[this.imageKey];
         if (img && img.complete) {
@@ -2330,12 +2330,12 @@ class VisualEffect {
             const height = currentSize;
             const x = this.x - width / 2;
             const y = currentY - height / 2;
-            
+
             ctx.drawImage(img, x, y, width, height);
         } else {
             // Fallback if image not loaded
             ctx.fillStyle = '#666666';
-            ctx.fillRect(this.x - currentSize/2, currentY - currentSize/2, currentSize, currentSize);
+            ctx.fillRect(this.x - currentSize / 2, currentY - currentSize / 2, currentSize, currentSize);
         }
     }
 
@@ -2356,7 +2356,7 @@ class VisualEffect {
         const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
         gradient.addColorStop(0, '#440044');
         gradient.addColorStop(1, 'transparent');
-        
+
         ctx.fillStyle = gradient;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size * progress, 0, Math.PI * 2);
@@ -2367,7 +2367,7 @@ class VisualEffect {
         const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
         gradient.addColorStop(0, '#ffff88');
         gradient.addColorStop(1, 'transparent');
-        
+
         ctx.fillStyle = gradient;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size * progress, 0, Math.PI * 2);
@@ -2378,20 +2378,20 @@ class VisualEffect {
         // Calculate which frame to show (0-7 for frames 1-8)
         const frameIndex = Math.floor(progress * 8);
         const frameNumber = Math.min(frameIndex + 1, 8); // Frame numbers are 1-8
-        
+
         // Get the appropriate frame image
         const frameKey = `arrowStormFrame${frameNumber}`;
         const img = window.gameInstance.images[frameKey];
-        
+
         if (!img || !img.complete) {
             console.log(`Arrow Storm frame not loaded: ${frameKey}`);
             return;
         }
-        
+
         // Size the effect to be much larger and more visible
         const width = this.size * 6; // Make it 3x larger than the ball
         const height = this.size * 6;
-        
+
         // For the last frame (frame 8), center it exactly on the ball
         // For other frames, position normally
         let x, y;
@@ -2405,7 +2405,7 @@ class VisualEffect {
             x = this.x - width / 2;
             y = this.y - height / 2 - offsetY;
         }
-        
+
         ctx.drawImage(img, x, y, width, height);
     }
 
@@ -2413,22 +2413,22 @@ class VisualEffect {
         // Calculate which frame to show (0-11 for frames 1-6 played twice)
         const frameIndex = Math.floor(progress * 12); // 6 frames * 2 cycles = 12 total
         const frameNumber = (frameIndex % 6) + 1; // Cycle through frames 1-6 twice
-        
+
         // Get the appropriate frame image
         const frameKey = `naturesGraspFrame${frameNumber}`;
         const img = window.gameInstance.images[frameKey];
-        
+
         if (!img || !img.complete) {
             console.log(`Nature's Grasp frame not loaded: ${frameKey}`);
             return;
         }
-        
+
         // Size the effect to be 2x the ball size
         const width = this.size * 4; // 2x ball size (ball radius * 2 * 2)
         const height = this.size * 4;
         const x = this.x - width / 2;
         const y = this.y - height / 2;
-        
+
         ctx.drawImage(img, x, y, width, height);
     }
 
@@ -2438,24 +2438,24 @@ class VisualEffect {
             const frameNumber = i + 1; // Frame numbers are 1-8
             const frameKey = `shadowstepFrame${frameNumber}`;
             const img = window.gameInstance.images[frameKey];
-            
+
             if (!img || !img.complete) {
                 console.log(`Shadowstep frame not loaded: ${frameKey}`);
                 continue;
             }
-            
+
             // Calculate position along the trail
             // Frame 1 is at start, Frame 8 is at end
             const frameProgress = i / 7; // 0 to 1 for frames 1-8
             const currentX = this.data.startX + (this.data.endX - this.data.startX) * frameProgress;
             const currentY = this.data.startY + (this.data.endY - this.data.startY) * frameProgress;
-            
+
             // Size the effect to be larger and more visible
             const width = this.size * 4; // Make it 2x larger than the ball
             const height = this.size * 4;
             const x = currentX - width / 2;
             const y = currentY - height / 2;
-            
+
             ctx.drawImage(img, x, y, width, height);
         }
     }
@@ -2469,31 +2469,31 @@ class VisualEffect {
             const frameIndex = Math.floor(progress * 6); // Use first 6 frames for animation
             frameNumber = Math.min(frameIndex + 1, 6);
         }
-        
+
         // Get the appropriate frame image
         const frameKey = `sylvanMarkFrame${frameNumber}`;
         const img = window.gameInstance.images[frameKey];
-        
+
         if (!img || !img.complete) {
             console.log(`Sylvan Mark frame not loaded: ${frameKey}`);
             return;
         }
-        
+
         // Get the target position (use followTarget if available for accurate centering)
         const targetX = this.followTarget ? this.followTarget.x : this.x;
         const targetY = this.followTarget ? this.followTarget.y : this.y;
-        
+
         // Size the effect to be 2x the ball size
         const width = this.size * 4; // 2x the ball diameter
         const height = this.size * 4;
-        
+
         // Offset to compensate for sprite's visual center being off-center
         const offsetX = 0; // No X offset
         const offsetY = -height * 0.12; // Shift up 8%
-        
+
         const x = targetX - width / 2 + offsetX;
         const y = targetY - height / 2 + offsetY;
-        
+
         ctx.drawImage(img, x, y, width, height);
     }
 
@@ -2504,26 +2504,26 @@ class VisualEffect {
         const frameNumber = Math.min(frameIndex + 1, totalFrames);
         const frameKey = `rainOfStarsFrame${frameNumber}`;
         const img = window.gameInstance.images[frameKey];
-        
+
         if (!img || !img.complete) {
             console.log(`Rain of Stars frame not loaded: ${frameKey}`);
             return;
         }
-        
+
         // Size the effect to be 2x the ball size
         const width = this.size * 4; // 2x the ball diameter
         const height = this.size * 4;
         const x = this.x - width / 2;
         const y = this.y - height / 2;
-        
+
         ctx.drawImage(img, x, y, width, height);
     }
-    
+
     renderRainOfStarsIndicator(ctx, progress) {
         // Draw a purple circle (empty inside) that pulses slightly
         const radius = this.size;
         const pulseAmount = Math.sin(progress * Math.PI * 4) * 5; // Pulse effect
-        
+
         ctx.beginPath();
         ctx.arc(this.x, this.y, radius + pulseAmount, 0, Math.PI * 2);
         ctx.strokeStyle = this.data.color || '#8B008B';
@@ -2532,7 +2532,7 @@ class VisualEffect {
         ctx.stroke();
         ctx.globalAlpha = 1;
     }
-    
+
     renderRainOfStarsZone(ctx, progress) {
         // Use 5 frames over 1.2 seconds
         const totalFrames = 5;
@@ -2540,23 +2540,23 @@ class VisualEffect {
         const frameNumber = Math.min(frameIndex + 1, totalFrames);
         const frameKey = `rainOfStarsFrame${frameNumber}`;
         const img = window.gameInstance.images[frameKey];
-        
+
         if (!img || !img.complete) {
             return;
         }
-        
+
         // Size the effect (halved from original)
         const width = this.size * 1.5;
         const height = this.size * 1.5;
         const x = this.x - width / 2;
         const y = this.y - height / 2;
-        
+
         // Fade out slightly toward the end
         const alpha = progress < 0.8 ? 1 : 1 - (progress - 0.8) / 0.2;
         ctx.globalAlpha = alpha;
         ctx.drawImage(img, x, y, width, height);
         ctx.globalAlpha = 1;
-        
+
         // Check for enemy collisions and deal damage
         if (this.data && this.data.balls && this.data.caster && this.data.hitEnemies) {
             this.data.balls.forEach(ball => {
@@ -2580,7 +2580,7 @@ class VisualEffect {
                 const size = this.size * 2; // Half the ball size (ball diameter / 2 = radius * 2)
                 const x = this.x - size / 2;
                 const y = this.y - size / 2 - this.size; // Position above the ball
-                
+
                 ctx.drawImage(img, x, y, size, size);
                 return;
             } else {
@@ -2589,7 +2589,7 @@ class VisualEffect {
         } else {
             console.log('Spirit of Forest image not found in gameInstance.images');
         }
-        
+
         // Fallback: green circle
         ctx.fillStyle = '#00ff00';
         ctx.globalAlpha = 0.7;
@@ -2607,7 +2607,7 @@ class VisualEffect {
                 const size = this.size * 2; // Match ball size
                 const x = this.x - size / 2;
                 const y = this.y - size / 2;
-                
+
                 // Fade out over 1 second (progress goes from 0 to 1)
                 const alpha = 1 - progress;
                 ctx.globalAlpha = alpha;
@@ -2616,7 +2616,7 @@ class VisualEffect {
                 return;
             }
         }
-        
+
         // Fallback: green sparkle effect
         ctx.fillStyle = '#00ff00';
         ctx.globalAlpha = 1 - progress; // Fade out
@@ -2636,38 +2636,38 @@ class VisualEffect {
                 const startY = this.data.startY || this.y;
                 const targetX = this.data.targetX || this.x;
                 const targetY = this.data.targetY || this.y;
-                
+
                 // Calculate distance and angle
                 const dx = targetX - startX;
                 const dy = targetY - startY;
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 const angle = Math.atan2(dy, dx);
-                
+
                 // Set beam width based on distance (minimum 20, maximum 60)
                 const beamWidth = Math.max(20, Math.min(60, distance * 0.1));
-                
+
                 // Fade out over duration
                 const alpha = 1 - progress;
                 ctx.globalAlpha = alpha;
-                
+
                 // Draw the beam image stretched from start to target
                 ctx.save();
                 ctx.translate(startX, startY);
                 ctx.rotate(angle);
-                ctx.drawImage(img, 0, -beamWidth/2, distance, beamWidth);
+                ctx.drawImage(img, 0, -beamWidth / 2, distance, beamWidth);
                 ctx.restore();
-                
+
                 ctx.globalAlpha = 1;
                 return;
             }
         }
-        
+
         // Fallback: purple beam effect
         const startX = this.data.startX || this.x;
         const startY = this.data.startY || this.y;
         const targetX = this.data.targetX || this.x;
         const targetY = this.data.targetY || this.y;
-        
+
         ctx.strokeStyle = '#9370DB';
         ctx.lineWidth = 8;
         ctx.globalAlpha = 1 - progress; // Fade out
@@ -2684,17 +2684,17 @@ class VisualEffect {
             // Calculate frame index for 1 cycle of 8 frames over 1 second
             const totalFrames = 8;
             const frameIndex = Math.floor(progress * totalFrames) % totalFrames;
-            
+
             // Get the appropriate frame image
             const frameKey = `infernalChainsFrame${frameIndex + 1}`;
             const img = window.gameInstance.images[frameKey];
-            
+
             if (img && img.complete) {
                 const width = this.size * 2; // Same size as ball
                 const height = this.size * 2;
                 const x = this.x - width / 2;
                 const y = this.y - height / 2;
-                
+
                 // Fade out over duration
                 const alpha = 1 - progress;
                 ctx.globalAlpha = alpha;
@@ -2703,7 +2703,7 @@ class VisualEffect {
                 return;
             }
         }
-        
+
         // Fallback: red chain effect
         ctx.strokeStyle = '#ff4400';
         ctx.lineWidth = 4;
@@ -2720,15 +2720,15 @@ class VisualEffect {
             // Calculate frame index for 8 frames over 1 second
             const totalFrames = 8;
             const frameIndex = Math.floor(progress * totalFrames) % totalFrames;
-            
+
             // Get the appropriate frame image
             const frameKey = `soulLeechFrame${frameIndex + 1}`;
             const img = window.gameInstance.images[frameKey];
-            
+
             if (img && img.complete) {
                 const width = this.size * 2; // Same size as ball
                 const height = this.size * 2;
-                
+
                 // Calculate position - start above ball and move upward
                 let x, y;
                 if (this.followTarget) {
@@ -2740,7 +2740,7 @@ class VisualEffect {
                     x = this.x - width / 2;
                     y = this.y - 30 - (progress * 60) - height / 2;
                 }
-                
+
                 // Fade out over duration
                 const alpha = 1 - progress;
                 ctx.globalAlpha = alpha;
@@ -2749,7 +2749,7 @@ class VisualEffect {
                 return;
             }
         }
-        
+
         // Fallback: purple soul effect
         let x, y;
         if (this.followTarget) {
@@ -2759,7 +2759,7 @@ class VisualEffect {
             x = this.x;
             y = this.y - 30 - (progress * 60);
         }
-        
+
         ctx.fillStyle = '#8B008B';
         ctx.globalAlpha = 1 - progress; // Fade out
         ctx.beginPath();
@@ -2775,24 +2775,24 @@ class VisualEffect {
             const totalFrames = 8;
             const cycles = 5;
             const frameIndex = Math.floor(progress * totalFrames * cycles) % totalFrames;
-            
+
             // Get the appropriate frame image - use the correct frame naming
             const frameNumber = (frameIndex + 1).toString().padStart(2, '0');
             const frameKey = `apocalypseFlameFrame${frameIndex + 1}`;
             const img = window.gameInstance.images[frameKey];
-            
+
             if (img && img.complete) {
                 const width = this.size * 2; // Same size as specified
                 const height = this.size * 2;
                 const x = this.x - width / 2;
                 const y = this.y - height / 2;
-                
+
                 // No fade out - keep the flame visible for the full duration
                 ctx.drawImage(img, x, y, width, height);
                 return;
             }
         }
-        
+
         // Fallback: orange flame effect
         ctx.fillStyle = '#ff4400';
         ctx.beginPath();
@@ -2804,13 +2804,13 @@ class VisualEffect {
         // Use the Demonic Ascension image
         if (window.gameInstance && window.gameInstance.images.demonicAscension) {
             const img = window.gameInstance.images.demonicAscension;
-            
+
             if (img && img.complete) {
                 const width = this.size * 2; // Same size as ball
                 const height = this.size * 2;
                 const x = this.x - width / 2;
                 const y = this.y - height / 2;
-                
+
                 // No fade out - keep the image visible for the full duration
                 ctx.drawImage(img, x, y, width, height);
                 return;
@@ -2820,7 +2820,7 @@ class VisualEffect {
         } else {
             console.log('Demonic Ascension image not found in gameInstance.images');
         }
-        
+
         // Fallback: purple aura effect
         ctx.fillStyle = '#440044';
         ctx.beginPath();
@@ -2835,23 +2835,23 @@ class VisualEffect {
             const totalFrames = 8;
             const cycles = 6;
             const frameIndex = Math.floor(progress * totalFrames * cycles) % totalFrames;
-            
+
             // Get the appropriate frame image
             const frameKey = `dreadAuraFrame${frameIndex + 1}`;
             const img = window.gameInstance.images[frameKey];
-            
+
             if (img && img.complete) {
                 const width = this.size * 4; // Double the size of the ball
                 const height = this.size * 4;
                 const x = this.x - width / 2;
                 const y = this.y - height / 2;
-                
+
                 // No fade out - keep the aura visible for the full duration
                 ctx.drawImage(img, x, y, width, height);
                 return;
             }
         }
-        
+
         // Fallback: dark aura effect
         ctx.fillStyle = '#440044';
         ctx.beginPath();
@@ -2867,7 +2867,7 @@ class VisualEffect {
         const lineWidth = this.data.lineWidth || 8;
         const color = this.data.color || '#8B008B';
         const opacity = Math.max(0, 1 - progress * 0.5); // Fade out as it expands
-        
+
         ctx.save();
         ctx.strokeStyle = color;
         ctx.globalAlpha = opacity;
@@ -2877,7 +2877,7 @@ class VisualEffect {
         ctx.stroke();
         ctx.restore();
     }
-    
+
     renderElementalBurstWave(ctx, progress) {
         // Render fast expanding orange circle (empty inside)
         const startRadius = this.data.startRadius || 0;
@@ -2886,7 +2886,7 @@ class VisualEffect {
         const lineWidth = this.data.lineWidth || 6;
         const color = this.data.color || '#FF8C00'; // Orange color
         const opacity = Math.max(0, 1 - progress); // Fade out as it expands
-        
+
         ctx.save();
         ctx.strokeStyle = color;
         ctx.globalAlpha = opacity;
@@ -2903,23 +2903,23 @@ class VisualEffect {
             // Calculate frame index for 5 frames over 1 second
             const totalFrames = 5;
             const frameIndex = Math.floor(progress * totalFrames) % totalFrames;
-            
+
             // Get the appropriate frame image
             const frameKey = `warStompFrame${frameIndex + 1}`;
             const img = window.gameInstance.images[frameKey];
-            
+
             if (img && img.complete) {
                 const width = this.size * 2; // Same size as ball
                 const height = this.size * 2;
                 const x = this.x - width / 2;
                 const y = this.y - height / 2;
-                
+
                 // No fade out - keep the animation visible for the full duration
                 ctx.drawImage(img, x, y, width, height);
                 return;
             }
         }
-        
+
         // Fallback: brown ground effect
         ctx.fillStyle = '#8B4513';
         ctx.beginPath();
@@ -2933,7 +2933,7 @@ class VisualEffect {
             const frameIndex = Math.floor(progress * totalFrames * 3) % totalFrames; // Play 3 times over duration
             const frameKey = `unstoppableRageFrame${frameIndex + 1}`;
             const img = window.gameInstance.images[frameKey];
-            
+
             if (img && img.complete) {
                 const width = this.size * 2; // Half the ball size (this.size is already half)
                 const height = this.size * 2;
@@ -2956,7 +2956,7 @@ class VisualEffect {
             const frameIndex = Math.floor(progress * totalFrames) % totalFrames;
             const frameKey = `earthshatterFrame${frameIndex + 1}`;
             const img = window.gameInstance.images[frameKey];
-            
+
             if (img && img.complete) {
                 const width = this.size * 2; // Same size as ball
                 const height = this.size * 2;
@@ -2979,7 +2979,7 @@ class VisualEffect {
             const frameIndex = Math.min(totalFrames - 1, Math.floor(progress * totalFrames));
             const frameKey = `hammerStrikeFrame${frameIndex + 1}`;
             const img = window.gameInstance.images[frameKey];
-            
+
             if (img && img.complete && img.naturalWidth > 0) {
                 const width = this.size;
                 const height = this.size;
@@ -2993,7 +2993,7 @@ class VisualEffect {
                 console.warn(`Hammer Strike frame failed to load: ${frameKey}`);
             }
         }
-        
+
         // Fallback: simple impact circle
         ctx.fillStyle = '#C0C0C0';
         ctx.beginPath();
@@ -3007,7 +3007,7 @@ class VisualEffect {
             const frameIndex = Math.min(totalFrames - 1, Math.floor(progress * totalFrames));
             const frameKey = `stoneTossFrame${frameIndex + 1}`;
             const img = window.gameInstance.images[frameKey];
-            
+
             if (img && img.complete && img.naturalWidth > 0) {
                 const width = this.size;
                 const height = this.size;
@@ -3015,19 +3015,19 @@ class VisualEffect {
                 const dropOffset = -dropDistance * (1 - progress);
                 const x = this.x - width / 2;
                 const y = (this.y + dropOffset) - height / 2;
-                
+
                 ctx.drawImage(img, x, y, width, height);
                 return;
             }
         }
-        
+
         // Fallback: orange circle impact
         ctx.fillStyle = '#ff6600';
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size / 2, 0, Math.PI * 2);
         ctx.fill();
     }
-    
+
     renderBattleRoarWave(ctx, progress) {
         const maxRadius = this.data.radius || (this.size / 2);
         const currentRadius = Math.max(0, maxRadius * progress);
@@ -3043,27 +3043,27 @@ class VisualEffect {
         ctx.lineWidth = lineWidth;
         ctx.stroke();
     }
-    
+
     renderWrathOfWarlord(ctx, progress) {
         if (window.gameInstance && window.gameInstance.images.wrathOfWarlordFrame1) {
             const totalFrames = 8;
             const frameIndex = Math.min(totalFrames - 1, Math.floor(progress * totalFrames));
             const frameKey = `wrathOfWarlordFrame${frameIndex + 1}`;
             const img = window.gameInstance.images[frameKey];
-            
+
             if (img && img.complete && img.naturalWidth > 0) {
                 const size = this.size || 80;
                 ctx.drawImage(img, this.x - size / 2, this.y - size / 2, size, size);
                 return;
             }
         }
-        
+
         ctx.fillStyle = '#ff8800';
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size / 2, 0, Math.PI * 2);
         ctx.fill();
     }
-    
+
     renderWrathOfWarlordWave(ctx, progress) {
         const maxRadius = this.data.radius || 250;
         const currentRadius = Math.max(0, maxRadius * progress);
@@ -3075,14 +3075,14 @@ class VisualEffect {
         ctx.lineWidth = lineWidth;
         ctx.stroke();
     }
-    
+
     renderHammerOfMountain(ctx, progress) {
         if (window.gameInstance && window.gameInstance.images.hammerOfMountainFrame1) {
             const totalFrames = 6;
             const frameIndex = Math.min(totalFrames - 1, Math.floor(progress * totalFrames));
             const frameKey = `hammerOfMountainFrame${frameIndex + 1}`;
             const img = window.gameInstance.images[frameKey];
-            
+
             if (img && img.complete && img.naturalWidth > 0) {
                 const width = this.size;
                 const height = this.size;
@@ -3090,18 +3090,18 @@ class VisualEffect {
                 const dropOffset = -dropDistance * (1 - progress);
                 const x = this.x - width / 2;
                 const y = (this.y + dropOffset) - height / 2;
-                
+
                 ctx.drawImage(img, x, y, width, height);
                 return;
             }
         }
-        
+
         ctx.fillStyle = '#ffa500';
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size / 2, 0, Math.PI * 2);
         ctx.fill();
     }
-    
+
     renderUnbreakableBastion(ctx, progress) {
         if (window.gameInstance && window.gameInstance.images.unbreakableBastionFrame1) {
             const totalFrames = 4;
@@ -3111,18 +3111,18 @@ class VisualEffect {
             const frameIndex = Math.min(totalFrames - 1, Math.floor(loopProgress * totalFrames));
             const frameKey = `unbreakableBastionFrame${frameIndex + 1}`;
             const img = window.gameInstance.images[frameKey];
-            
+
             if (img && img.complete && img.naturalWidth > 0) {
                 const width = this.size;
                 const height = this.size;
                 const x = this.x - width / 2;
                 const y = this.y - height / 2;
-                
+
                 ctx.drawImage(img, x, y, width, height);
                 return;
             }
         }
-        
+
         ctx.strokeStyle = '#00aaff';
         ctx.lineWidth = 3;
         ctx.beginPath();
@@ -3135,7 +3135,7 @@ class VisualEffect {
         const currentRadius = Math.max(0, maxRadius * progress);
         const lineWidth = this.data.lineWidth || 8;
         const opacity = Math.max(0, 1 - progress);
-        
+
         // Draw red circle wave (empty on the inside)
         ctx.beginPath();
         ctx.arc(this.x, this.y, currentRadius, 0, Math.PI * 2);
@@ -3150,7 +3150,7 @@ class VisualEffect {
             const frameIndex = Math.floor(progress * totalFrames) % totalFrames;
             const frameKey = `twinStrikesFrame${frameIndex + 1}`;
             const img = window.gameInstance.images[frameKey];
-            
+
             if (img && img.complete) {
                 const width = this.size * 2; // Same size as ball
                 const height = this.size * 2;
@@ -3173,7 +3173,7 @@ class VisualEffect {
             const frameIndex = Math.floor(progress * totalFrames) % totalFrames;
             const frameKey = `whirlwindFrame${frameIndex + 1}`;
             const img = window.gameInstance.images[frameKey];
-            
+
             if (img && img.complete) {
                 const width = this.size * 2; // Same size as ball
                 const height = this.size * 2;
@@ -3250,21 +3250,21 @@ class Projectile {
                 }
             }
         }
-        
+
         // Move projectile
         this.x += this.vx;
         this.y += this.vy;
-        
+
         // Check if projectile is out of bounds
         if (this.x < 0 || this.x > canvasWidth || this.y < 0 || this.y > canvasHeight) {
             return false; // Remove projectile
         }
-        
+
         // Check if lifetime expired
         if (this.lifetime <= 0) {
             return false; // Remove projectile
         }
-        
+
         // Check collision with balls
         for (let ball of balls) {
             if (ball.id !== this.ownerId) {
@@ -3278,7 +3278,7 @@ class Projectile {
                 }
             }
         }
-        
+
         return true; // Keep projectile
     }
 
@@ -3287,10 +3287,10 @@ class Projectile {
         if (!Array.isArray(balls)) {
             return;
         }
-        
+
         // Find owner first for dodge check
         const owner = balls.find(ball => ball.id === this.ownerId);
-        
+
         // Check for Sylvan Grace dodge - projectiles can be dodged
         if (target.sylvanGraceActive && Math.random() < target.sylvanGraceChance) {
             // Show "Dodged!" text on the target
@@ -3299,7 +3299,7 @@ class Projectile {
             }
             return; // Entire projectile attack dodged - skip all effects and damage
         }
-        
+
         // Arrow Storm special handling - only hit each enemy once
         if (this.type === 'arrowStormProjectile' && this.arrowStormHitEnemies) {
             if (this.arrowStormHitEnemies.has(target.id)) {
@@ -3307,7 +3307,7 @@ class Projectile {
             }
             this.arrowStormHitEnemies.add(target.id); // Mark as hit
         }
-        
+
         // Piercing projectile handling - only hit each enemy once
         if (this.piercing && this.piercingHitEnemies) {
             if (this.piercingHitEnemies.has(target.id)) {
@@ -3316,53 +3316,53 @@ class Projectile {
             this.piercingHitEnemies.add(target.id); // Mark as hit
         }
 
-            // Deal damage to target
-            if (owner) {
-                // Play hit sound for axeThrow, frenziedSlash, hammerStrike, stoneToss, throwingAxe, hellfireBolt, and infernalChains projectiles
-                if (this.type === 'axeThrow' && window.gameInstance) {
-                    window.gameInstance.playSound('axeThrow');
-                } else if (this.type === 'frenziedSlash' && window.gameInstance) {
-                    window.gameInstance.playSound('frenziedSlash');
-                } else if (this.type === 'hammerStrikeProjectile' && window.gameInstance) {
-                    window.gameInstance.playSound('hammerStrike');
-                } else if (this.type === 'stoneTossProjectile' && window.gameInstance) {
-                    window.gameInstance.playSound('stoneToss');
-                } else if (this.type === 'throwingAxe' && window.gameInstance) {
-                    window.gameInstance.playSound('throwingAxe');
-                } else if (this.type === 'hellfireBolt' && window.gameInstance) {
-                    window.gameInstance.playSound('hellfireBolt');
-                } else if (this.type === 'infernalChainsProjectile' && window.gameInstance) {
-                    window.gameInstance.playSound('infernalChains');
-                } else if (this.type === 'arrowStormProjectile' && window.gameInstance) {
-                    window.gameInstance.playSound('arrowStorm');
-                } else if (this.type === 'sylvanMarkArrow' && window.gameInstance) {
-                    window.gameInstance.playSound('sylvanMarkHit');
-                } else if ((this.type === 'arrow' || this.type === 'piercingArrow') && window.gameInstance) {
-                    // Play random bow hit sound for arrow hits
-                    window.gameInstance.playRandomBowHitSound();
-                } else if ((this.type === 'sword' || this.type === 'dualSword') && window.gameInstance) {
-                    // Play random sword hit sound for sword hits
-                    window.gameInstance.playRandomSwordHitSound();
-                } else if (this.type === 'elementalBurst' && window.gameInstance) {
-                    // Play random explosion sound for Elemental Burst hits
-                    window.gameInstance.playRandomStaffExplosionSound();
-                } else if (this.type === 'arcaneBolt' && window.gameInstance) {
-                    // Play random electric sound for Arcane Bolt hits
-                    window.gameInstance.playRandomStaffElectricSound();
-                }
-                
-                if (this.type === 'hammerStrikeProjectile') {
-                    owner.createHammerStrikeEffect(target);
-                } else if (this.type === 'stoneTossProjectile') {
-                    owner.createStoneTossEffect(target);
-                } else if (this.type === 'infernalChainsProjectile') {
-                    // Apply root and damage on hit
-                    owner.applyInfernalChainsOnHit(target);
-                } else if (this.type === 'elementalBurst') {
-                    // Create orange wave visual effect
-                    owner.createElementalBurstWaveEffect(target);
-                }
-            
+        // Deal damage to target
+        if (owner) {
+            // Play hit sound for axeThrow, frenziedSlash, hammerStrike, stoneToss, throwingAxe, hellfireBolt, and infernalChains projectiles
+            if (this.type === 'axeThrow' && window.gameInstance) {
+                window.gameInstance.playSound('axeThrow');
+            } else if (this.type === 'frenziedSlash' && window.gameInstance) {
+                window.gameInstance.playSound('frenziedSlash');
+            } else if (this.type === 'hammerStrikeProjectile' && window.gameInstance) {
+                window.gameInstance.playSound('hammerStrike');
+            } else if (this.type === 'stoneTossProjectile' && window.gameInstance) {
+                window.gameInstance.playSound('stoneToss');
+            } else if (this.type === 'throwingAxe' && window.gameInstance) {
+                window.gameInstance.playSound('throwingAxe');
+            } else if (this.type === 'hellfireBolt' && window.gameInstance) {
+                window.gameInstance.playSound('hellfireBolt');
+            } else if (this.type === 'infernalChainsProjectile' && window.gameInstance) {
+                window.gameInstance.playSound('infernalChains');
+            } else if (this.type === 'arrowStormProjectile' && window.gameInstance) {
+                window.gameInstance.playSound('arrowStorm');
+            } else if (this.type === 'sylvanMarkArrow' && window.gameInstance) {
+                window.gameInstance.playSound('sylvanMarkHit');
+            } else if ((this.type === 'arrow' || this.type === 'piercingArrow') && window.gameInstance) {
+                // Play random bow hit sound for arrow hits
+                window.gameInstance.playRandomBowHitSound();
+            } else if ((this.type === 'sword' || this.type === 'dualSword') && window.gameInstance) {
+                // Play random sword hit sound for sword hits
+                window.gameInstance.playRandomSwordHitSound();
+            } else if (this.type === 'elementalBurst' && window.gameInstance) {
+                // Play random explosion sound for Elemental Burst hits
+                window.gameInstance.playRandomStaffExplosionSound();
+            } else if (this.type === 'arcaneBolt' && window.gameInstance) {
+                // Play random electric sound for Arcane Bolt hits
+                window.gameInstance.playRandomStaffElectricSound();
+            }
+
+            if (this.type === 'hammerStrikeProjectile') {
+                owner.createHammerStrikeEffect(target);
+            } else if (this.type === 'stoneTossProjectile') {
+                owner.createStoneTossEffect(target);
+            } else if (this.type === 'infernalChainsProjectile') {
+                // Apply root and damage on hit
+                owner.applyInfernalChainsOnHit(target);
+            } else if (this.type === 'elementalBurst') {
+                // Create orange wave visual effect
+                owner.createElementalBurstWaveEffect(target);
+            }
+
             // Use stored context if available, otherwise determine from owner
             let skillContext = this.skillContext
                 ? { ...this.skillContext }
@@ -3376,7 +3376,7 @@ class Projectile {
             // Mark as projectile and that dodge was already checked in hitTarget
             skillContext.isProjectile = true;
             skillContext.dodgeAlreadyChecked = true;
-            
+
             // Special handling for frenziedSlash - deal 3 damage 3 times (9 total)
             if (this.type === 'frenziedSlash') {
                 // Deal first hit immediately
@@ -3398,7 +3398,7 @@ class Projectile {
             } else {
                 owner.dealDamage(target, this.damage, skillContext);
             }
-            
+
             if (this.type === 'stoneTossProjectile' && this.dotDamageTotal > 0 && this.dotDuration > 0) {
                 owner.dealDamageOverTime(
                     target,
@@ -3407,13 +3407,13 @@ class Projectile {
                     { ...skillContext }
                 );
             }
-            
+
             // Create visual effects for basic attack projectiles (only sword projectiles)
             if (this.type === 'sword' && owner.attack === 'heavySlash') {
                 owner.createAttackEffect(target, 'heavySlash');
             } else if (this.type === 'sword' && owner.attack === 'quickJab') {
                 owner.createAttackEffect(target, 'quickJab');
-                
+
                 // Quick Jab has 30% chance for double attack
                 if (Math.random() < 0.3) {
                     // Create second attack effect after 0.5 seconds
@@ -3430,14 +3430,14 @@ class Projectile {
             } else if (this.type === 'dualSword' && owner.attack === 'whirlwindSlash') {
                 owner.createWhirlwindSlashEffect(target);
             }
-            
+
             // Special handling for sword and dual sword projectiles - deactivate weapon and set cooldown
             if (this.type === 'sword' || this.type === 'dualSword') {
                 owner.deactivateWeapon();
                 owner.basicAttackCooldown = 1.2; // 1.2 second cooldown
             }
         }
-        
+
         // Handle explosive projectiles
         if (this.explosive) {
             balls.forEach(ball => {
@@ -3459,19 +3459,19 @@ class Projectile {
         if (this.type === 'arrowStormProjectile' && this.isArrowStorm && window.gameInstance) {
             const elapsed = Date.now() - this.arrowStormStartTime;
             const progress = Math.min(elapsed / this.arrowStormDuration, 1);
-            
+
             // Calculate which frame to show (1-8)
             const frameIndex = Math.floor(progress * 8);
             const frameNumber = Math.min(frameIndex + 1, 8);
             const frameKey = `arrowStormFrame${frameNumber}`;
             const img = window.gameInstance.images[frameKey];
-            
+
             if (img && img.complete) {
                 const size = 120; // Size of the arrow storm animation (twice as big)
                 // Rotate to face direction of travel
                 // Image is designed to point downward (0,1), so subtract PI/2 to correct
                 const angle = Math.atan2(this.vy, this.vx) - Math.PI / 2;
-                
+
                 ctx.save();
                 ctx.translate(this.x, this.y);
                 ctx.rotate(angle);
@@ -3480,14 +3480,14 @@ class Projectile {
                 return;
             }
         }
-        
+
         if (this.projectileImageKey && window.gameInstance && window.gameInstance.images[this.projectileImageKey]) {
             const img = window.gameInstance.images[this.projectileImageKey];
             if (img && img.complete && img.naturalWidth > 0) {
                 const size = this.displaySize || (this.radius * 2);
                 const directionAngle = this.alignToDirection ? Math.atan2(this.vy, this.vx) : 0;
                 const totalAngle = directionAngle + (this.spinSpeed ? this.rotation : 0);
-                
+
                 ctx.save();
                 ctx.translate(this.x, this.y);
                 ctx.rotate(totalAngle);
@@ -3496,12 +3496,12 @@ class Projectile {
                 return;
             }
         }
-        
+
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        
+
         // Different colors for different projectile types
-        switch(this.type) {
+        switch (this.type) {
             case 'arrow':
                 // Use the Arrow image for regular arrows
                 if (window.gameInstance && window.gameInstance.images.arrow) {
@@ -3509,11 +3509,11 @@ class Projectile {
                     if (img.complete) {
                         const size = 40; // Increased from 20 to 40
                         const angle = Math.atan2(this.vy, this.vx) + Math.PI / 2; // Add 90 degrees to correct orientation
-                        
+
                         ctx.save();
                         ctx.translate(this.x, this.y);
                         ctx.rotate(angle);
-                        ctx.drawImage(img, -size/2, -size/2, size, size);
+                        ctx.drawImage(img, -size / 2, -size / 2, size, size);
                         ctx.restore();
                         return; // Skip the default circle rendering
                     }
@@ -3527,11 +3527,11 @@ class Projectile {
                     if (img.complete) {
                         const size = 40; // Increased from 20 to 40
                         const angle = Math.atan2(this.vy, this.vx) + Math.PI / 2; // Add 90 degrees to correct orientation
-                        
+
                         ctx.save();
                         ctx.translate(this.x, this.y);
                         ctx.rotate(angle);
-                        ctx.drawImage(img, -size/2, -size/2, size, size);
+                        ctx.drawImage(img, -size / 2, -size / 2, size, size);
                         ctx.restore();
                         return; // Skip the default circle rendering
                     }
@@ -3551,11 +3551,11 @@ class Projectile {
                     if (img.complete) {
                         const size = 40; // Same size as arrows
                         const angle = Math.atan2(this.vy, this.vx) + Math.PI / 2; // Add 90 degrees to correct orientation
-                        
+
                         ctx.save();
                         ctx.translate(this.x, this.y);
                         ctx.rotate(angle);
-                        ctx.drawImage(img, -size/2, -size/2, size, size);
+                        ctx.drawImage(img, -size / 2, -size / 2, size, size);
                         ctx.restore();
                         return; // Skip the default circle rendering
                     }
@@ -3569,11 +3569,11 @@ class Projectile {
                     if (img.complete) {
                         const size = 40; // Same size as arrows
                         const angle = Math.atan2(this.vy, this.vx) + Math.PI / 2; // Add 90 degrees to correct orientation
-                        
+
                         ctx.save();
                         ctx.translate(this.x, this.y);
                         ctx.rotate(angle);
-                        ctx.drawImage(img, -size/2, -size/2, size, size);
+                        ctx.drawImage(img, -size / 2, -size / 2, size, size);
                         ctx.restore();
                         return; // Skip the default circle rendering
                     }
@@ -3590,11 +3590,11 @@ class Projectile {
                     if (img.complete) {
                         const size = 100; // 5x the previous size (20 * 5 = 100)
                         const angle = Math.atan2(this.vy, this.vx) + Math.PI / 2; // Add 90 degrees (π/2) to correct the orientation
-                        
+
                         ctx.save();
                         ctx.translate(this.x, this.y);
                         ctx.rotate(angle);
-                        ctx.drawImage(img, -size/2, -size/2, size, size);
+                        ctx.drawImage(img, -size / 2, -size / 2, size, size);
                         ctx.restore();
                         return; // Skip the default circle rendering
                     }
@@ -3608,11 +3608,11 @@ class Projectile {
                     if (img.complete) {
                         const size = 40; // Same size as other projectiles
                         const angle = Math.atan2(this.vy, this.vx) + Math.PI / 4; // Add 45 degrees (π/4) to correct orientation
-                        
+
                         ctx.save();
                         ctx.translate(this.x, this.y);
                         ctx.rotate(angle);
-                        ctx.drawImage(img, -size/2, -size/2, size, size);
+                        ctx.drawImage(img, -size / 2, -size / 2, size, size);
                         ctx.restore();
                         return; // Skip the default circle rendering
                     }
@@ -3631,11 +3631,11 @@ class Projectile {
                         const spinAngle = time * Math.PI * 2; // Full 360-degree rotation
                         const directionAngle = Math.atan2(this.vy, this.vx);
                         const totalAngle = directionAngle + spinAngle;
-                        
+
                         ctx.save();
                         ctx.translate(this.x, this.y);
                         ctx.rotate(totalAngle);
-                        ctx.drawImage(img, -size/2, -size/2, size, size);
+                        ctx.drawImage(img, -size / 2, -size / 2, size, size);
                         ctx.restore();
                         return; // Skip the default circle rendering
                     }
@@ -3649,11 +3649,11 @@ class Projectile {
                     if (img.complete) {
                         const size = 40;
                         const angle = Math.atan2(this.vy, this.vx) + Math.PI / 2 + Math.PI / 4; // Rotate to face direction, tilted 45 degrees right
-                        
+
                         ctx.save();
                         ctx.translate(this.x, this.y);
                         ctx.rotate(angle);
-                        ctx.drawImage(img, -size/2, -size/2, size, size);
+                        ctx.drawImage(img, -size / 2, -size / 2, size, size);
                         ctx.restore();
                         return; // Skip the default circle rendering
                     }
@@ -3667,19 +3667,19 @@ class Projectile {
                     if (img.complete) {
                         const size = 40;
                         const angle = Math.atan2(this.vy, this.vx) + Math.PI / 2; // Base direction
-                        
+
                         // Draw first sword
                         ctx.save();
                         ctx.translate(this.x, this.y);
                         ctx.rotate(angle + Math.PI / 4); // 45 degrees right tilt
-                        ctx.drawImage(img, -size/2, -size/2, size, size);
+                        ctx.drawImage(img, -size / 2, -size / 2, size, size);
                         ctx.restore();
-                        
+
                         // Draw second sword (opposite side)
                         ctx.save();
                         ctx.translate(this.x, this.y);
                         ctx.rotate(angle + Math.PI + Math.PI / 4); // 180 degrees + 45 degrees right tilt
-                        ctx.drawImage(img, -size/2, -size/2, size, size);
+                        ctx.drawImage(img, -size / 2, -size / 2, size, size);
                         ctx.restore();
                         return; // Skip the default circle rendering
                     }
@@ -3698,11 +3698,11 @@ class Projectile {
                         const spinAngle = time * Math.PI * 2; // Full 360-degree rotation
                         const directionAngle = Math.atan2(this.vy, this.vx);
                         const totalAngle = directionAngle + spinAngle;
-                        
+
                         ctx.save();
                         ctx.translate(this.x, this.y);
                         ctx.rotate(totalAngle);
-                        ctx.drawImage(img, -size/2, -size/2, size, size);
+                        ctx.drawImage(img, -size / 2, -size / 2, size, size);
                         ctx.restore();
                         return; // Skip the default circle rendering
                     }
@@ -3716,11 +3716,11 @@ class Projectile {
                     if (img.complete) {
                         const size = 60; // 1.5x bigger (40 * 1.5)
                         const angle = Math.atan2(this.vy, this.vx) + Math.PI / 4; // 45 degrees right tilt
-                        
+
                         ctx.save();
                         ctx.translate(this.x, this.y);
                         ctx.rotate(angle);
-                        ctx.drawImage(img, -size/2, -size/2, size, size);
+                        ctx.drawImage(img, -size / 2, -size / 2, size, size);
                         ctx.restore();
                         return; // Skip the default circle rendering
                     }
@@ -3730,9 +3730,9 @@ class Projectile {
             default:
                 ctx.fillStyle = '#FFD700';
         }
-        
+
         ctx.fill();
-        
+
         // Add trail effect
         ctx.strokeStyle = ctx.fillStyle;
         ctx.lineWidth = 1;
@@ -3751,7 +3751,24 @@ class Ball {
         this.skill = skill;
         this.ultimate = ultimate;
         this.selectedPassive = selectedPassive;
-        
+
+        // Custom Image Loading
+        this.customImage = null;
+        this.imageLoaded = false;
+
+        if (this.name) {
+            const img = new Image();
+            img.onload = () => {
+                this.imageLoaded = true;
+                this.customImage = img;
+            };
+            img.onerror = () => {
+                this.imageLoaded = false;
+                this.customImage = null;
+            };
+            img.src = `player images/${this.name}.png`;
+        }
+
         // Position and movement
         this.x = x;
         this.y = y;
@@ -3761,95 +3778,95 @@ class Ball {
         this.vx = Math.cos(angle) * speed;
         this.vy = Math.sin(angle) * speed;
         this.radius = 20;
-        
+
         // Stats based on race
         this.setRaceStats();
-        
+
         // Cooldowns - start on cooldown so skills aren't immediately available
         // Focused Beam has a longer cooldown
         this.basicAttackCooldown = (attack === 'focusedBeam') ? 3 : 1.2; // Basic attack cooldown
         this.activeSkillCooldown = 4;   // Active skill cooldown
         this.ultimateCooldown = 12;     // Ultimate cooldown
-        
+
         // Status effects
         this.stunDuration = 0;
         this.rooted = false;
         this.rootDuration = 0;
         this.slowEffect = 1; // 1 = normal speed, < 1 = slowed
         this.slowDuration = 0;
-        
+
         // Dread Aura pull effect
         this.dreadAuraPulled = false;
         this.dreadAuraPullTarget = null;
         this.dreadAuraPullDuration = 0;
         this.dreadAuraTrailTimer = 0;
-        
+
         // Effects
         this.effects = [];
-        
+
         // Weapon state for melee weapons
         this.weaponActive = false;
         this.weaponEffect = null;
         this.weaponRotation = 0;
-        
+
         // AI state
         this.aiTarget = null;
         this.aiState = 'wandering';
-        
+
         // Fortify state
         this.fortifyActive = false;
         this.fortifyStacks = 0;
         this.fortifyCooldownDuration = 5;
         this.lastFortifyStackConsumed = 0; // Timestamp to prevent sound spam
-        
+
         // Rune Charge state
         this.runeChargeActive = false;
         this.runeChargeStacks = 0;
         this.runeChargeCooldownDuration = 5;
         this.runeChargeAnimationStart = null;
-        
+
         // Battle Roar state
         this.battleRoarBonusStacks = 0;
         this.battleRoarDebuffStacks = 0;
         this.battleRoarAnimationStart = null;
-        
+
         // Headbutt state
         this.headbuttActive = false;
         this.headbuttTargetId = null;
         this.headbuttSpeed = 6;
         this.headbuttStoredVelocity = null;
-        
+
         // Blood Frenzy state
         this.bloodFrenzyStacks = 0;
         this.bloodFrenzyActive = false;
         this.bloodFrenzyAnimationStart = null;
-        
+
         // Fear state
         this.feared = false;
         this.fearDuration = 0;
-        
+
         // Wrath of the Warlord state
         this.wrathOfWarlordActive = false;
         this.wrathEffectPosition = null;
         this.wrathStoredVelocity = null;
-        
+
         // Unbreakable Bastion state
         this.unbreakableBastionActive = false;
         this.unbreakableBastionShieldValue = 0;
         this.unbreakableBastionShieldMax = 0;
         this.unbreakableBastionStoredVelocity = null;
         this.unbreakableBastionPosition = null;
-        
+
         // Taunt state
         this.tauntTargetId = null;
         this.tauntDuration = 0;
-        
+
         // Unstoppable Strength state
         this.unstoppableStrengthActive = false;
         this.unstoppableStrengthDuration = 0;
         this.unstoppableStrengthAnimationStart = null;
         this.immuneToCC = false;
-        
+
         // Ale-Fueled Resilience state
         this.aleFueledResilienceDuration = 0;
     }
@@ -3863,20 +3880,20 @@ class Ball {
             dwarf: { maxHp: 200, defense: 1, critChance: 0.1 },
             barbarian: { maxHp: 180, defense: 0, critChance: 0.2 }
         };
-        
+
         const stats = raceStats[this.race];
         this.maxHp = stats.maxHp;
         this.hp = this.maxHp;
         this.defense = stats.defense;
         this.critChance = stats.critChance;
         this.baseCritChance = stats.critChance; // Store base crit chance for bonuses
-        
+
         // Initialize passive skills - only the selected one
         this.passiveSkills = this.selectedPassive ? [this.selectedPassive] : [];
         this.battleTime = 0;
         this.tacticalRecallUsed = false;
         this.copiedPassive = null;
-        
+
         // Initialize buff stacks
         this.executionStrikeStacks = 0;
         this.battleFocusStacks = 0;
@@ -3911,7 +3928,7 @@ class Ball {
         const passiveSkills = {
             human: [
                 'battleHardened',
-                'tacticalRecall', 
+                'tacticalRecall',
                 'jackOfAllTrades',
                 'resourcefulMind'
             ],
@@ -3958,7 +3975,7 @@ class Ball {
                 'ragingSpirit'
             ]
         };
-        
+
         return passiveSkills[this.race] || [];
     }
 
@@ -4040,7 +4057,7 @@ class Ball {
         // Shadow Puppeteer is always active when this passive is selected
         this.shadowPuppeteerActive = true;
     }
-    
+
     checkShadowPuppeteerCancel(target) {
         // Check if target has Shadow Puppeteer and if it cancels this move (5% chance)
         if (target && target.shadowPuppeteerActive) {
@@ -4051,10 +4068,10 @@ class Ball {
         }
         return false; // Move not cancelled
     }
-    
+
     showCancelledMessage() {
         if (!window.gameInstance) return;
-        
+
         // Create floating text effect above the ball
         const textEffect = {
             x: this.x,
@@ -4067,13 +4084,13 @@ class Ball {
             followTarget: this,
             offsetY: -this.radius - 20
         };
-        
+
         // Store in game instance for rendering
         if (!window.gameInstance.cancelledMessages) {
             window.gameInstance.cancelledMessages = [];
         }
         window.gameInstance.cancelledMessages.push(textEffect);
-        
+
         // Remove after duration
         setTimeout(() => {
             if (window.gameInstance && window.gameInstance.cancelledMessages) {
@@ -4119,7 +4136,7 @@ class Ball {
         // Reduced effects from debuffs
         this.unbreakableWillActive = true;
     }
-    
+
     checkCCDodge() {
         // 10% chance to dodge CC effects (stuns, roots, fears)
         if (this.unbreakableWillActive && Math.random() < 0.1) {
@@ -4128,10 +4145,10 @@ class Ball {
         }
         return false; // CC not dodged
     }
-    
+
     showCCDodgeMessage() {
         if (!window.gameInstance) return;
-        
+
         // Create floating text effect above the ball
         const textEffect = {
             x: this.x,
@@ -4144,13 +4161,13 @@ class Ball {
             followTarget: this,
             offsetY: -this.radius - 20
         };
-        
+
         // Store in game instance for rendering
         if (!window.gameInstance.ccDodgeMessages) {
             window.gameInstance.ccDodgeMessages = [];
         }
         window.gameInstance.ccDodgeMessages.push(textEffect);
-        
+
         // Remove after duration
         setTimeout(() => {
             if (window.gameInstance && window.gameInstance.ccDodgeMessages) {
@@ -4181,7 +4198,7 @@ class Ball {
         // 30% faster cooldowns and skill damage boost
         this.manaAffinityActive = true;
     }
-    
+
     getCooldownReductionMultiplier() {
         // Returns the multiplier for cooldown reduction (1.0 = normal, >1.0 = faster)
         let multiplier = 1.0;
@@ -4189,7 +4206,7 @@ class Ball {
         if (this.ancientWisdomActive) multiplier *= 1.3; // 30% faster
         return multiplier;
     }
-    
+
     applyCooldownReduction(baseCooldown) {
         // Applies cooldown reduction to a base cooldown value
         const multiplier = this.getCooldownReductionMultiplier();
@@ -4241,7 +4258,7 @@ class Ball {
         // Negative effects wear off faster
         this.ironWillActive = true;
     }
-    
+
     applyCCDurationReduction(duration) {
         // Iron Will reduces CC duration by 20%
         if (this.ironWillActive) {
@@ -4255,7 +4272,7 @@ class Ball {
         this.aleFueledResilienceActive = true;
         this.aleFueledResilienceDuration = 0; // Will be set when healing occurs
     }
-    
+
     triggerAleFueledResilience() {
         // Triggered when healing occurs - resets duration to 3 seconds (doesn't stack)
         if (this.aleFueledResilienceActive) {
@@ -4334,13 +4351,13 @@ class Ball {
     update(balls, canvasWidth, canvasHeight, deltaTime = 0.016) {
         // Store deltaTime for use in passive skills
         this._deltaTime = deltaTime;
-        
+
         // Apply passive skills
         this.applyPassiveSkills();
-        
+
         // Update cooldowns with passive skill bonuses
         const cooldownReduction = this.getCooldownReductionMultiplier();
-        
+
         // Battle Cry and Unstoppable Rage reduce basic attack cooldown (percentage multipliers)
         let basicAttackCooldownReduction = cooldownReduction;
         if (this.battleCryActive && this.battleCryCooldownReduction) {
@@ -4349,21 +4366,21 @@ class Ball {
         if (this.unstoppableRageActive && this.unstoppableRageCooldownReduction) {
             basicAttackCooldownReduction += this.unstoppableRageCooldownReduction; // Still flat addition for Unstoppable Rage
         }
-        
+
         // Unstoppable Strength increases basic attack speed by 25% (25% faster cooldown reduction)
         if (this.unstoppableStrengthActive) {
             basicAttackCooldownReduction *= 1.25;
         }
-        
+
         // Note: Cooldown reduction is now applied when SETTING cooldowns, not when ticking
         // This prevents double reduction and makes the cooldown value itself show the reduced time
         this.basicAttackCooldown = Math.max(0, this.basicAttackCooldown - deltaTime * basicAttackCooldownReduction);
         this.activeSkillCooldown = Math.max(0, this.activeSkillCooldown - deltaTime);
         this.ultimateCooldown = Math.max(0, this.ultimateCooldown - deltaTime);
-        
+
         // AI behavior
         this.updateAI(balls);
-        
+
         // Check for Dread Aura wave hits
         if (window.gameInstance && window.gameInstance.visualEffects) {
             window.gameInstance.visualEffects.forEach(effect => {
@@ -4373,7 +4390,7 @@ class Ball {
                     const startRadius = effect.data.startRadius || 0;
                     const endRadius = effect.data.endRadius || 160;
                     const currentRadius = startRadius + (endRadius - startRadius) * progress;
-                    
+
                     // Check if any enemies are hit by the wave
                     effect.data.balls.forEach(ball => {
                         if (ball.id !== effect.data.caster.id && !ball.dreadAuraPulled) {
@@ -4391,24 +4408,24 @@ class Ball {
                             }
                         }
                     });
-                    
+
                     // Mark as checked (only check once per frame)
                     effect.data.hasHitCheck = true;
                 } else if (effect.type === 'dreadAuraWave' && effect.data) {
                     // Reset hit check flag for next frame
                     effect.data.hasHitCheck = false;
                 }
-                
+
                 // Check for Unbreakable Bastion wave hits
                 if (effect.type === 'unbreakableBastionWave' && effect.data && effect.data.caster && !effect.data.hasHitCheck) {
                     // Update balls reference to current balls array
                     effect.data.balls = balls;
-                    
+
                     // Calculate current wave radius based on progress
                     const progress = effect.duration > 0 ? 1 - (effect.duration / effect.maxDuration) : 1;
                     const maxRadius = effect.data.radius || 150;
                     const currentRadius = maxRadius * progress;
-                    
+
                     // Check if any enemies are hit by the wave
                     balls.forEach(ball => {
                         if (ball.id !== effect.data.caster.id && !effect.data.hitEnemies.has(ball.id)) {
@@ -4418,20 +4435,20 @@ class Ball {
                             if (distance >= currentRadius - waveThickness && distance <= currentRadius + waveThickness) {
                                 // Enemy hit by wave - apply effects
                                 effect.data.hitEnemies.add(ball.id);
-                                
+
                                 // Deal damage
                                 effect.data.caster.dealDamage(ball, 5, { skillName: 'unbreakableBastion', skillType: 'ultimate' });
-                                
+
                                 // Apply taunt (1.3 seconds)
                                 ball.applyTaunt(effect.data.caster, 1.3);
-                                
+
                                 // Apply shield to caster (only once, when first enemy is hit)
                                 if (effect.data.hitEnemies.size === 1) {
                                     const caster = effect.data.caster;
                                     caster.unbreakableBastionShieldValue = 250;
                                     caster.unbreakableBastionShieldMax = 250;
                                     caster.shield = (caster.shield || 0) + 250;
-                                    
+
                                     // Create animation effect on caster
                                     if (window.gameInstance) {
                                         window.gameInstance.createVisualEffect(
@@ -4449,7 +4466,7 @@ class Ball {
                             }
                         }
                     });
-                    
+
                     // Mark as checked (only check once per frame)
                     effect.data.hasHitCheck = true;
                 } else if (effect.type === 'unbreakableBastionWave' && effect.data) {
@@ -4458,12 +4475,12 @@ class Ball {
                 }
             });
         }
-        
+
         // Apply Dread Aura pull effect (enemies pulled toward caster at speed 3)
         if (this.dreadAuraPulled && this.dreadAuraPullTarget && this.dreadAuraPullDuration > 0) {
             // Update pull duration
             this.dreadAuraPullDuration -= deltaTime;
-            
+
             // Check if pull target still exists and is alive
             if (this.dreadAuraPullTarget.hp <= 0 || this.dreadAuraPullDuration <= 0) {
                 // Stop pulling - set random direction
@@ -4481,12 +4498,12 @@ class Ball {
                     const dx = this.dreadAuraPullTarget.x - this.x;
                     const dy = this.dreadAuraPullTarget.y - this.y;
                     const distance = Math.sqrt(dx * dx + dy * dy) || 1;
-                    
+
                     const pullSpeed = 3;
                     this.vx = (dx / distance) * pullSpeed;
                     this.vy = (dy / distance) * pullSpeed;
                 }
-                
+
                 // Create purple trail particles while being pulled
                 if (window.gameInstance) {
                     if (!this.dreadAuraTrailTimer) {
@@ -4502,7 +4519,7 @@ class Ball {
                             const offsetDistance = this.radius + 5;
                             const particleX = this.x + Math.cos(angle) * offsetDistance;
                             const particleY = this.y + Math.sin(angle) * offsetDistance;
-                            
+
                             // Create a purple light effect that fades out
                             window.gameInstance.createVisualEffect(
                                 particleX, particleY, 'light', 0.4, // 0.4 second duration
@@ -4518,7 +4535,7 @@ class Ball {
         } else {
             this.dreadAuraTrailTimer = 0;
         }
-        
+
         // Apply speed bonuses
         let speedMultiplier = 1;
         if (this.speedBonus) speedMultiplier *= this.speedBonus;
@@ -4526,20 +4543,20 @@ class Ball {
         if (this.huntersInstinctActive && this.aiTarget && this.aiTarget.hp < this.aiTarget.maxHp * 0.3) {
             speedMultiplier *= 1.3;
         }
-        
+
         // Apply slow effect (reduces speed to 10% of current speed)
         if (this.slowEffect < 1) {
             speedMultiplier *= this.slowEffect;
         }
-        
+
         // Handle Shield Bash rush
         if (this.shieldBashActive) {
             this.shieldBashDuration -= deltaTime;
-            
+
             // Rush toward target
             this.x += this.shieldBashVx;
             this.y += this.shieldBashVy;
-            
+
             // Check if we hit the target
             if (this.shieldBashTarget) {
                 const distance = Math.sqrt((this.shieldBashTarget.x - this.x) ** 2 + (this.shieldBashTarget.y - this.y) ** 2);
@@ -4549,23 +4566,23 @@ class Ball {
                     if (window.gameInstance) {
                         window.gameInstance.playSound('Headbutt_Collision');
                     }
-                    
+
                     this.dealDamage(this.shieldBashTarget, this.shieldBashDamage);
                     if (!this.shieldBashTarget.checkCCDodge()) {
                         const stunDuration = this.shieldBashTarget.applyCCDurationReduction(0.8);
                         this.shieldBashTarget.stunDuration = stunDuration;
                     }
-                    
+
                     // Grant +3 defense for 3 seconds
                     this.shieldBashDefenseBonus = 3;
                     this.shieldBashDefenseDuration = 3.0;
-                    
+
                     // End shield bash
                     this.shieldBashActive = false;
                     this.shieldBashTarget = null;
                 }
             }
-            
+
             // End shield bash if duration is over
             if (this.shieldBashDuration <= 0) {
                 this.shieldBashActive = false;
@@ -4576,17 +4593,17 @@ class Ball {
         } else if (this.earthshatterLeapActive) {
             // Handle Earthshatter leap
             this.earthshatterLeapProgress += deltaTime / this.earthshatterLeapDuration;
-            
+
             if (this.earthshatterLeapProgress >= 1) {
                 // Leap completed
                 this.x = this.earthshatterLeapEndX;
                 this.y = this.earthshatterLeapEndY;
                 this.earthshatterLeapActive = false;
                 this.radius = 20; // Reset radius to normal
-                
+
                 // Create earthshatter effect on enemy
                 this.createEarthshatterEffect(this.earthshatterTarget);
-                
+
                 // Deal damage and stun
                 this.dealDamage(this.earthshatterTarget, 12, { skillName: 'earthshatter', skillType: 'ultimate' });
                 if (!this.earthshatterTarget.checkCCDodge()) {
@@ -4597,10 +4614,10 @@ class Ball {
                 // Interpolate position with size scaling
                 const t = this.earthshatterLeapProgress;
                 const smoothT = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; // Smooth curve
-                
+
                 this.x = this.earthshatterLeapStartX + (this.earthshatterLeapEndX - this.earthshatterLeapStartX) * smoothT;
                 this.y = this.earthshatterLeapStartY + (this.earthshatterLeapEndY - this.earthshatterLeapStartY) * smoothT;
-                
+
                 // Size scaling: gets bigger, biggest at middle, then smaller
                 const sizeMultiplier = 1 + Math.sin(t * Math.PI) * 0.5; // 1.0 to 1.5 to 1.0
                 this.radius = 20 * sizeMultiplier;
@@ -4610,7 +4627,7 @@ class Ball {
             this.x += this.vx * speedMultiplier;
             this.y += this.vy * speedMultiplier;
         }
-        
+
         // Bounce off walls (skip if rooted or stunned)
         let bouncedX = false;
         let bouncedY = false;
@@ -4626,7 +4643,7 @@ class Ball {
                 bouncedY = true;
             }
         }
-        
+
         // If this ball bounced, make any enemies being pulled by it also bounce
         if ((bouncedX || bouncedY) && balls) {
             balls.forEach(ball => {
@@ -4643,7 +4660,7 @@ class Ball {
                 }
             });
         }
-        
+
         if (this.unbreakableBastionActive) {
             if (!this.unbreakableBastionPosition) {
                 this.unbreakableBastionPosition = { x: this.x, y: this.y };
@@ -4654,13 +4671,13 @@ class Ball {
             this.vx = 0;
             this.vy = 0;
         }
-        
+
         // Update effects
         this.updateEffects(deltaTime);
-        
+
         // Use skills automatically
         this.useSkills(balls);
-        
+
         // Apply hellfire aura damage to nearby enemies
         if (this.hellfireAuraActive) {
             balls.forEach(ball => {
@@ -4672,10 +4689,10 @@ class Ball {
                 }
             });
         }
-        
+
         // Update weapon spinning for melee weapons
         this.updateWeaponSpinning(balls);
-        
+
         // Check for ball-to-ball collisions
         this.checkBallCollisions(balls);
     }
@@ -4684,7 +4701,7 @@ class Ball {
         // Find closest enemy for targeting (but don't move towards them)
         const enemies = balls.filter(ball => ball.id !== this.id);
         if (enemies.length === 0) return;
-        
+
         let tauntTarget = null;
         if (this.tauntDuration > 0 && this.tauntTargetId) {
             tauntTarget = enemies.find(enemy => enemy.id === this.tauntTargetId) || null;
@@ -4693,7 +4710,7 @@ class Ball {
                 this.tauntDuration = 0;
             }
         }
-        
+
         if (tauntTarget) {
             this.aiTarget = tauntTarget;
         } else {
@@ -4702,18 +4719,18 @@ class Ball {
                 const closestDist = Math.sqrt((closest.x - this.x) ** 2 + (closest.y - this.y) ** 2);
                 return dist < closestDist ? enemy : closest;
             });
-            
+
             this.aiTarget = closestEnemy;
         }
-        
+
         // No friction - balls keep moving forever
         // No random direction changes - only bouncing changes direction
-        
+
         // Limit speed to maximum of 7 and minimum of 3
         const maxSpeed = 7;
         const minSpeed = 3;
         const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
-        
+
         if (speed > maxSpeed) {
             this.vx = (this.vx / speed) * maxSpeed;
             this.vy = (this.vy / speed) * maxSpeed;
@@ -4722,7 +4739,7 @@ class Ball {
             this.vx = (this.vx / speed) * minSpeed;
             this.vy = (this.vy / speed) * minSpeed;
         }
-        
+
         if (tauntTarget) {
             const dx = tauntTarget.x - this.x;
             const dy = tauntTarget.y - this.y;
@@ -4738,20 +4755,20 @@ class Ball {
         const meleeWeapons = [];
         const unarmedAttacks = ['ironFist', 'flurryOfBlows', 'grappleSlam'];
         const rangedWeapons = ['bow', 'crossbow', 'staff', 'sword', 'dualSword'];
-        
+
         // Handle ranged weapons (bow, crossbow) - always visible, no spinning
         if (rangedWeapons.includes(this.weapon)) {
             this.updateRangedWeapon(balls);
             return;
         }
-        
+
         if (!meleeWeapons.includes(this.weapon) && !unarmedAttacks.includes(this.attack)) return;
-        
+
         // If weapon is off cooldown and not active, create spinning effect
         if (this.basicAttackCooldown <= 0 && !this.weaponActive) {
             this.activateWeapon();
         }
-        
+
         // If weapon is active, update rotation
         if (this.weaponActive && this.weaponEffect) {
             // Different rotation speeds for different weapon types
@@ -4761,7 +4778,7 @@ class Ball {
                 this.weaponRotation += 0.05; // Normal speed for melee weapons
             }
             this.updateWeaponEffect();
-            
+
             // Check for hits
             this.checkWeaponHit(balls);
         }
@@ -4781,7 +4798,7 @@ class Ball {
                 this.activateRangedWeapon();
             }
         }
-        
+
         // Update weapon rotation to face the closest enemy
         if (this.weaponActive && this.weaponEffect) {
             const enemies = balls.filter(ball => ball.id !== this.id);
@@ -4791,12 +4808,12 @@ class Ball {
                     const closestDist = Math.sqrt((closest.x - this.x) ** 2 + (closest.y - this.y) ** 2);
                     return dist < closestDist ? enemy : closest;
                 });
-                
+
                 // Calculate angle to enemy
                 const dx = closestEnemy.x - this.x;
                 const dy = closestEnemy.y - this.y;
                 this.weaponRotation = Math.atan2(dy, dx);
-                
+
                 this.updateWeaponEffect();
             }
         }
@@ -4804,17 +4821,17 @@ class Ball {
 
     activateRangedWeapon() {
         if (!window.gameInstance) return;
-        
+
         this.weaponActive = true;
         this.weaponRotation = 0; // Will be updated to face enemy
-        
+
         // Play draw sound for sword and dual sword
         if (this.weapon === 'sword') {
             window.gameInstance.playSound('sword_draw');
         } else if (this.weapon === 'dualSword') {
             window.gameInstance.playSound('dual_sword_draw');
         }
-        
+
         // Create persistent weapon effect for ranged weapons
         let imageKey = 'bow';
         if (this.weapon === 'crossbow') {
@@ -4826,10 +4843,10 @@ class Ball {
         } else if (this.weapon === 'dualSword') {
             imageKey = 'sword'; // Use the same sword image
         }
-        
+
         this.weaponEffect = window.gameInstance.createVisualEffect(
             this.x, this.y, 'weapon', 999, // Very long duration
-            { 
+            {
                 size: this.radius * 0.8 * 1.2, // 1.2x bigger than before
                 imageKey: imageKey,
                 followTarget: this,
@@ -4842,7 +4859,7 @@ class Ball {
 
     activateWeapon() {
         if (!window.gameInstance) return;
-        
+
         this.weaponActive = true;
         // Start unarmed attacks from the top of the ball
         if (this.attack === 'ironFist' || this.attack === 'flurryOfBlows' || this.attack === 'grappleSlam') {
@@ -4850,7 +4867,7 @@ class Ball {
         } else {
             this.weaponRotation = 0; // Normal start for melee weapons
         }
-        
+
         // Create persistent weapon effect
         let imageKey = 'sword';
         if (this.weapon === 'dualSword') {
@@ -4858,12 +4875,12 @@ class Ball {
         } else if (this.attack === 'ironFist' || this.attack === 'flurryOfBlows' || this.attack === 'grappleSlam') {
             imageKey = 'unarmed';
         }
-        
+
         this.weaponEffect = window.gameInstance.createVisualEffect(
             this.x, this.y, 'weapon', 999, // Very long duration
-            { 
-                size: 25, 
-                color: '#ff0000', 
+            {
+                size: 25,
+                color: '#ff0000',
                 imageKey: imageKey,
                 followTarget: this,
                 rotation: this.weaponRotation
@@ -4873,14 +4890,14 @@ class Ball {
 
     updateWeaponEffect() {
         if (!this.weaponEffect) return;
-        
+
         // Update the weapon effect's rotation
         this.weaponEffect.angle = this.weaponRotation;
     }
 
     checkWeaponHit(balls) {
         if (!this.weaponActive) return;
-        
+
         // Check if weapon hits any enemy
         balls.forEach(ball => {
             if (ball.id !== this.id) {
@@ -4894,11 +4911,11 @@ class Ball {
 
     hitWithWeapon(target) {
         if (!this.weaponActive) return;
-        
+
         // Deal damage
         const damage = this.getBasicAttackDamage(target);
         this.dealDamage(target, damage, { skillName: this.attack || 'Basic Attack', skillType: 'basic' });
-        
+
         // Deactivate weapon and start cooldown
         this.deactivateWeapon();
         this.basicAttackCooldown = 1.2; // 1.2 second cooldown
@@ -4922,14 +4939,14 @@ class Ball {
                 this.slowDuration = 0;
             }
         }
-        
+
         if (this.stunDuration) {
             this.stunDuration -= deltaTime;
             if (this.stunDuration <= 0) {
                 this.stunDuration = 0;
             }
         }
-        
+
         if (this.rootDuration) {
             this.rootDuration -= deltaTime;
             if (this.rootDuration <= 0) {
@@ -4937,7 +4954,7 @@ class Ball {
                 this.rootDuration = 0;
             }
         }
-        
+
         if (this.burnDuration) {
             this.burnDuration -= deltaTime;
             if (this.burnDuration <= 0) {
@@ -4947,8 +4964,8 @@ class Ball {
                 this.hp = Math.max(0, this.hp - this.burnDamage * deltaTime);
             }
         }
-        
-        
+
+
         // Update buff durations
         if (this.battleCryDuration) {
             this.battleCryDuration -= deltaTime;
@@ -4961,9 +4978,9 @@ class Ball {
                 this.activeSkillCooldown = this.applyCooldownReduction(4);
             }
         }
-        
+
         // Blood Frenzy stacks handled per damage instance
-        
+
         if (this.feared) {
             this.fearDuration -= deltaTime;
             if (this.fearDuration <= 0) {
@@ -4971,7 +4988,7 @@ class Ball {
                 this.fearDuration = 0;
             }
         }
-        
+
         if (this.tacticalRollDuration) {
             this.tacticalRollDuration -= deltaTime;
             if (this.tacticalRollDuration <= 0) {
@@ -4979,7 +4996,7 @@ class Ball {
                 this.tacticalRollDuration = 0;
             }
         }
-        
+
         if (this.shieldBashDefenseDuration > 0) {
             this.shieldBashDefenseDuration -= deltaTime;
             if (this.shieldBashDefenseDuration <= 0) {
@@ -4987,10 +5004,10 @@ class Ball {
                 this.shieldBashDefenseDuration = 0;
             }
         }
-        
+
         // Battle Focus stacks are consumed per basic attack, not per frame
         // Stack consumption happens in performBasicAttack() method
-        
+
         if (this.dreadAuraDuration) {
             this.dreadAuraDuration -= deltaTime;
             if (this.dreadAuraDuration <= 0) {
@@ -4998,7 +5015,7 @@ class Ball {
                 this.dreadAuraDuration = 0;
             }
         }
-        
+
         // Ultimate durations
         if (this.unstoppableStrengthActive) {
             this.clearCrowdControlEffects();
@@ -5007,7 +5024,7 @@ class Ball {
                 this.finishUnstoppableStrength();
             }
         }
-        
+
         if (this.unstoppableRageDuration) {
             this.unstoppableRageDuration -= deltaTime;
             if (this.unstoppableRageDuration <= 0) {
@@ -5019,7 +5036,7 @@ class Ball {
                 this.ultimateCooldown = 12;
             }
         }
-        
+
         if (this.bastionDuration) {
             this.bastionDuration -= deltaTime;
             if (this.bastionDuration <= 0) {
@@ -5027,7 +5044,7 @@ class Ball {
                 this.endUnbreakableBastion();
             }
         }
-        
+
         if (this.tauntDuration) {
             this.tauntDuration -= deltaTime;
             if (this.tauntDuration <= 0) {
@@ -5035,7 +5052,7 @@ class Ball {
                 this.tauntTargetId = null;
             }
         }
-        
+
         if (this.spiritOfForestDuration) {
             this.spiritOfForestDuration -= deltaTime;
             if (this.spiritOfForestDuration <= 0) {
@@ -5044,9 +5061,9 @@ class Ball {
                 this.spiritOfForestDuration = 0;
             }
         }
-        
+
         // Last Stand duration logic removed - it now only ends when shield breaks
-        
+
         if (this.demonicAscensionDuration) {
             this.demonicAscensionDuration -= deltaTime;
             if (this.demonicAscensionDuration <= 0) {
@@ -5057,7 +5074,7 @@ class Ball {
                 this.ultimateCooldown = 12; // 12 second cooldown
             }
         }
-        
+
         // Apply HP regeneration
         if (this.hpRegen) {
             const hpBefore = this.hp;
@@ -5065,14 +5082,14 @@ class Ball {
             if (this.hp > hpBefore) {
                 this.triggerAleFueledResilience();
             }
-            
+
             // Create regeneration effect every second
             if (!this.lastRegenEffect || Date.now() - this.lastRegenEffect > 1000) {
                 this.createRegenerationEffect();
                 this.lastRegenEffect = Date.now();
             }
         }
-        
+
         // Update Ale-Fueled Resilience duration
         if (this.aleFueledResilienceDuration > 0) {
             this.aleFueledResilienceDuration -= deltaTime;
@@ -5080,12 +5097,12 @@ class Ball {
                 this.aleFueledResilienceDuration = 0;
             }
         }
-        
+
         // Apply shield absorption
         if (this.shield && this.shield > 0) {
             // Shield absorbs damage first
         }
-        
+
         // Apply cooldown slow
         if (this.cooldownSlow) {
             this.basicAttackCooldown += 0.016 * this.cooldownSlow;
@@ -5103,7 +5120,7 @@ class Ball {
             if (ball.id !== this.id) {
                 const distance = Math.sqrt((ball.x - this.x) ** 2 + (ball.y - this.y) ** 2);
                 const minDistance = this.radius + ball.radius;
-                
+
                 if (distance < minDistance) {
                     // Check for Hero's Wrath collision
                     if (this.ultimate === 'herosWrath' && this.ultimateCooldown <= 0) {
@@ -5112,7 +5129,7 @@ class Ball {
                     if (ball.ultimate === 'herosWrath' && ball.ultimateCooldown <= 0) {
                         ball.triggerHerosWrath(this);
                     }
-                    
+
                     // Check for War Stomp collision
                     if (this.skill === 'warStomp' && this.activeSkillCooldown <= 0) {
                         this.createWarStompCollisionEffect(ball);
@@ -5120,7 +5137,7 @@ class Ball {
                     if (ball.skill === 'warStomp' && ball.activeSkillCooldown <= 0) {
                         ball.createWarStompCollisionEffect(this);
                     }
-                    
+
                     // Check for Hammer of Mountain collision
                     if (this.ultimate === 'hammerOfMountain' && this.ultimateCooldown <= 0) {
                         this.createHammerOfMountainCollisionEffect(ball);
@@ -5128,22 +5145,22 @@ class Ball {
                     if (ball.ultimate === 'hammerOfMountain' && ball.ultimateCooldown <= 0) {
                         ball.createHammerOfMountainCollisionEffect(this);
                     }
-                    
+
                     // Collision detected - separate balls
                     const overlap = minDistance - distance;
                     const separationX = (this.x - ball.x) / distance * overlap * 0.5;
                     const separationY = (this.y - ball.y) / distance * overlap * 0.5;
-                    
+
                     this.x += separationX;
                     this.y += separationY;
                     ball.x -= separationX;
                     ball.y -= separationY;
-                    
+
                     // Bounce effect
                     const angle = Math.atan2(ball.y - this.y, ball.x - this.x);
                     const speed1 = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
                     const speed2 = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
-                    
+
                     // Simple elastic collision
                     this.vx = -Math.cos(angle) * speed1 * 0.8;
                     this.vy = -Math.sin(angle) * speed1 * 0.8;
@@ -5156,19 +5173,19 @@ class Ball {
 
     useSkills(balls) {
         // Skills can be used even when rooted
-        
+
         // Use basic attack (skip if stunned)
         if (this.basicAttackCooldown <= 0 && this.aiTarget && this.stunDuration <= 0 && !this.headbuttActive && !this.feared) {
             const distance = Math.sqrt((this.aiTarget.x - this.x) ** 2 + (this.aiTarget.y - this.y) ** 2);
             const rangedWeapons = ['bow', 'crossbow', 'staff'];
-            
+
             // For ranged weapons, attack from any distance
             // For melee weapons, only attack when close
             if (rangedWeapons.includes(this.weapon) || distance < 50) {
                 this.useBasicAttack(this.aiTarget);
             }
         }
-        
+
         // Use active skill (skip if stunned)
         if (this.activeSkillCooldown <= 0 && this.aiTarget && this.stunDuration <= 0 && !this.headbuttActive && !this.feared) {
             // Don't use Execution Strike, Battle Focus, or Battle Cry if they already have stacks/are active
@@ -5180,7 +5197,7 @@ class Ball {
                 this.useActiveSkill(this.aiTarget, balls);
             }
         }
-        
+
         // Use ultimate (skip if stunned)
         if (this.ultimateCooldown <= 0 && this.aiTarget && this.stunDuration <= 0 && !this.headbuttActive && !this.feared) {
             const distance = Math.sqrt((this.aiTarget.x - this.x) ** 2 + (this.aiTarget.y - this.y) ** 2);
@@ -5188,7 +5205,7 @@ class Ball {
                 this.useUltimate(this.aiTarget, balls);
             }
         }
-        
+
         if (this.ultimate === 'unstoppableStrength' &&
             this.ultimateCooldown <= 0 &&
             !this.unstoppableStrengthActive &&
@@ -5202,14 +5219,14 @@ class Ball {
         if (this.stunDuration > 0 || this.headbuttActive) {
             return;
         }
-        
+
         // Check for Shadow Puppeteer cancellation (5% chance)
         if (target && this.checkShadowPuppeteerCancel && this.checkShadowPuppeteerCancel(target)) {
             // Set cooldown even when cancelled (for all weapons including sword/dual sword)
             this.basicAttackCooldown = 1.2; // 1.2 second cooldown
             return; // Move cancelled
         }
-        
+
         // Set cooldown for all weapons
         // Focused Beam has a longer cooldown
         if (this.attack === 'focusedBeam') {
@@ -5217,39 +5234,39 @@ class Ball {
         } else {
             this.basicAttackCooldown = 1.2; // 1.2 second cooldown
         }
-        
+
         // Consume Execution Strike stack if active
         if (this.executionStrikeStacks > 0) {
             this.executionStrikeStacks--;
-            
+
             // If this was the last stack, put Execution Strike on cooldown
             if (this.executionStrikeStacks <= 0) {
                 this.activeSkillCooldown = 4; // 4 second cooldown
                 // Remove the visual effect
                 if (window.gameInstance) {
-                    window.gameInstance.visualEffects = window.gameInstance.visualEffects.filter(effect => 
+                    window.gameInstance.visualEffects = window.gameInstance.visualEffects.filter(effect =>
                         !(effect.type === 'image' && effect.imageKey === 'executionStrike' && effect.followTarget === this)
                     );
                 }
             }
         }
-        
+
         // Consume Battle Focus stack if active
         if (this.battleFocusStacks > 0) {
             this.battleFocusStacks--;
-            
+
             // If this was the last stack, put Battle Focus on cooldown
             if (this.battleFocusStacks <= 0) {
                 this.activeSkillCooldown = 4; // 4 second cooldown
                 // Remove the visual effect
                 if (window.gameInstance) {
-                    window.gameInstance.visualEffects = window.gameInstance.visualEffects.filter(effect => 
+                    window.gameInstance.visualEffects = window.gameInstance.visualEffects.filter(effect =>
                         !(effect.type === 'image' && effect.imageKey === 'battleFocus' && effect.followTarget === this)
                     );
                 }
             }
         }
-        
+
         // Check if this is a ranged weapon
         const rangedWeapons = ['bow', 'crossbow', 'staff', 'sword', 'dualSword'];
         if (rangedWeapons.includes(this.weapon)) {
@@ -5263,7 +5280,7 @@ class Ball {
         } else {
             // Melee attack - handled by weapon spinning system
             // The weapon spinning system will handle damage when weapons hit
-            
+
             // Add visual effects for specific Human attacks
             if (this.attack === 'flurryOfBlows') {
                 this.createFlurryOfBlowsEffect(target);
@@ -5276,27 +5293,27 @@ class Ball {
 
     createMeleeAttackEffect(target) {
         if (!window.gameInstance) return;
-        
+
         const angle = Math.atan2(target.y - this.y, target.x - this.x);
-        
+
         // Create weapon-specific slash effect
         let imageKey = 'sword'; // default
         if (this.weapon === 'dualSword') {
             imageKey = 'dualSword';
         }
-        
+
         // Create multiple slash effects around the ball to simulate spinning/swinging
         for (let i = 0; i < 3; i++) {
             const slashAngle = angle + (i - 1) * 0.8; // Spread around the target direction
             const offsetX = Math.cos(slashAngle) * 20; // Distance from ball center
             const offsetY = Math.sin(slashAngle) * 20;
-            
+
             window.gameInstance.createVisualEffect(
-                this.x + offsetX, this.y + offsetY, 'slash', 0.4, 
+                this.x + offsetX, this.y + offsetY, 'slash', 0.4,
                 { angle: slashAngle, size: 25, color: '#ff0000', imageKey: imageKey }
             );
         }
-        
+
         // Create impact effect on target
         window.gameInstance.createVisualEffect(
             target.x, target.y, 'explosion', 0.3,
@@ -5306,13 +5323,13 @@ class Ball {
 
     createAxeThrowEffect(target) {
         if (!window.gameInstance) return;
-        
+
         // Create spinning axe effect with image
         window.gameInstance.createVisualEffect(
             this.x, this.y, 'slash', 0.8,
             { angle: Math.atan2(target.y - this.y, target.x - this.x), size: 40, color: '#8B4513', imageKey: 'axeThrow' }
         );
-        
+
         // Create impact effect
         window.gameInstance.createVisualEffect(
             target.x, target.y, 'explosion', 0.4,
@@ -5322,7 +5339,7 @@ class Ball {
 
     createFrenziedSlashEffect(balls) {
         if (!window.gameInstance) return;
-        
+
         // Create multiple slash effects around the ball
         for (let i = 0; i < 8; i++) {
             const angle = (i / 8) * Math.PI * 2;
@@ -5335,13 +5352,13 @@ class Ball {
 
     createWarStompEffect(balls) {
         if (!window.gameInstance) return;
-        
+
         // Create ground impact effect with image
         window.gameInstance.createVisualEffect(
             this.x, this.y, 'earth', 0.8,
             { size: 60, color: '#8B4513', imageKey: 'warStomp' }
         );
-        
+
         // Create shockwave
         window.gameInstance.createVisualEffect(
             this.x, this.y, 'explosion', 0.5,
@@ -5351,65 +5368,65 @@ class Ball {
 
     createWarStompCollisionEffect(target) {
         if (!window.gameInstance) return;
-        
+
         // Play War Stomp sound on collision
         window.gameInstance.playSound('warStomp');
-        
+
         // Deal 8 damage once
         this.dealDamage(target, 8);
-        
+
         // Stun the target for 0.8 seconds (lock in place, no abilities)
         if (!target.checkCCDodge()) {
             const stunDuration = target.applyCCDurationReduction(0.8);
             target.stunDuration = stunDuration;
         }
-        
+
         // Create war stomp animation effect on the target
         window.gameInstance.createVisualEffect(
             target.x, target.y, 'warStomp', 1.0, // 1 second duration
-            { 
+            {
                 size: target.radius * 2, // Same size as target ball
                 followTarget: target
                 // No imageKey - this ensures renderWarStomp is called instead of renderImage
             }
         );
-        
+
         // Put war stomp on cooldown
         this.activeSkillCooldown = 4; // 4 second cooldown
     }
 
     createHammerOfMountainCollisionEffect(target) {
         if (!window.gameInstance) return;
-        
+
         // Play Hammer of Mountain sound on collision
         window.gameInstance.playSound('hammerOfMountain');
-        
+
         // Deal 14 damage
         this.dealDamage(target, 14, { skillName: 'hammerOfMountain', skillType: 'ultimate' });
-        
+
         // Stun the target for 1.2 seconds
         if (!target.checkCCDodge()) {
             const stunDuration = target.applyCCDurationReduction(1.2);
             target.stunDuration = Math.max(target.stunDuration || 0, stunDuration);
         }
-        
+
         // Create hammer of mountain animation effect on the target
         window.gameInstance.createVisualEffect(
             target.x, target.y, 'hammerOfMountain', 1.0,
-            { 
+            {
                 size: target.radius * 4,
                 followTarget: target,
                 dropDistance: target.radius * 3
             }
         );
-        
+
         // Put hammer of mountain on cooldown
         this.ultimateCooldown = this.applyCooldownReduction(12); // 12 second cooldown
     }
 
     createBattleCryEffect() {
         if (!window.gameInstance) return;
-        
+
         // Create aura effect
         window.gameInstance.createVisualEffect(
             this.x, this.y, 'aura', 1.5,
@@ -5419,13 +5436,13 @@ class Ball {
 
     createHammerStrikeEffect(target) {
         if (!window.gameInstance) return;
-        
+
         // Apply 1 second stun to the target
         if (!target.checkCCDodge()) {
             const stunDuration = target.applyCCDurationReduction(1.0);
             target.stunDuration = Math.max(target.stunDuration || 0, stunDuration);
         }
-        
+
         // Play hammer strike animation on the target
         window.gameInstance.createVisualEffect(
             target.x,
@@ -5443,7 +5460,7 @@ class Ball {
 
     createStoneTossEffect(target) {
         if (!window.gameInstance || !target) return;
-        
+
         // Play stone toss impact animation over the target
         window.gameInstance.createVisualEffect(
             target.x,
@@ -5458,10 +5475,10 @@ class Ball {
             }
         );
     }
-    
+
     createElementalBurstWaveEffect(target) {
         if (!window.gameInstance || !target) return;
-        
+
         // Create fast expanding orange circle wave (empty inside) with radius 60
         window.gameInstance.createVisualEffect(
             target.x,
@@ -5476,10 +5493,10 @@ class Ball {
             }
         );
     }
-    
+
     createHammerOfMountainEffect(target) {
         if (!window.gameInstance || !target) return;
-        
+
         window.gameInstance.createVisualEffect(
             target.x,
             target.y,
@@ -5499,20 +5516,20 @@ class Ball {
 
     consumeFortifyCharge() {
         if (!this.fortifyActive || this.fortifyStacks <= 0) return;
-        
+
         // Check if enough time has passed since last stack consumption (prevent sound spam)
         const now = Date.now();
         const canPlaySound = (now - this.lastFortifyStackConsumed) > 100; // 100ms cooldown
-        
+
         // Consume 1 stack
         this.fortifyStacks--;
-        
+
         // Play Fortify sound only once per stack consumption (with cooldown)
         if (window.gameInstance && canPlaySound) {
             window.gameInstance.playSound('fortify');
             this.lastFortifyStackConsumed = now;
         }
-        
+
         // If all stacks are consumed, deactivate and set cooldown
         if (this.fortifyStacks <= 0) {
             this.fortifyActive = false;
@@ -5520,7 +5537,7 @@ class Ball {
             this.activeSkillCooldown = this.applyCooldownReduction(this.fortifyCooldownDuration);
         }
     }
-    
+
     endUnbreakableBastion() {
         if (!this.unbreakableBastionActive) return;
         this.unbreakableBastionActive = false;
@@ -5542,13 +5559,13 @@ class Ball {
             this.ultimateCooldown = 12;
         }
     }
-    
+
     applyTaunt(source, duration = 3) {
         if (!source) return;
         this.tauntTargetId = source.id;
         this.tauntDuration = duration;
     }
-    
+
     applyFear(duration = 2) {
         if (this.immuneToCC) return;
         if (this.checkCCDodge()) return; // CC dodged, don't apply fear
@@ -5556,7 +5573,7 @@ class Ball {
         const reducedDuration = this.applyCCDurationReduction(duration);
         this.fearDuration = Math.max(this.fearDuration, reducedDuration);
     }
-    
+
     clearCrowdControlEffects() {
         this.stunDuration = 0;
         this.feared = false;
@@ -5564,21 +5581,21 @@ class Ball {
         this.rooted = false;
         this.rootDuration = 0;
     }
-    
+
     startBattleRoarAnimation() {
         const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
         this.battleRoarAnimationStart = now;
     }
-    
+
     applyBattleRoarBuff(stacks = 3) {
         this.battleRoarBonusStacks = stacks;
         this.startBattleRoarAnimation();
     }
-    
+
     applyBattleRoarDebuff(stacks = 3) {
         this.battleRoarDebuffStacks = stacks;
     }
-    
+
     startUnstoppableStrength() {
         if (this.unstoppableStrengthActive) return;
         this.unstoppableStrengthActive = true;
@@ -5587,7 +5604,7 @@ class Ball {
         this.immuneToCC = true;
         this.clearCrowdControlEffects();
     }
-    
+
     finishUnstoppableStrength() {
         this.unstoppableStrengthActive = false;
         this.unstoppableStrengthDuration = 0;
@@ -5599,22 +5616,22 @@ class Ball {
     activateRuneCharge() {
         if (this.runeChargeActive || this.runeChargeStacks > 0) return;
         if (this.activeSkillCooldown > 0) return;
-        
+
         // Play sound only once when skill is activated
         if (window.gameInstance) {
             window.gameInstance.playSound('runeCharge');
         }
-        
+
         this.runeChargeActive = true;
         this.runeChargeStacks = 3;
         this.startRuneChargeAnimation();
     }
-    
+
     startRuneChargeAnimation() {
         const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
         this.runeChargeAnimationStart = now;
     }
-    
+
     consumeRuneChargeStack() {
         if (!this.runeChargeActive || this.runeChargeStacks <= 0) return;
         this.runeChargeStacks--;
@@ -5622,7 +5639,7 @@ class Ball {
             this.finishRuneCharge();
         }
     }
-    
+
     finishRuneCharge() {
         this.runeChargeActive = false;
         this.runeChargeStacks = 0;
@@ -5632,33 +5649,33 @@ class Ball {
 
     createArrowStormProjectile(target) {
         if (!window.gameInstance) return;
-        
+
         // Calculate direction to target
         const dx = target.x - this.x;
         const dy = target.y - this.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        
+
         if (distance === 0) return;
-        
+
         // Range is 100 pixels, travel time is 0.7 seconds
         // Speed = 100 / 0.7 = ~142.86 pixels per second, or ~2.38 pixels per frame at 60fps
         const range = 100;
         const travelTime = 0.7;
         const speed = range / travelTime / 60; // pixels per frame
-        
+
         const vx = (dx / distance) * speed;
         const vy = (dy / distance) * speed;
-        
+
         // Create projectile
         const projectile = new Projectile(
-            this.x, this.y, vx, vy, 10, 'arrowStormProjectile', this.id, target.id, 
-            { 
-                skillName: 'arrowStorm', 
+            this.x, this.y, vx, vy, 10, 'arrowStormProjectile', this.id, target.id,
+            {
+                skillName: 'arrowStorm',
                 skillType: 'active',
                 collisionRadius: this.radius
             }
         );
-        
+
         // Set lifetime to 0.7 seconds (projectile disappears after traveling its range)
         projectile.lifetime = travelTime;
         projectile.isArrowStorm = true;
@@ -5666,13 +5683,13 @@ class Ball {
         projectile.arrowStormDuration = travelTime * 1000; // in milliseconds
         projectile.piercing = true; // Don't disappear on hit, keep moving
         projectile.arrowStormHitEnemies = new Set(); // Track enemies already hit (only damage once)
-        
+
         window.gameInstance.projectiles.push(projectile);
     }
 
     createNaturesGraspEffect(target) {
         if (!window.gameInstance) return;
-        
+
         // Create Nature's Grasp animation effect on the target
         window.gameInstance.createVisualEffect(
             target.x, target.y, 'naturesGrasp', 2.0,
@@ -5682,15 +5699,15 @@ class Ball {
 
     createShadowstepEffect(startX, startY, endX, endY) {
         if (!window.gameInstance) return;
-        
+
         // Create shadowstep animation effect that moves from start to end
         window.gameInstance.createVisualEffect(
             startX, startY, 'shadowstep', 1.0, // 1 second animation
-            { 
-                size: this.radius, 
-                startX: startX, 
-                startY: startY, 
-                endX: endX, 
+            {
+                size: this.radius,
+                startX: startX,
+                startY: startY,
+                endX: endX,
                 endY: endY
             }
         );
@@ -5698,7 +5715,7 @@ class Ball {
 
     createSylvanMarkEffect(target) {
         if (!window.gameInstance) return;
-        
+
         // Create Sylvan Mark animation effect on the target
         window.gameInstance.createVisualEffect(
             target.x, target.y, 'sylvanMark', 1.0,
@@ -5708,33 +5725,33 @@ class Ball {
 
     createRainOfStarsEffect(target) {
         if (!window.gameInstance) return;
-        
+
         // Create Rain of Stars animation effect on the target
         window.gameInstance.createVisualEffect(
             target.x, target.y, 'rainOfStars', 1.5,
             { size: target.radius, followTarget: target }
         );
     }
-    
+
     createRainOfStarsZones(balls) {
         if (!window.gameInstance) return;
-        
+
         const canvasWidth = window.gameInstance.canvas.width;
         const canvasHeight = window.gameInstance.canvas.height;
         const caster = this;
-        
+
         // Create 3 zones at random locations
         for (let i = 0; i < 3; i++) {
             const randomX = Math.random() * (canvasWidth - 100) + 50;
             const randomY = Math.random() * (canvasHeight - 100) + 50;
-            
+
             // Create tracking set for enemies hit by this zone
             const hitEnemies = new Set();
-            
+
             // Create visual effect for this zone
             const zoneEffect = window.gameInstance.createVisualEffect(
                 randomX, randomY, 'rainOfStarsZone', 1.2, // 1.2 seconds duration
-                { 
+                {
                     size: 60, // Radius of the damage zone
                     hitEnemies: hitEnemies,
                     caster: caster,
@@ -5744,51 +5761,51 @@ class Ball {
             );
         }
     }
-    
+
     createRainOfStarsIndicators(balls) {
         if (!window.gameInstance) return;
-        
+
         const canvasWidth = window.gameInstance.canvas.width;
         const canvasHeight = window.gameInstance.canvas.height;
         const caster = this;
-        
+
         // Store positions for later use
         const positions = [];
-        
+
         // Create 3 indicator circles at random locations
         for (let i = 0; i < 3; i++) {
             const randomX = Math.random() * (canvasWidth - 100) + 50;
             const randomY = Math.random() * (canvasHeight - 100) + 50;
             positions.push({ x: randomX, y: randomY });
-            
+
             // Create purple circle indicator (Phase 1 - 1 second)
             window.gameInstance.createVisualEffect(
                 randomX, randomY, 'rainOfStarsIndicator', 1.0,
-                { 
+                {
                     size: 60, // Radius of the indicator circle
                     color: '#8B008B' // Purple color
                 }
             );
         }
-        
+
         // After 1 second, start the real animations and resume movement
         setTimeout(() => {
             // Resume ball movement
             this.vx = this.rainOfStarsStoredVx || 0;
             this.vy = this.rainOfStarsStoredVy || 0;
             this.rainOfStarsStopped = false;
-            
+
             // Play sound when real animation starts
             if (window.gameInstance) {
                 window.gameInstance.playSound('rainOfStars');
             }
-            
+
             // Create the actual damage zones at the stored positions
             positions.forEach(pos => {
                 const hitEnemies = new Set();
                 window.gameInstance.createVisualEffect(
                     pos.x, pos.y, 'rainOfStarsZone', 1.2, // 1.2 seconds duration
-                    { 
+                    {
                         size: 60,
                         hitEnemies: hitEnemies,
                         caster: caster,
@@ -5802,21 +5819,21 @@ class Ball {
 
     launchSylvanMarkArrow(target) {
         if (!window.gameInstance) return;
-        
+
         // Create projectile from this ball to target
         const dx = target.x - this.x;
         const dy = target.y - this.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        
+
         if (distance > 0) {
             const speed = 5; // Projectile speed
             const vx = (dx / distance) * speed;
             const vy = (dy / distance) * speed;
-            
+
             const projectile = new Projectile(
                 this.x, this.y, vx, vy, 15, 'sylvanMarkArrow', this.id, target.id
             );
-            
+
             window.gameInstance.projectiles.push(projectile);
         }
     }
@@ -5824,7 +5841,7 @@ class Ball {
 
     createBattleRoarEffect(balls) {
         if (!window.gameInstance) return;
-        
+
         window.gameInstance.createVisualEffect(
             this.x,
             this.y,
@@ -5836,7 +5853,7 @@ class Ball {
                 size: 180
             }
         );
-        
+
         setTimeout(() => {
             if (!Array.isArray(balls)) return;
             balls.forEach(ball => {
@@ -5852,7 +5869,7 @@ class Ball {
 
     createHeadbuttEffect(target) {
         if (!window.gameInstance) return;
-        
+
         // Create headbutt effect
         window.gameInstance.createVisualEffect(
             target.x, target.y, 'explosion', 0.4,
@@ -5867,7 +5884,7 @@ class Ball {
         this.headbuttStoredVelocity = { vx: this.vx, vy: this.vy };
         this.updateHeadbuttVelocity(target);
     }
-    
+
     updateHeadbuttVelocity(target) {
         const dx = target.x - this.x;
         const dy = target.y - this.y;
@@ -5875,7 +5892,7 @@ class Ball {
         this.vx = (dx / distance) * this.headbuttSpeed;
         this.vy = (dy / distance) * this.headbuttSpeed;
     }
-    
+
     updateHeadbutt(balls) {
         if (!this.headbuttActive) return;
         if (this.stunDuration > 0) {
@@ -5887,24 +5904,24 @@ class Ball {
             this.finishHeadbutt(false);
             return;
         }
-        
+
         this.updateHeadbuttVelocity(target);
         this.x += this.vx;
         this.y += this.vy;
-        
+
         if (window.gameInstance && window.gameInstance.canvas) {
             const canvas = window.gameInstance.canvas;
             this.x = Math.max(this.radius, Math.min(canvas.width - this.radius, this.x));
             this.y = Math.max(this.radius, Math.min(canvas.height - this.radius, this.y));
         }
-        
+
         const distanceToTarget = Math.hypot(target.x - this.x, target.y - this.y);
         if (distanceToTarget <= this.radius + target.radius) {
             // Play collision sound
             if (window.gameInstance) {
                 window.gameInstance.playSound('Headbutt_Collision');
             }
-            
+
             this.createHeadbuttEffect(target);
             this.dealDamage(target, 4, { skillName: 'headbutt', skillType: 'active', fixedDamage: true });
             if (!target.checkCCDodge()) {
@@ -5914,7 +5931,7 @@ class Ball {
             this.finishHeadbutt(true);
         }
     }
-    
+
     finishHeadbutt(applyCooldown = true) {
         this.headbuttActive = false;
         this.headbuttTargetId = null;
@@ -5934,7 +5951,7 @@ class Ball {
         this.bloodFrenzyAnimationStart = null;
         this.createBloodFrenzyEffect();
     }
-    
+
     consumeBloodFrenzyStack() {
         if (!this.bloodFrenzyActive || this.bloodFrenzyStacks <= 0) return;
         this.bloodFrenzyStacks--;
@@ -5942,7 +5959,7 @@ class Ball {
             this.finishBloodFrenzy();
         }
     }
-    
+
     finishBloodFrenzy() {
         this.bloodFrenzyActive = false;
         this.bloodFrenzyAnimationStart = null;
@@ -5955,7 +5972,7 @@ class Ball {
 
     createShieldBashEffect(target) {
         if (!window.gameInstance) return;
-        
+
         // Create shield bash effect
         window.gameInstance.createVisualEffect(
             target.x, target.y, 'explosion', 0.3,
@@ -5965,7 +5982,7 @@ class Ball {
 
     createTacticalRollEffect() {
         if (!window.gameInstance) return;
-        
+
         // Create roll effect
         window.gameInstance.createVisualEffect(
             this.x, this.y, 'wind', 1.0,
@@ -5975,7 +5992,7 @@ class Ball {
 
     createBattleFocusEffect() {
         if (!window.gameInstance) return;
-        
+
         // Create focus effect
         window.gameInstance.createVisualEffect(
             this.x, this.y, 'light', 1.5,
@@ -5985,7 +6002,7 @@ class Ball {
 
     createExecutionStrikeEffect(target) {
         if (!window.gameInstance) return;
-        
+
         // Create execution effect
         window.gameInstance.createVisualEffect(
             target.x, target.y, 'explosion', 0.5,
@@ -5996,7 +6013,7 @@ class Ball {
 
     createSoulLeechEffect(target) {
         if (!window.gameInstance) return;
-        
+
         // Create soul leech effect
         window.gameInstance.createVisualEffect(
             this.x, this.y, 'heal', 0.5,
@@ -6007,7 +6024,7 @@ class Ball {
 
     createInfernalChainsEffect(target) {
         if (!window.gameInstance) return;
-        
+
         // Create chains effect
         window.gameInstance.createVisualEffect(
             target.x, target.y, 'ice', 1.5,
@@ -6017,7 +6034,7 @@ class Ball {
 
     createBloodEffect(target) {
         if (!window.gameInstance) return;
-        
+
         // Create blood effect that follows the target and lasts for bleed duration
         window.gameInstance.createVisualEffect(
             target.x, target.y, 'blood', 3.0, // Last for 3 seconds (bleed duration)
@@ -6027,7 +6044,7 @@ class Ball {
 
     createFloatingDamageText(target, damage) {
         if (!window.gameInstance) return;
-        
+
         // Generate random color (not red or blue)
         const colors = [
             '#ffff00', // Yellow
@@ -6042,7 +6059,7 @@ class Ball {
             '#00ff88'  // Spring Green
         ];
         const randomColor = colors[Math.floor(Math.random() * colors.length)];
-        
+
         // Create floating damage text above the ball
         const damageText = {
             x: target.x,
@@ -6055,7 +6072,7 @@ class Ball {
             moveSpeed: 40, // pixels per second upward
             color: randomColor
         };
-        
+
         // Add to game instance for rendering
         if (!window.gameInstance.floatingDamageTexts) {
             window.gameInstance.floatingDamageTexts = [];
@@ -6065,7 +6082,7 @@ class Ball {
 
     createFloatingCriticalText(target) {
         if (!window.gameInstance) return;
-        
+
         // Create floating "CRITICAL!" text above the ball - same position as damage text
         const critText = {
             x: target.x,
@@ -6077,7 +6094,7 @@ class Ball {
             offsetY: -target.radius - 10, // Same offset as damage text
             moveSpeed: 40 // Same speed as damage text
         };
-        
+
         // Add to game instance for rendering
         if (!window.gameInstance.floatingCriticalTexts) {
             window.gameInstance.floatingCriticalTexts = [];
@@ -6087,7 +6104,7 @@ class Ball {
 
     createFloatingDodgeText(target) {
         if (!window.gameInstance) return;
-        
+
         // Create floating "Dodged!" text above the ball - same position as damage text
         const dodgeText = {
             x: target.x,
@@ -6099,7 +6116,7 @@ class Ball {
             offsetY: -target.radius - 10, // Same offset as damage text
             moveSpeed: 40 // Same speed as damage text
         };
-        
+
         // Add to game instance for rendering
         if (!window.gameInstance.floatingDodgeTexts) {
             window.gameInstance.floatingDodgeTexts = [];
@@ -6110,7 +6127,7 @@ class Ball {
     // Ultimate skill visual effects
     createUnstoppableRageEffect() {
         if (!window.gameInstance) return;
-        
+
         // Create massive aura effect
         window.gameInstance.createVisualEffect(
             this.x, this.y, 'fire', 3.0,
@@ -6120,13 +6137,13 @@ class Ball {
 
     createEarthshatterEffect(balls) {
         if (!window.gameInstance) return;
-        
+
         // Create massive earth impact with image
         window.gameInstance.createVisualEffect(
             this.x, this.y, 'earth', 1.5,
             { size: 100, color: '#8B4513', imageKey: 'earthshatter' }
         );
-        
+
         // Create shockwave
         window.gameInstance.createVisualEffect(
             this.x, this.y, 'explosion', 1.0,
@@ -6136,7 +6153,7 @@ class Ball {
 
     createEarthshatterDashEffect() {
         if (!window.gameInstance) return;
-        
+
         // Create dash line effect - find closest enemy for direction
         const enemies = window.gameInstance.balls.filter(ball => ball.id !== this.id);
         if (enemies.length > 0) {
@@ -6145,13 +6162,13 @@ class Ball {
                 const closestDist = Math.sqrt((closest.x - this.x) ** 2 + (closest.y - this.y) ** 2);
                 return dist < closestDist ? enemy : closest;
             });
-            
+
             // Create dash line
             window.gameInstance.createVisualEffect(
                 this.x, this.y, 'beam', 0.8,
-                { 
-                    targetX: closestEnemy.x, 
-                    targetY: closestEnemy.y, 
+                {
+                    targetX: closestEnemy.x,
+                    targetY: closestEnemy.y,
                     color: '#8B4513',
                     size: 8
                 }
@@ -6161,11 +6178,11 @@ class Ball {
 
     createAnvilOfMountainEffect(balls, target, predictedX, predictedY) {
         if (!window.gameInstance) return;
-        
+
         // Debug logging to verify coordinates
         console.log(`Creating anvil at predicted position: (${predictedX.toFixed(1)}, ${predictedY.toFixed(1)})`);
         console.log(`Target current position: (${target.x.toFixed(1)}, ${target.y.toFixed(1)})`);
-        
+
         // Create anvil drop effect at the predicted position passed in
         window.gameInstance.createVisualEffect(
             predictedX, predictedY, 'anvilDrop', 2.0,
@@ -6175,7 +6192,7 @@ class Ball {
 
     createUnbreakableBastionEffect() {
         if (!window.gameInstance) return;
-        
+
         window.gameInstance.createVisualEffect(
             this.x,
             this.y,
@@ -6191,7 +6208,7 @@ class Ball {
 
     createSpiritOfForestEffect() {
         if (!window.gameInstance) return;
-        
+
         // Create Spirit of Forest effect above the ball (like Last Stand)
         window.gameInstance.createVisualEffect(
             this.x, this.y, 'spiritOfForest', 4.0,
@@ -6201,13 +6218,13 @@ class Ball {
 
     createRegenerationEffect() {
         if (!window.gameInstance) return;
-        
+
         // Create regeneration effect around the ball
         const angle = Math.random() * Math.PI * 2;
         const distance = 20 + Math.random() * 20; // Random distance around the ball
         const x = this.x + Math.cos(angle) * distance;
         const y = this.y + Math.sin(angle) * distance;
-        
+
         window.gameInstance.createVisualEffect(
             x, y, 'regeneration', 1.0,
             { size: 15, imageKey: 'regeneration', followTarget: this }
@@ -6216,20 +6233,20 @@ class Ball {
 
     createFocusedBeamEffect(target) {
         if (!window.gameInstance) return;
-        
+
         // Play random focused beam sound
         window.gameInstance.playRandomStaffFocusedBeamSound();
-        
+
         // Create focused beam effect from this ball to target
         const distance = Math.sqrt((target.x - this.x) ** 2 + (target.y - this.y) ** 2);
-        
+
         // Deal damage immediately when beam is created
         const damage = this.getBasicAttackDamage(target);
         this.dealDamage(target, damage);
-        
+
         window.gameInstance.createVisualEffect(
             this.x, this.y, 'focusedBeam', 0.75, // 0.75 seconds duration
-            { 
+            {
                 size: distance, // Size based on distance
                 color: '#9370DB',
                 imageKey: 'focusedBeam',
@@ -6243,11 +6260,11 @@ class Ball {
 
     createInfernalChainsEffect(target) {
         if (!window.gameInstance) return;
-        
+
         // Create infernal chains visual effect on the target (animation only)
         window.gameInstance.createVisualEffect(
             target.x, target.y, 'infernalChains', 1.0, // 1 second duration
-            { 
+            {
                 size: target.radius, // Same size as ball
                 color: '#ff4400',
                 imageKey: 'infernalChains',
@@ -6255,53 +6272,53 @@ class Ball {
             }
         );
     }
-    
+
     applyInfernalChainsOnHit(target) {
         if (!window.gameInstance) return;
         if (target && target.immuneToCC) return;
-        
+
         // Root the target for 1 second
         if (!target.checkCCDodge()) {
             target.rooted = true;
             const rootDuration = target.applyCCDurationReduction(1.0);
             target.rootDuration = rootDuration;
         }
-        
+
         // Deal 8 damage in 4 instances of 2 damage each (at 0s, 0.25s, 0.5s, 0.75s)
         const caster = this;
         const skillContext = { skillName: 'infernalChains', skillType: 'active' };
-        
+
         // First damage tick (immediate)
         this.dealDamage(target, 2, skillContext);
-        
+
         // Second damage tick (at 0.25s)
         setTimeout(() => {
             if (target && target.hp > 0) {
                 caster.dealDamage(target, 2, skillContext);
             }
         }, 250);
-        
+
         // Third damage tick (at 0.5s)
         setTimeout(() => {
             if (target && target.hp > 0) {
                 caster.dealDamage(target, 2, skillContext);
             }
         }, 500);
-        
+
         // Fourth damage tick (at 0.75s)
         setTimeout(() => {
             if (target && target.hp > 0) {
                 caster.dealDamage(target, 2, skillContext);
             }
         }, 750);
-        
+
         // Create infernal chains visual effect on the target
         this.createInfernalChainsEffect(target);
     }
 
     createSoulLeechEffect(target) {
         if (!window.gameInstance) return;
-        
+
         // Deal damage and heal half
         const damage = 4;
         this.dealDamage(target, damage, { skillName: 'soulLeech', skillType: 'active' });
@@ -6310,11 +6327,11 @@ class Ball {
         if (this.hp > hpBefore) {
             this.triggerAleFueledResilience();
         }
-        
+
         // Create soul leech visual effect above the target
         window.gameInstance.createVisualEffect(
             target.x, target.y - 30, 'soulLeech', 1.0, // 1 second duration
-            { 
+            {
                 size: target.radius, // Same size as ball
                 color: '#8B008B',
                 imageKey: 'soulLeech',
@@ -6328,44 +6345,44 @@ class Ball {
 
     createApocalypseFlameEffect(balls) {
         if (!window.gameInstance) return;
-        
+
         // Choose a random location on the canvas
         const canvasWidth = window.gameInstance.canvas.width;
         const canvasHeight = window.gameInstance.canvas.height;
         const randomX = Math.random() * (canvasWidth - 100) + 50; // Keep away from edges
         const randomY = Math.random() * (canvasHeight - 100) + 50;
-        
+
         // Create apocalypse flame visual effect at random location
         const flameEffect = window.gameInstance.createVisualEffect(
             randomX, randomY, 'apocalypseFlame', 5.0, // 5 seconds duration
-            { 
+            {
                 size: 50, // Fixed size for the flame
                 color: '#ff4400',
                 damagePerSecond: 10,
                 damageRadius: 50
             }
         );
-        
+
         // Store reference to the flame effect for damage dealing
         flameEffect.ownerId = this.id;
-        
+
         // Track last damage time for each enemy (for instant + per-second damage)
         const enemyLastDamageTime = new Map();
         const owner = this;
-        
+
         // Check and deal damage every frame using an interval (60fps ~= 16ms)
         flameEffect.damageInterval = setInterval(() => {
             const currentTime = Date.now();
-            
+
             // Deal damage to all enemies standing on the flame
             balls.forEach(ball => {
                 if (ball.id !== owner.id) {
                     const distance = Math.sqrt((ball.x - flameEffect.x) ** 2 + (ball.y - flameEffect.y) ** 2);
-                    
+
                     if (distance < flameEffect.data.damageRadius) {
                         // Check if this enemy should receive damage
                         const lastDamageTime = enemyLastDamageTime.get(ball.id);
-                        
+
                         if (!lastDamageTime) {
                             // Enemy just entered - deal damage instantly
                             owner.dealDamage(ball, flameEffect.data.damagePerSecond, { skillName: 'apocalypseFlame', skillType: 'ultimate' });
@@ -6382,7 +6399,7 @@ class Ball {
                 }
             });
         }, 50); // Check frequently for enemy presence
-        
+
         // Clear the damage interval when the effect ends
         setTimeout(() => {
             if (flameEffect.damageInterval) {
@@ -6397,13 +6414,13 @@ class Ball {
         this.wrathStoredVelocity = { vx: this.vx, vy: this.vy };
         this.vx = 0;
         this.vy = 0;
-        
+
         const angle = Math.random() * Math.PI * 2;
         const offsetDistance = this.radius * 1.8;
         const animX = this.x + Math.cos(angle) * offsetDistance;
         const animY = this.y + Math.sin(angle) * offsetDistance;
         this.wrathEffectPosition = { x: animX, y: animY };
-        
+
         if (window.gameInstance) {
             window.gameInstance.createVisualEffect(
                 animX,
@@ -6413,7 +6430,7 @@ class Ball {
                 { size: this.radius * 2 }
             );
         }
-        
+
         setTimeout(() => {
             if (this.wrathOfWarlordActive) {
                 this.createWrathOfWarlordWave(balls);
@@ -6424,16 +6441,16 @@ class Ball {
                 this.wrathStoredVelocity = null;
             }
         }, 500);
-        
+
         setTimeout(() => {
             this.endWrathOfWarlord();
         }, 1000);
     }
-    
+
     createWrathOfWarlordWave(balls) {
         if (!window.gameInstance) return;
         const center = this.wrathEffectPosition || { x: this.x, y: this.y };
-        
+
         window.gameInstance.createVisualEffect(
             center.x,
             center.y,
@@ -6444,9 +6461,9 @@ class Ball {
                 lineWidth: 14
             }
         );
-        
+
         if (!Array.isArray(balls)) return;
-        
+
         balls.forEach(ball => {
             if (ball.id === this.id) return;
             const distance = Math.hypot(ball.x - center.x, ball.y - center.y);
@@ -6457,7 +6474,7 @@ class Ball {
             }
         });
     }
-    
+
     endWrathOfWarlord() {
         this.wrathOfWarlordActive = false;
         this.wrathEffectPosition = null;
@@ -6467,7 +6484,7 @@ class Ball {
             this.wrathStoredVelocity = null;
         }
     }
-    
+
     knockbackTarget(target, strength = 6) {
         const angle = Math.atan2(target.y - this.y, target.x - this.x);
         const currentSpeed = Math.max(strength, Math.sqrt(target.vx * target.vx + target.vy * target.vy));
@@ -6477,7 +6494,7 @@ class Ball {
 
     createLastStandEffect() {
         if (!window.gameInstance) return;
-        
+
         // Create last stand effect
         window.gameInstance.createVisualEffect(
             this.x, this.y, 'light', 3.0,
@@ -6487,7 +6504,7 @@ class Ball {
 
     createBattleCryEffect() {
         if (!window.gameInstance) return;
-        
+
         // Create battle cry visual effect centered on the ball
         window.gameInstance.createVisualEffect(
             this.x, this.y, 'image', 1.5, // 1.5 seconds duration
@@ -6501,7 +6518,7 @@ class Ball {
 
     createUnstoppableRageEffect() {
         if (!window.gameInstance) return;
-        
+
         // Create unstoppable rage visual effect above the ball
         window.gameInstance.createVisualEffect(
             this.x, this.y - this.radius - 20, 'unstoppableRage', 6.0, // 6 seconds duration
@@ -6516,26 +6533,26 @@ class Ball {
 
     createEarthshatterLeapEffect(target, balls) {
         if (!window.gameInstance) return;
-        
+
         // Store original position and size
         const startX = this.x;
         const startY = this.y;
         const originalRadius = this.radius;
-        
+
         // Calculate leap destination (near enemy, not on top)
         const angle = Math.atan2(target.y - this.y, target.x - this.x);
         const leapDistance = 60; // Distance from enemy
         const endX = target.x - Math.cos(angle) * leapDistance;
         const endY = target.y - Math.sin(angle) * leapDistance;
-        
+
         // Keep within canvas bounds
         const finalX = Math.max(this.radius, Math.min(window.gameInstance.canvas.width - this.radius, endX));
         const finalY = Math.max(this.radius, Math.min(window.gameInstance.canvas.height - this.radius, endY));
-        
+
         // Calculate leap duration based on distance (minimum 0.5s, maximum 2s)
         const totalDistance = Math.sqrt((finalX - startX) ** 2 + (finalY - startY) ** 2);
         const leapDuration = Math.max(0.5, Math.min(2.0, totalDistance / 200)); // Scale with distance
-        
+
         // Start leap animation
         this.earthshatterLeapActive = true;
         this.earthshatterLeapStartX = startX;
@@ -6545,18 +6562,18 @@ class Ball {
         this.earthshatterLeapProgress = 0;
         this.earthshatterLeapDuration = leapDuration; // Dynamic duration based on distance
         this.earthshatterTarget = target;
-        
+
         // Set cooldown immediately
         this.ultimateCooldown = 12;
     }
 
     createEarthshatterEffect(target) {
         if (!window.gameInstance) return;
-        
+
         // Create earthshatter animation effect on the enemy
         window.gameInstance.createVisualEffect(
             target.x, target.y, 'earthshatter', 1.5, // 1.5 seconds duration
-            { 
+            {
                 size: target.radius * 2, // Same size as target ball
                 followTarget: target
                 // No imageKey - this ensures renderEarthshatter is called instead of renderImage
@@ -6566,11 +6583,11 @@ class Ball {
 
     createAttackEffect(target, attackType) {
         if (!window.gameInstance) return;
-        
+
         // Create attack visual effect on the enemy
         window.gameInstance.createVisualEffect(
             target.x, target.y, 'image', 1.0, // 1 second duration
-            { 
+            {
                 size: target.radius * 2, // Same size as target ball
                 imageKey: attackType,
                 followTarget: target
@@ -6580,11 +6597,11 @@ class Ball {
 
     createTwinStrikesEffect(target) {
         if (!window.gameInstance) return;
-        
+
         // Create twin strikes animation effect on the enemy
         window.gameInstance.createVisualEffect(
             target.x, target.y, 'twinStrikes', 1.0, // 1 second duration
-            { 
+            {
                 size: target.radius * 2, // Same size as target ball
                 followTarget: target
             }
@@ -6593,11 +6610,11 @@ class Ball {
 
     createWhirlwindSlashEffect(target) {
         if (!window.gameInstance) return;
-        
+
         // Create whirlwind slash animation effect on the enemy
         window.gameInstance.createVisualEffect(
             target.x, target.y, 'whirlwindSlash', 1.0, // 1 second duration
-            { 
+            {
                 size: target.radius * 2, // Same size as target ball
                 followTarget: target
             }
@@ -6606,7 +6623,7 @@ class Ball {
 
     createHerosWrathEffect(target) {
         if (!window.gameInstance) return;
-        
+
         // Create multiple strike effects
         for (let i = 0; i < 3; i++) {
             setTimeout(() => {
@@ -6620,11 +6637,11 @@ class Ball {
 
     createDemonicAscensionEffect() {
         if (!window.gameInstance) return;
-        
+
         // Create demonic ascension image above the ball
         window.gameInstance.createVisualEffect(
             this.x, this.y - 40, 'demonicAscensionActive', 4.0, // 4 seconds duration
-            { 
+            {
                 size: this.radius, // Half the size of the ball
                 followTarget: this,
                 offsetY: -40 // Position above the ball
@@ -6634,15 +6651,15 @@ class Ball {
 
     createDreadAuraEffect(balls) {
         if (!window.gameInstance) return;
-        
+
         // Track which enemies have been hit for damage intervals
         const hitEnemies = new Set();
         const caster = this;
-        
+
         // Create expanding purple wave (ring) that expands outward to 160 radius
         const waveEffect = window.gameInstance.createVisualEffect(
             this.x, this.y, 'dreadAuraWave', 0.8, // 0.8 seconds to expand
-            { 
+            {
                 startRadius: 0,
                 endRadius: 160,
                 color: '#8B008B', // Purple color
@@ -6653,7 +6670,7 @@ class Ball {
                 followTarget: this // Make wave follow the caster
             }
         );
-        
+
         // Deal damage in 0.5s intervals: 5 damage at 0s, 5 damage at 0.5s = 10 total
         // First damage tick (immediate)
         balls.forEach(ball => {
@@ -6665,7 +6682,7 @@ class Ball {
                 }
             }
         });
-        
+
         // Second damage tick (at 0.5s)
         setTimeout(() => {
             balls.forEach(ball => {
@@ -6677,11 +6694,11 @@ class Ball {
                 }
             });
         }, 500);
-        
+
         // Create dread aura visual effect behind the ball (visual only)
         const auraEffect = window.gameInstance.createVisualEffect(
             this.x, this.y, 'dreadAura', 1.2, // 1.2 seconds duration
-            { 
+            {
                 size: this.radius * 2, // Same size as ball
                 followTarget: this,
                 auraRadius: this.radius * 2,
@@ -6710,9 +6727,9 @@ class Ball {
         const dx = target.x - this.x;
         const dy = target.y - this.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        
+
         if (distance === 0) return; // Avoid division by zero
-        
+
         // Normalize direction and set speed
         let speed = 8; // Default speed
         if (projectileType === 'throwingAxe') {
@@ -6728,18 +6745,18 @@ class Ball {
         }
         const vx = (dx / distance) * speed;
         const vy = (dy / distance) * speed;
-        
+
         // Determine projectile type based on weapon or provided type
         let finalProjectileType = projectileType || 'arrow';
         let piercing = false;
         let explosive = false;
-        
+
         // If projectile type is provided (from skills), use it directly
         if (projectileType) {
             // Use the provided projectile type
         } else {
             // Determine projectile type based on weapon
-            switch(this.weapon) {
+            switch (this.weapon) {
                 case 'bow':
                     if (this.attack === 'piercingArrow') {
                         finalProjectileType = 'piercingArrow';
@@ -6789,41 +6806,41 @@ class Ball {
                     break;
             }
         }
-        
+
         // Create projectile
         const projectile = new Projectile(
             this.x, this.y, vx, vy, damage, finalProjectileType, this.id, target.id, context
         );
-        
+
         // Set custom lifetime for frenzied slash (120 pixel range)
         if (finalProjectileType === 'frenziedSlash') {
             projectile.lifetime = 120 / speed; // Calculate lifetime based on range and speed
         }
-        
+
         projectile.piercing = piercing;
         projectile.explosive = explosive;
-        
+
         // For piercing projectiles, track which enemies have been hit to prevent multiple damage
         if (piercing) {
             projectile.piercingHitEnemies = new Set();
         }
-        
+
         // Add heat seeking for bow/crossbow during Battle Focus
         if (this.battleFocusStacks > 0 && (this.weapon === 'bow' || this.weapon === 'crossbow')) {
             projectile.heatSeeking = true;
             projectile.targetId = target.id;
         }
-        
+
         // Add to game projectiles (we need to access the game instance)
         // We'll handle this in the game class
         if (window.gameInstance) {
             window.gameInstance.projectiles.push(projectile);
-            
+
             // Play bow shoot sound when a bow arrow is fired
             if (this.weapon === 'bow' && (finalProjectileType === 'arrow' || finalProjectileType === 'piercingArrow')) {
                 window.gameInstance.playRandomBowShootSound();
             }
-            
+
             // Play staff low sound when Arcane Bolt or Elemental Burst is fired
             if (this.weapon === 'staff' && (finalProjectileType === 'arcaneBolt' || finalProjectileType === 'elementalBurst')) {
                 window.gameInstance.playRandomStaffLowSound();
@@ -6852,9 +6869,9 @@ class Ball {
             flurryOfBlows: 2,
             grappleSlam: 5
         };
-        
+
         let baseDamage = attackData[this.attack] || 5;
-        
+
         // Apply Execution Strike bonus if active
         // +3 damage when enemy is above 50% HP, +6 damage when enemy is below 50% HP
         if (this.executionStrikeStacks > 0) {
@@ -6864,22 +6881,22 @@ class Ball {
                 baseDamage += 3; // +3 damage bonus when enemy above 50% HP (or no target)
             }
         }
-        
+
         // Apply Battle Cry bonus if active
         if (this.battleCryActive && this.battleCryDamageBonus) {
             baseDamage += this.battleCryDamageBonus; // +2 damage bonus
         }
-        
+
         // Apply Unstoppable Rage bonus if active
         if (this.unstoppableRageActive && this.unstoppableRageDamageBonus) {
             baseDamage += this.unstoppableRageDamageBonus; // +5 damage bonus
         }
-        
+
         if (this.runeChargeActive && this.runeChargeStacks > 0) {
             baseDamage *= 1.5;
             this.consumeRuneChargeStack();
         }
-        
+
         if (this.battleRoarBonusStacks > 0) {
             baseDamage += 2;
             this.battleRoarBonusStacks--;
@@ -6890,35 +6907,35 @@ class Ball {
                 }
             }
         }
-        
+
         if (this.battleRoarDebuffStacks > 0) {
             baseDamage = Math.max(1, baseDamage - 2);
             this.battleRoarDebuffStacks--;
         }
-        
+
         // Apply Shadowstep damage bonus if active (consumed after use)
         if (this.shadowstepDamageBonus > 0) {
             baseDamage += this.shadowstepDamageBonus;
             this.shadowstepDamageBonus = 0; // Consume after one attack
         }
-        
+
         return baseDamage;
     }
 
     getCritChance() {
         // Use baseCritChance to ensure we start from a valid base value
         let critChance = this.baseCritChance || this.critChance || 0;
-        
+
         // Apply Keen Sight bonus if passive is active (+30% crit chance)
         if (this.keenSightApplied) {
             critChance += this.keenSightBonus; // +30% crit chance
         }
-        
+
         // Apply Battle Focus bonus if active (only once, not per stack)
         if (this.battleFocusStacks > 0) {
             critChance += 0.7; // +70% crit chance
         }
-        
+
         // Ensure crit chance is never negative and cap at 100%
         return Math.max(0, Math.min(critChance, 1.0));
     }
@@ -6945,9 +6962,9 @@ class Ball {
             flurryOfBlows: 2,
             grappleSlam: 5
         };
-        
+
         let baseDamage = attackData[this.attack] || 5;
-        
+
         // Apply Execution Strike bonus if active
         // +3 damage when enemy is above 50% HP, +6 damage when enemy is below 50% HP
         if (this.executionStrikeStacks > 0) {
@@ -6957,44 +6974,44 @@ class Ball {
                 baseDamage += 3; // +3 damage bonus when enemy above 50% HP (or no target)
             }
         }
-        
+
         // Apply Battle Cry bonus if active
         if (this.battleCryActive && this.battleCryDamageBonus) {
             baseDamage += this.battleCryDamageBonus; // +2 damage bonus
         }
-        
+
         // Apply Unstoppable Rage bonus if active
         if (this.unstoppableRageActive && this.unstoppableRageDamageBonus) {
             baseDamage += this.unstoppableRageDamageBonus; // +5 damage bonus
         }
-        
+
         // Apply Rune Charge bonus if active (preview - don't consume)
         if (this.runeChargeActive && this.runeChargeStacks > 0) {
             baseDamage *= 1.5;
         }
-        
+
         // Apply Battle Roar bonus if active (preview - don't consume)
         if (this.battleRoarBonusStacks > 0) {
             baseDamage += 2;
         }
-        
+
         // Apply Battle Roar debuff if active (preview - don't consume)
         if (this.battleRoarDebuffStacks > 0) {
             baseDamage = Math.max(1, baseDamage - 2);
         }
-        
+
         // Apply Shadowstep damage bonus if active (preview - don't consume)
         if (this.shadowstepDamageBonus > 0) {
             baseDamage += this.shadowstepDamageBonus;
         }
-        
+
         // Apply passive skill damage bonuses (multiplicative)
         if (this.damageBonus) baseDamage *= (1 + this.damageBonus);
         if (this.painEmpowermentBonus) baseDamage *= (1 + this.painEmpowermentBonus);
         if (this.bloodrageBonus) baseDamage *= (1 + this.bloodrageBonus); // Orc Bloodrage
         if (this.bloodRageBonus) baseDamage *= (1 + this.bloodRageBonus); // Barbarian Blood Rage
         if (this.savageMomentumStacks) baseDamage *= (1 + this.savageMomentumStacks * 0.1);
-        
+
         return Math.round(baseDamage);
     }
 
@@ -7010,7 +7027,7 @@ class Ball {
             if (this.manaAffinityActive) dmg *= 1.3;
             return Math.round(dmg);
         };
-        
+
         // === STACK-BASED SKILLS ===
         // Fortify: 3 stacks of 50% damage reduction
         if (this.skill === 'fortify') {
@@ -7019,7 +7036,7 @@ class Ball {
             }
             return '50% DR';
         }
-        
+
         // Rune Charge: 3 stacks of 50% damage boost
         if (this.skill === 'runeCharge') {
             if (this.runeChargeActive && this.runeChargeStacks > 0) {
@@ -7027,7 +7044,7 @@ class Ball {
             }
             return '+50% Dmg';
         }
-        
+
         // Battle Roar: +2 damage per stack, 3 stacks
         if (this.skill === 'battleRoar') {
             if (this.battleRoarBonusStacks > 0) {
@@ -7035,7 +7052,7 @@ class Ball {
             }
             return '+2 Dmg';
         }
-        
+
         // Blood Frenzy: 50% lifesteal, 3 stacks
         if (this.skill === 'bloodFrenzy') {
             if (this.bloodFrenzyActive && this.bloodFrenzyStacks > 0) {
@@ -7043,7 +7060,7 @@ class Ball {
             }
             return '50% LS';
         }
-        
+
         // Battle Focus: +70% crit chance, 3 stacks
         if (this.skill === 'battleFocus') {
             if (this.battleFocusStacks > 0) {
@@ -7051,7 +7068,7 @@ class Ball {
             }
             return '+70% Crit';
         }
-        
+
         // Execution Strike: +3/+6 damage, 3 stacks
         if (this.skill === 'executionStrike') {
             if (this.executionStrikeStacks > 0) {
@@ -7059,23 +7076,23 @@ class Ball {
             }
             return '+3/+6 Dmg';
         }
-        
+
         // === UTILITY/BUFF SKILLS (no direct damage) ===
         // Battle Cry: Buff skill
         if (this.skill === 'battleCry') {
             return '+2 Dmg';
         }
-        
+
         // Tactical Roll: Dodge + speed boost
         if (this.skill === 'tacticalRoll') {
             return 'Dodge';
         }
-        
+
         // Nature's Grasp: Root skill
         if (this.skill === 'naturesGrasp') {
             return '1.5s Root';
         }
-        
+
         // Shadowstep: +5 damage for next attack (1 stack)
         if (this.skill === 'shadowstep') {
             if (this.shadowstepDamageBonus > 0) {
@@ -7083,33 +7100,33 @@ class Ball {
             }
             return '+5 Dmg';
         }
-        
+
         // === DoT AND SPECIAL DAMAGE SKILLS ===
         // Stone Toss: 6 initial + 1 DoT per second for 3 seconds
         if (this.skill === 'stoneToss') {
             return `${applyDamageBonuses(6)} +1 DoT(3s)`;
         }
-        
+
         // Frenzied Slash: 3 damage x 3 hits
         if (this.skill === 'frenziedSlash') {
             return `${applyDamageBonuses(3)}(x3)`;
         }
-        
+
         // Soul Leech: 4 damage + 2 heal
         if (this.skill === 'soulLeech') {
             return `${applyDamageBonuses(4)} +2 Heal`;
         }
-        
+
         // Dread Aura: 10 damage total (5+5 in 0.5s intervals)
         if (this.skill === 'dreadAura') {
             return `${applyDamageBonuses(10)}`;
         }
-        
+
         // Infernal Chains: 8 damage (2x4) + 1s root
         if (this.skill === 'infernalChains') {
             return `${applyDamageBonuses(8)} +1s Root`;
         }
-        
+
         // === DIRECT DAMAGE SKILLS ===
         const directDamageSkills = {
             axeThrow: 7,
@@ -7122,11 +7139,11 @@ class Ball {
             hellfireBolt: 7,
             sylvanMark: 15 // Projectile damage
         };
-        
+
         if (directDamageSkills[this.skill] !== undefined) {
             return applyDamageBonuses(directDamageSkills[this.skill]);
         }
-        
+
         // Default fallback
         return '0';
     }
@@ -7143,7 +7160,7 @@ class Ball {
             if (this.manaAffinityActive) dmg *= 1.3;
             return Math.round(dmg);
         };
-        
+
         // === BARBARIAN ===
         // Unstoppable Rage: +5 Dmg, -1s CD for 6 seconds
         if (this.ultimate === 'unstoppableRage') {
@@ -7152,18 +7169,18 @@ class Ball {
             }
             return '+5 Dmg, -1s CD';
         }
-        
+
         // Earthshatter: 12 damage + 1.5s stun
         if (this.ultimate === 'earthshatter') {
             return `${applyDamageBonuses(12)} +1.5s Stun`;
         }
-        
+
         // === DWARF ===
         // Anvil of Mountain: 25 damage
         if (this.ultimate === 'anvilOfMountain') {
             return `${applyDamageBonuses(25)}`;
         }
-        
+
         // Hammer of Mountain: 14 damage + 1.2s stun (collision-based)
         if (this.ultimate === 'hammerOfMountain') {
             if (this.ultimateCooldown <= 0) {
@@ -7171,7 +7188,7 @@ class Ball {
             }
             return `${applyDamageBonuses(14)} +1.2s Stun`;
         }
-        
+
         // Unbreakable Bastion: 5 damage + 1.3s taunt + shield
         if (this.ultimate === 'unbreakableBastion') {
             if (this.unbreakableBastionActive) {
@@ -7179,7 +7196,7 @@ class Ball {
             }
             return `5 +1.3s Taunt`;
         }
-        
+
         // === ELF ===
         // Rain of Stars: 12 damage (AoE zones)
         if (this.ultimate === 'rainOfStars') {
@@ -7188,7 +7205,7 @@ class Ball {
             }
             return `${applyDamageBonuses(12)} AoE`;
         }
-        
+
         // Spirit of Forest: +80% Speed, 3 HP/s Regen for 4s
         if (this.ultimate === 'spiritOfForest') {
             if (this.spiritOfForestDuration > 0) {
@@ -7196,13 +7213,13 @@ class Ball {
             }
             return '+80% Spd, 3 HP/s';
         }
-        
+
         // === ORC ===
         // Wrath of Warlord: 12 damage + 1.3s fear
         if (this.ultimate === 'wrathOfWarlord') {
             return `${applyDamageBonuses(12)} +1.3s Fear`;
         }
-        
+
         // Unstoppable Strength: CC Immunity for 3s
         if (this.ultimate === 'unstoppableStrength') {
             if (this.unstoppableStrengthActive) {
@@ -7210,7 +7227,7 @@ class Ball {
             }
             return 'CC Immune 3s';
         }
-        
+
         // === HUMAN ===
         // Last Stand: 30% HP Shield + 20% Dmg Bonus
         if (this.ultimate === 'lastStand') {
@@ -7219,7 +7236,7 @@ class Ball {
             }
             return '30% Shield, +20% Dmg';
         }
-        
+
         // Hero's Wrath: 7 damage x3 (collision-based)
         if (this.ultimate === 'herosWrath') {
             if (this.ultimateCooldown <= 0) {
@@ -7227,7 +7244,7 @@ class Ball {
             }
             return `${applyDamageBonuses(7)}(x3)`;
         }
-        
+
         // === DEMON ===
         // Demonic Ascension: +30% Dmg + 30% Lifesteal for 4s
         if (this.ultimate === 'demonicAscension') {
@@ -7236,12 +7253,12 @@ class Ball {
             }
             return '+30% Dmg, 30% LS';
         }
-        
+
         // Apocalypse Flame: 7 DoT per second for 5 seconds (35 total)
         if (this.ultimate === 'apocalypseFlame') {
             return '7 DoT(5s)';
         }
-        
+
         // Default fallback
         return '0';
     }
@@ -7249,22 +7266,22 @@ class Ball {
     getTotalDefence() {
         // Calculate total defense including all bonuses
         let totalDefence = this.defense || 0;
-        
+
         // Add defense bonuses
         if (this.defenseBonus) totalDefence += this.defenseBonus;
         if (this.ironhideBonus) totalDefence += this.ironhideBonus;
         if (this.stonefleshBonus) totalDefence += this.stonefleshBonus;
-        
+
         // Add Ale-Fueled Resilience defense if active
         if (this.aleFueledResilienceActive && this.aleFueledResilienceDuration > 0) {
             totalDefence += 1;
         }
-        
+
         // Add Shield Bash defense bonus if active
         if (this.shieldBashDefenseDuration > 0) {
             totalDefence += this.shieldBashDefenseBonus;
         }
-        
+
         return Math.round(totalDefence);
     }
 
@@ -7272,14 +7289,14 @@ class Ball {
         if (this.stunDuration > 0 || this.feared) {
             return;
         }
-        
+
         // Check for Shadow Puppeteer cancellation (5% chance)
         if (target && this.checkShadowPuppeteerCancel && this.checkShadowPuppeteerCancel(target)) {
             // Set cooldown even when cancelled (for all skills)
             this.activeSkillCooldown = this.applyCooldownReduction(4); // 4 second cooldown (reduced by passives)
             return; // Move cancelled - skill will not execute
         }
-        
+
         // Don't set cooldown for self-managed skills - they handle cooldown when their effect ends
         const selfManagedSkills = ['executionStrike', 'battleFocus', 'warStomp', 'battleCry', 'fortify', 'runeCharge', 'battleRoar', 'headbutt', 'bloodFrenzy'];
         if (!selfManagedSkills.includes(this.skill)) {
@@ -7295,7 +7312,7 @@ class Ball {
         } else if (this.skill === 'executionStrike' && this.executionStrikeStacks > 0) {
             return;
         }
-        
+
         // Implement active skill logic based on selected skill
         this.executeActiveSkill(target, balls);
     }
@@ -7314,7 +7331,7 @@ class Ball {
                 window.gameInstance.playSound(this.skill);
             }
         }
-        
+
         const skillData = {
             // Barbarian
             axeThrow: () => {
@@ -7336,12 +7353,12 @@ class Ball {
                 this.battleCryCooldownReduction = 1.25; // 25% faster cooldown reduction (multiplier)
                 this.battleCryDamageBonus = 2; // +2 damage bonus
             },
-            
+
             // Dwarf
             hammerStrike: () => {
                 const damage = 5;
-                this.createProjectile(target, damage, 'hammerStrikeProjectile', { 
-                    skillName: 'hammerStrike', 
+                this.createProjectile(target, damage, 'hammerStrikeProjectile', {
+                    skillName: 'hammerStrike',
                     skillType: 'active',
                     projectileImageKey: 'hammerStrikeFrame1',
                     projectileSize: this.radius * 4, // Larger size to match image dimensions
@@ -7372,16 +7389,16 @@ class Ball {
             runeCharge: () => {
                 this.activateRuneCharge();
             },
-            
+
             // Elf
             arrowStorm: () => {
                 // Prevent multiple uses in quick succession
                 if (this.arrowStormUsed) return;
                 this.arrowStormUsed = true;
-                
+
                 // Create arrow storm projectile - range 100, travels in 0.7 seconds
                 this.createArrowStormProjectile(target);
-                
+
                 // Reset flag after a short delay
                 setTimeout(() => {
                     this.arrowStormUsed = false;
@@ -7391,7 +7408,7 @@ class Ball {
                 // Prevent multiple uses in quick succession
                 if (this.naturesGraspUsed) return;
                 this.naturesGraspUsed = true;
-                
+
                 this.createNaturesGraspEffect(target);
                 if (target && target.immuneToCC) {
                     setTimeout(() => {
@@ -7399,14 +7416,14 @@ class Ball {
                     }, 100);
                     return;
                 }
-                
+
                 // Root the target for 1.5 seconds
                 if (!target.checkCCDodge()) {
                     const rootDuration = target.applyCCDurationReduction(1.5);
                     target.rootDuration = rootDuration;
                     target.rooted = true;
                 }
-                
+
                 // Reset flag after cooldown
                 setTimeout(() => {
                     this.naturesGraspUsed = false;
@@ -7416,20 +7433,20 @@ class Ball {
                 // Store original position for animation
                 const startX = this.x;
                 const startY = this.y;
-                
+
                 // Calculate teleport destination
                 const angle = Math.random() * Math.PI * 2;
                 const distance = 80;
                 const endX = this.x + Math.cos(angle) * distance;
                 const endY = this.y + Math.sin(angle) * distance;
-                
+
                 // Create shadowstep animation effect
                 this.createShadowstepEffect(startX, startY, endX, endY);
-                
+
                 // Teleport to new location
                 this.x = endX;
                 this.y = endY;
-                
+
                 // Give +5 damage bonus for the next attack
                 this.shadowstepDamageBonus = 5;
             },
@@ -7437,15 +7454,15 @@ class Ball {
                 // Prevent multiple uses in quick succession
                 if (this.sylvanMarkUsed) return;
                 this.sylvanMarkUsed = true;
-                
+
                 // Play original sylvanMark sound when skill is used
                 if (window.gameInstance) {
                     window.gameInstance.playSound('sylvanMark');
                 }
-                
+
                 // Create Sylvan Mark animation on the target (1 second duration)
                 this.createSylvanMarkEffect(target);
-                
+
                 // Launch arrow after 1 second (after animation ends)
                 setTimeout(() => {
                     // Play Throw sound when projectile is sent
@@ -7454,13 +7471,13 @@ class Ball {
                     }
                     this.launchSylvanMarkArrow(target);
                 }, 1000);
-                
+
                 // Reset flag after cooldown
                 setTimeout(() => {
                     this.sylvanMarkUsed = false;
                 }, 100);
             },
-            
+
             // Orc
             throwingAxe: () => {
                 // Create throwing axe projectile
@@ -7480,7 +7497,7 @@ class Ball {
                 if (this.bloodFrenzyStacks > 0 || this.activeSkillCooldown > 0) return;
                 this.startBloodFrenzy();
             },
-            
+
             // Human
             shieldBash: () => {
                 // Transform ball into shield and rush toward enemy
@@ -7488,14 +7505,14 @@ class Ball {
                 this.shieldBashTarget = target;
                 this.shieldBashDuration = 1.0; // 1 second rush
                 this.shieldBashDamage = 5;
-                
+
                 // Calculate rush direction
                 const dx = target.x - this.x;
                 const dy = target.y - this.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 this.shieldBashVx = (dx / distance) * 3.75; // Quarter speed
                 this.shieldBashVy = (dy / distance) * 3.75;
-                
+
                 // Create trail effect
                 this.createShieldBashTrailEffect();
             },
@@ -7511,7 +7528,7 @@ class Ball {
                 if (window.gameInstance && this.battleFocusStacks === 0) {
                     window.gameInstance.playSound('battleFocus');
                 }
-                
+
                 // Empower next 3 basic attacks instead of dealing direct damage
                 this.battleFocusStacks = 3;
                 this.createBattleFocusEffect(this); // Effect follows the ball
@@ -7522,13 +7539,13 @@ class Ball {
                 if (window.gameInstance && this.executionStrikeStacks === 0) {
                     window.gameInstance.playSound('executionStrike');
                 }
-                
+
                 // Empower next 3 basic attacks instead of dealing direct damage
                 this.executionStrikeStacks = 3;
                 this.createExecutionStrikeEffect(this); // Effect follows the ball
                 // Don't put skill on cooldown yet - it will be set when stacks are used up
             },
-            
+
             // Demon
             hellfireBolt: () => {
                 // Create hellfire bolt projectile
@@ -7544,8 +7561,8 @@ class Ball {
             },
             infernalChains: () => {
                 // Create infernal chains projectile - skillshot
-                this.createProjectile(target, 0, 'infernalChainsProjectile', { 
-                    skillName: 'infernalChains', 
+                this.createProjectile(target, 0, 'infernalChainsProjectile', {
+                    skillName: 'infernalChains',
                     skillType: 'active',
                     projectileImageKey: 'infernalChainsFrame1',
                     projectileSize: this.radius * 2,
@@ -7553,7 +7570,7 @@ class Ball {
                 });
             }
         };
-        
+
         const skill = skillData[this.skill];
         if (skill) {
             skill();
@@ -7568,7 +7585,7 @@ class Ball {
         if ((this.stunDuration > 0 || this.feared) && !isUnstoppableStrengthUltimate) {
             return;
         }
-        
+
         // Check for Shadow Puppeteer cancellation (5% chance)
         if (target && this.checkShadowPuppeteerCancel && this.checkShadowPuppeteerCancel(target)) {
             // Set cooldown even when cancelled (for ultimates that don't manage their own cooldown)
@@ -7577,53 +7594,53 @@ class Ball {
             }
             return; // Move cancelled
         }
-        
+
         if (this.ultimate === 'unbreakableBastion' && this.unbreakableBastionActive) {
             return;
         }
-        
+
         // Hero's Wrath is collision-based, not a regular ultimate
         if (this.ultimate === 'herosWrath') {
             return; // Don't use Hero's Wrath as regular ultimate
         }
-        
+
         // Special check for Last Stand - don't use if already active or on cooldown
         if (this.ultimate === 'lastStand') {
             if (this.lastStandActive || this.ultimateCooldown > 0) {
                 return; // Don't use Last Stand if it's already active or on cooldown
             }
         }
-        
+
         // Special check for Demonic Ascension - don't use if already active or on cooldown
         if (this.ultimate === 'demonicAscension') {
             if (this.demonicAscensionDuration > 0 || this.ultimateCooldown > 0) {
                 return; // Don't use Demonic Ascension if it's already active or on cooldown
             }
         }
-        
+
         // Special check for Unstoppable Rage - don't use if already active or on cooldown
         if (this.ultimate === 'unstoppableRage') {
             if (this.unstoppableRageActive || this.ultimateCooldown > 0) {
                 return; // Don't use Unstoppable Rage if it's already active or on cooldown
             }
         }
-        
+
         // Special check for Hammer of Mountain - it's collision-based, don't execute here
         if (this.ultimate === 'hammerOfMountain') {
             return; // Hammer of Mountain is collision-based, not skill-based
         }
-        
+
         if (isUnstoppableStrengthUltimate) {
             if (this.unstoppableStrengthActive || this.ultimateCooldown > 0) {
                 return;
             }
         }
-        
+
         // Don't set cooldown for Last Stand, Demonic Ascension, Unstoppable Rage, or Hammer of Mountain - they will be set when duration ends or on collision
         if (this.ultimate !== 'lastStand' && this.ultimate !== 'demonicAscension' && this.ultimate !== 'unstoppableRage' && this.ultimate !== 'unbreakableBastion' && this.ultimate !== 'unstoppableStrength' && this.ultimate !== 'hammerOfMountain') {
             this.ultimateCooldown = this.applyCooldownReduction(12); // 12 second cooldown (reduced by passives)
         }
-        
+
         // Implement ultimate skill logic based on selected ultimate
         this.executeUltimate(target, balls);
     }
@@ -7637,7 +7654,7 @@ class Ball {
                 window.gameInstance.playSound(this.ultimate);
             }
         }
-        
+
         const ultimateData = {
             // Barbarian
             unstoppableRage: () => {
@@ -7650,11 +7667,11 @@ class Ball {
             earthshatter: () => {
                 this.createEarthshatterLeapEffect(target, balls);
             },
-            
+
             // Dwarf
             anvilOfMountain: () => {
                 const damage = 25;
-                
+
                 // Find the target (closest enemy)
                 const enemies = balls.filter(ball => ball.id !== this.id);
                 if (enemies.length > 0) {
@@ -7663,10 +7680,10 @@ class Ball {
                         const closestDist = Math.sqrt((closest.x - this.x) ** 2 + (closest.y - this.y) ** 2);
                         return dist < closestDist ? enemy : closest;
                     });
-                    
+
                     // Calculate predicted position for damage calculation
                     const predictionTime = 2.0;
-                    
+
                     // Account for speed multiplier that's applied in update method
                     let speedMultiplier = 1;
                     if (target.speedBonus) speedMultiplier *= target.speedBonus;
@@ -7674,21 +7691,21 @@ class Ball {
                     if (target.huntersInstinctActive && target.aiTarget && target.aiTarget.hp < target.aiTarget.maxHp * 0.3) {
                         speedMultiplier *= 1.3;
                     }
-                    
+
                     const predictedX = target.x + (target.vx * speedMultiplier * predictionTime);
                     const predictedY = target.y + (target.vy * speedMultiplier * predictionTime);
-                    
+
                     // Debug logging
                     console.log(`Anvil prediction: Current pos (${target.x.toFixed(1)}, ${target.y.toFixed(1)}), Velocity (${target.vx.toFixed(1)}, ${target.vy.toFixed(1)}), Speed mult: ${speedMultiplier.toFixed(1)}, Predicted pos (${predictedX.toFixed(1)}, ${predictedY.toFixed(1)})`);
-                    
+
                     // Keep within canvas bounds
                     const canvasWidth = window.gameInstance.canvas.width;
                     const canvasHeight = window.gameInstance.canvas.height;
                     const boundedX = Math.max(40, Math.min(canvasWidth - 40, predictedX));
                     const boundedY = Math.max(40, Math.min(canvasHeight - 40, predictedY));
-                    
+
                     this.createAnvilOfMountainEffect(balls, target, boundedX, boundedY);
-                    
+
                     // Delay damage until animation ends (2 seconds)
                     setTimeout(() => {
                         balls.forEach(ball => {
@@ -7705,17 +7722,17 @@ class Ball {
             hammerOfMountain: () => {
                 const enemies = balls.filter(ball => ball.id !== this.id);
                 if (!enemies.length) return;
-                
+
                 const primaryTarget = (target && target.id !== this.id) ? target : enemies.reduce((closest, enemy) => {
                     const dist = Math.hypot(enemy.x - this.x, enemy.y - this.y);
                     const closestDist = Math.hypot(closest.x - this.x, closest.y - this.y);
                     return dist < closestDist ? enemy : closest;
                 }, enemies[0]);
-                
+
                 if (!primaryTarget) return;
-                
+
                 this.createHammerOfMountainEffect(primaryTarget);
-                
+
                 const impactRadius = primaryTarget.radius * 4;
                 balls.forEach(ball => {
                     if (ball.id === this.id) return;
@@ -7731,14 +7748,14 @@ class Ball {
             },
             unbreakableBastion: () => {
                 if (this.unbreakableBastionActive) return;
-                
+
                 this.unbreakableBastionActive = true;
                 this.bastionDuration = 1.3;
                 this.unbreakableBastionPosition = { x: this.x, y: this.y };
                 this.unbreakableBastionStoredVelocity = { vx: this.vx, vy: this.vy };
                 this.vx = 0;
                 this.vy = 0;
-                
+
                 // Create wave effect that follows the ball
                 if (window.gameInstance) {
                     window.gameInstance.createVisualEffect(
@@ -7757,23 +7774,23 @@ class Ball {
                     );
                 }
             },
-            
+
             // Elf
             rainOfStars: () => {
                 // Prevent multiple triggers
                 if (this.rainOfStarsUsed) return;
                 this.rainOfStarsUsed = true;
-                
+
                 // Stop the ball
                 this.rainOfStarsStoredVx = this.vx;
                 this.rainOfStarsStoredVy = this.vy;
                 this.vx = 0;
                 this.vy = 0;
                 this.rainOfStarsStopped = true;
-                
+
                 // Create indicator circles at 3 random locations (Phase 1)
                 this.createRainOfStarsIndicators(balls);
-                
+
                 // Reset flag after both phases complete (1s indicators + 1.2s animation)
                 setTimeout(() => {
                     this.rainOfStarsUsed = false;
@@ -7785,7 +7802,7 @@ class Ball {
                 this.hpRegen = 3;
                 this.spiritOfForestDuration = 4;
             },
-            
+
             // Orc
             wrathOfWarlord: () => {
                 this.createWrathOfWarlordEffect(balls);
@@ -7793,7 +7810,7 @@ class Ball {
             unstoppableStrength: () => {
                 this.startUnstoppableStrength();
             },
-            
+
             // Human
             lastStand: () => {
                 this.lastStandActive = true;
@@ -7807,7 +7824,7 @@ class Ball {
                 // This should not be called anymore
                 console.log("Hero's Wrath should be triggered on collision, not as regular ultimate");
             },
-            
+
             // Demon
             demonicAscension: () => {
                 this.createDemonicAscensionEffect();
@@ -7820,7 +7837,7 @@ class Ball {
                 this.createApocalypseFlameEffect(balls);
             }
         };
-        
+
         const ultimate = ultimateData[this.ultimate];
         if (ultimate) {
             ultimate();
@@ -7838,7 +7855,7 @@ class Ball {
             this.createFloatingDodgeText(target);
             return; // Attack dodged
         }
-        
+
         // Check for dodge next attack
         if (target.dodgeNextAttack) {
             target.dodgeNextAttack = false;
@@ -7846,22 +7863,22 @@ class Ball {
             this.createFloatingDodgeText(target);
             return; // Attack dodged
         }
-        
+
         // Check if this is bleeding cuts attack
         if (this.attack === 'bleedingCuts') {
             this.createBloodEffect(target);
         }
-        
+
         if (target.immuneToCC && context.skillName && ['infernalChains', 'naturesGrasp'].includes(context.skillName)) {
             return;
         }
-        
-        
+
+
         const fixedDamage = context && context.fixedDamage;
-        
+
         // Apply damage bonuses
         let finalDamage = damage;
-        
+
         if (!fixedDamage) {
             // Passive skill bonuses
             if (this.damageBonus) finalDamage *= (1 + this.damageBonus);
@@ -7869,23 +7886,23 @@ class Ball {
             if (this.bloodrageBonus) finalDamage *= (1 + this.bloodrageBonus);
             if (this.bloodRageBonus) finalDamage *= (1 + this.bloodRageBonus);
             if (this.savageMomentumStacks) finalDamage *= (1 + this.savageMomentumStacks * 0.1);
-            
+
             // Bone Crusher bonus against armored enemies
             if (this.boneCrusherBonus && target.defense > 0) {
                 finalDamage += this.boneCrusherBonus;
             }
-            
+
             // Runesmith's Blessing
             if (this.runesmithsBlessingActive && Math.random() < this.runesmithChance) {
                 finalDamage += 5;
             }
-            
+
             // Mana Affinity skill damage boost (only for active skills and ultimates, not basic attacks)
             if (this.manaAffinityActive && context.skillType && (context.skillType === 'active' || context.skillType === 'ultimate')) {
                 finalDamage *= 1.3; // 30% skill damage boost
             }
         }
-        
+
         // Apply defense (Shield Breaker and Elemental Burst ignore defense for basic attacks only)
         let actualDamage;
         if ((this.attack === 'shieldBreaker' || this.attack === 'elementalBurst') && (!context.skillType || context.skillType === 'basic')) {
@@ -7896,17 +7913,17 @@ class Ball {
             const aleFueledDefense = (target.aleFueledResilienceActive && target.aleFueledResilienceDuration > 0) ? 1 : 0;
             actualDamage = Math.max(1, finalDamage - target.defense - (target.defenseBonus || 0) - (target.ironhideBonus || 0) - (target.stonefleshBonus || 0) - aleFueledDefense);
         }
-        
+
         // Bonebreaker ignores armor
         if (this.bonebreakerBonus && !fixedDamage) {
             actualDamage = Math.max(1, finalDamage - Math.max(0, target.defense - this.bonebreakerBonus));
         }
-        
+
         // Apply damage reduction
         if (target.damageReduction) {
             actualDamage *= (1 - target.damageReduction);
         }
-        
+
         // Apply critical hit
         let critMultiplier = 1;
         if (Math.random() < this.getCritChance()) {
@@ -7925,14 +7942,14 @@ class Ball {
                 }
             }
         }
-        
+
         actualDamage *= critMultiplier;
-        
+
         if (target.fortifyActive && target.fortifyStacks > 0) {
             actualDamage = Math.max(1, Math.ceil(actualDamage / 2)); // 50% damage reduction
             target.consumeFortifyCharge(); // Consume 1 stack and play sound
         }
-        
+
         // Apply damage to target
         // Check if target has Last Stand shield
         if (target.lastStandActive && target.shield > 0) {
@@ -7944,14 +7961,14 @@ class Ball {
                 target.shield = 0;
                 target.lastStandActive = false;
                 target.damageBonus = 0;
-                
+
                 // Remove visual effect
                 if (window.gameInstance) {
-                    window.gameInstance.visualEffects = window.gameInstance.visualEffects.filter(effect => 
+                    window.gameInstance.visualEffects = window.gameInstance.visualEffects.filter(effect =>
                         !(effect.type === 'image' && effect.imageKey === 'lastStand' && effect.followTarget === target)
                     );
                 }
-                
+
                 // Set Last Stand on cooldown
                 target.ultimateCooldown = 12; // 12 second cooldown
             } else {
@@ -7983,18 +8000,18 @@ class Ball {
                 }
             }
         }
-        
+
         // Apply remaining damage to HP
         target.hp -= actualDamage;
-        
+
         // Ensure HP doesn't go below 0
         target.hp = Math.max(0, target.hp);
-        
+
         // Show floating damage text if damage was dealt
         if (actualDamage > 0 && window.gameInstance) {
             this.createFloatingDamageText(target, Math.round(actualDamage));
         }
-        
+
         // Soul Reaping heal
         if (this.soulReapingActive) {
             const hpBefore = this.hp;
@@ -8003,7 +8020,7 @@ class Ball {
                 this.triggerAleFueledResilience();
             }
         }
-        
+
         // Blood Frenzy heal
         if (this.bloodFrenzyActive && this.bloodFrenzyStacks > 0) {
             const hpBefore = this.hp;
@@ -8016,7 +8033,7 @@ class Ball {
         } else if (this.bloodFrenzyActive) {
             this.bloodFrenzyActive = false;
         }
-        
+
         // Lifesteal
         if (this.lifesteal) {
             const hpBefore = this.hp;
@@ -8025,33 +8042,33 @@ class Ball {
                 this.triggerAleFueledResilience();
             }
         }
-        
+
         // Mountain's Endurance shield
         if (this.mountainsEnduranceActive) {
             this.shield = (this.shield || 0) + 2;
         }
-        
+
         // Savage Momentum stacks
         if (this.savageMomentumActive) {
             this.savageMomentumStacks = Math.min(5, (this.savageMomentumStacks || 0) + 1);
         }
-        
+
         // Berserker's Endurance hit counter
         if (target.berserkersEndurance) {
             target.berserkerHits = (target.berserkerHits || 0) + 1;
         }
-        
+
         // Blood Pact damage
         if (this.bloodPactDamage) {
             target.hp = Math.max(0, target.hp - this.bloodPactDamage);
             this.bloodPactDamage = 0;
         }
-        
+
         // Chains of Despair cooldown reduction
         if (this.chainsOfDespairActive) {
             target.cooldownSlow = 0.1;
         }
-        
+
         // Track damage for console logging
         console.log(`[Damage] ${this.name} dealt ${Math.round(actualDamage)} to ${target.name}. Target HP: ${target.hp.toFixed(1)} / ${target.maxHp}`);
     }
@@ -8059,14 +8076,14 @@ class Ball {
     dealDamageOverTime(target, totalDamage, duration, context = {}) {
         const damagePerSecond = totalDamage / duration;
         const tickInterval = 1000; // 1 second per tick
-        
+
         let currentDamage = 0;
         const damageInterval = setInterval(() => {
             if (currentDamage >= totalDamage) {
                 clearInterval(damageInterval);
                 return;
             }
-            
+
             const damageThisTick = Math.min(damagePerSecond, totalDamage - currentDamage);
             this.dealDamage(target, damageThisTick, context);
             currentDamage += damageThisTick;
@@ -8082,21 +8099,30 @@ class Ball {
                 return;
             }
         }
-        
+
         // Draw visual effects
         this.renderEffects(ctx);
-        
+
         // Draw ball
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = this.getBallColor();
-        ctx.fill();
+        if (this.imageLoaded && this.customImage) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.clip();
+            ctx.drawImage(this.customImage, this.x - this.radius, this.y - this.radius, this.radius * 2, this.radius * 2);
+            ctx.restore();
+        } else {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.fillStyle = this.getBallColor();
+            ctx.fill();
+        }
         this.renderFortifyOverlay(ctx);
         this.renderRuneChargeOverlay(ctx);
         this.renderBattleRoarOverlay(ctx);
         this.renderBloodFrenzyOverlay(ctx);
         this.renderUnstoppableStrengthOverlay(ctx);
-        
+
         // Draw border with effects
         if (this.stunDuration > 0) {
             ctx.strokeStyle = '#ff0';
@@ -8112,28 +8138,28 @@ class Ball {
             ctx.lineWidth = 2;
         }
         ctx.stroke();
-        
+
         // Draw name
         ctx.fillStyle = '#fff';
         ctx.font = '12px Arial';
         ctx.textAlign = 'center';
         ctx.fillText(this.name, this.x, this.y - this.radius - 10);
-        
+
         // Draw HP bar above ball
         const barWidth = 40;
         const barHeight = 4;
         const barX = this.x - barWidth / 2;
         const barY = this.y - this.radius - 20;
-        
+
         // Background
         ctx.fillStyle = '#333';
         ctx.fillRect(barX, barY, barWidth, barHeight);
-        
+
         // HP fill
         const hpPercent = this.hp / this.maxHp;
         ctx.fillStyle = hpPercent > 0.5 ? '#0f0' : hpPercent > 0.25 ? '#ff0' : '#f00';
         ctx.fillRect(barX, barY, barWidth * hpPercent, barHeight);
-        
+
         // Draw shield bar if active
         if (this.shield > 0) {
             const shieldBarY = barY - 6;
@@ -8141,7 +8167,7 @@ class Ball {
             const shieldPercent = this.shield / (this.maxHp * 0.5);
             ctx.fillRect(barX, shieldBarY, barWidth * shieldPercent, 2);
         }
-        
+
         // Draw status effects
         this.renderStatusEffects(ctx);
     }
@@ -8157,7 +8183,7 @@ class Ball {
             ctx.stroke();
             ctx.setLineDash([]);
         }
-        
+
         // Dread aura
         if (this.dreadAuraActive) {
             ctx.beginPath();
@@ -8168,7 +8194,7 @@ class Ball {
             ctx.stroke();
             ctx.setLineDash([]);
         }
-        
+
         // Spirit of Forest
         if (this.spiritOfForestDuration > 0) {
             ctx.beginPath();
@@ -8184,7 +8210,7 @@ class Ball {
     renderStatusEffects(ctx) {
         let effectY = this.y - this.radius - 35;
         const effects = [];
-        
+
         if (this.stunDuration > 0) effects.push('STUNNED');
         if (this.rooted) effects.push('ROOTED');
         if (this.burnDamage > 0) effects.push('BURNING');
@@ -8195,7 +8221,7 @@ class Ball {
         if (this.unstoppableStrengthActive) effects.push('UNSTOPPABLE');
         if (this.demonicAscensionDuration > 0) effects.push('DEMONIC');
         if (this.feared) effects.push('FEARED');
-        
+
         effects.forEach(effect => {
             ctx.fillStyle = '#fff';
             ctx.font = '10px Arial';
@@ -8204,7 +8230,7 @@ class Ball {
             effectY -= 12;
         });
     }
-    
+
     renderFortifyOverlay(ctx) {
         if (!this.fortifyActive) return;
         if (!window.gameInstance || !window.gameInstance.images.fortify) return;
@@ -8215,7 +8241,7 @@ class Ball {
         const drawY = this.y - this.radius - size / 2;
         ctx.drawImage(img, drawX, drawY, size, size);
     }
-    
+
     renderRuneChargeOverlay(ctx) {
         if (!this.runeChargeActive) return;
         if (!window.gameInstance || !window.gameInstance.images) return;
@@ -8235,7 +8261,7 @@ class Ball {
         const size = baseSize * (1 + (frameIndex / (frames.length - 1)));
         ctx.drawImage(img, this.x - size / 2, this.y - size / 2, size, size);
     }
-    
+
     renderBattleRoarOverlay(ctx) {
         if (this.battleRoarBonusStacks <= 0) return;
         if (!window.gameInstance || !window.gameInstance.images) return;
@@ -8263,7 +8289,7 @@ class Ball {
         const size = this.radius * 2;
         ctx.drawImage(img, this.x - size / 2, this.y - size / 2, size, size);
     }
-    
+
     renderBloodFrenzyOverlay(ctx) {
         if (!this.bloodFrenzyActive || this.bloodFrenzyStacks <= 0) return;
         if (!window.gameInstance || !window.gameInstance.images) return;
@@ -8291,7 +8317,7 @@ class Ball {
         const size = this.radius * 2;
         ctx.drawImage(img, this.x - size / 2, this.y - size / 2, size, size);
     }
-    
+
     renderUnstoppableStrengthOverlay(ctx) {
         if (!this.unstoppableStrengthActive) return;
         if (!window.gameInstance || !window.gameInstance.images) return;
@@ -8352,24 +8378,24 @@ class Ball {
                 ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.restore();
-                
+
                 // Draw Shield Bash image on top
                 const size = this.radius * 2; // Match ball size
-                ctx.drawImage(img, this.x - size/2, this.y - size/2, size, size);
+                ctx.drawImage(img, this.x - size / 2, this.y - size / 2, size, size);
                 return;
             }
         } else if (this.headbuttActive && window.gameInstance && window.gameInstance.images.headbutt) {
             const img = window.gameInstance.images.headbutt;
             if (img.complete) {
                 const size = this.radius * 4;
-                ctx.drawImage(img, this.x - size/2, this.y - size/2, size, size);
+                ctx.drawImage(img, this.x - size / 2, this.y - size / 2, size, size);
                 return;
             }
         }
 
         // Normal ball rendering
         ctx.save();
-        
+
         // Get race color
         const raceColors = {
             human: '#FFD700',
@@ -8380,7 +8406,7 @@ class Ball {
             barbarian: '#DC143C'
         };
         ctx.fillStyle = raceColors[this.race] || '#666';
-        
+
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
         ctx.fill();
@@ -8389,22 +8415,22 @@ class Ball {
         this.renderBattleRoarOverlay(ctx);
         this.renderBloodFrenzyOverlay(ctx);
         this.renderUnstoppableStrengthOverlay(ctx);
-        
+
         // Draw border
         ctx.strokeStyle = '#000';
         ctx.lineWidth = 2;
         ctx.stroke();
-        
+
         ctx.restore();
     }
 
     // Human Basic Skills
     createBattleFocusEffect(ball) {
         if (!window.gameInstance) return;
-        
+
         window.gameInstance.createVisualEffect(
             ball.x, ball.y, 'image', 999.0, // Very long duration, will be manually removed when stacks are used
-            { 
+            {
                 size: ball.radius, // Half the ball size
                 imageKey: 'battleFocus',
                 followTarget: ball // Make it follow the ball
@@ -8414,10 +8440,10 @@ class Ball {
 
     createExecutionStrikeEffect(ball) {
         if (!window.gameInstance) return;
-        
+
         window.gameInstance.createVisualEffect(
             ball.x, ball.y, 'image', 999.0, // Very long duration, will be manually removed when stacks are used
-            { 
+            {
                 size: ball.size * 2, // Match the ball's size
                 imageKey: 'executionStrike',
                 followTarget: ball // Make it follow the ball
@@ -8427,11 +8453,11 @@ class Ball {
 
     createShieldBashEffect(target) {
         if (!window.gameInstance) return;
-        
+
         window.gameInstance.createVisualEffect(
             target.x, target.y, 'explosion', 1.0,
-            { 
-                color: '#C0C0C0', 
+            {
+                color: '#C0C0C0',
                 size: 25,
                 imageKey: 'shieldBash'
             }
@@ -8440,12 +8466,12 @@ class Ball {
 
     createShieldBashTrailEffect() {
         if (!window.gameInstance) return;
-        
+
         // Create a trail effect that follows the ball
         window.gameInstance.createVisualEffect(
             this.x, this.y, 'trail', this.shieldBashDuration,
-            { 
-                color: '#C0C0C0', 
+            {
+                color: '#C0C0C0',
                 size: this.size,
                 followTarget: this,
                 trailLength: 20
@@ -8456,13 +8482,13 @@ class Ball {
     // Human Basic Attacks
     createFlurryOfBlowsEffect(target) {
         if (!window.gameInstance) return;
-        
+
         // Create 3 quick hits with Flurry of Blows image
         for (let i = 0; i < 3; i++) {
             setTimeout(() => {
                 window.gameInstance.createVisualEffect(
                     target.x, target.y, 'image', 0.5,
-                    { 
+                    {
                         size: 30,
                         imageKey: 'flurryOfBlows'
                     }
@@ -8473,11 +8499,11 @@ class Ball {
 
     createIronFistEffect(target) {
         if (!window.gameInstance) return;
-        
+
         window.gameInstance.createVisualEffect(
             target.x, target.y, 'explosion', 1.0,
-            { 
-                color: '#8B4513', 
+            {
+                color: '#8B4513',
                 size: 25,
                 imageKey: 'ironFist'
             }
@@ -8487,12 +8513,12 @@ class Ball {
     // Human Ultimate Skills
     createHerosWrathEffect(balls) {
         if (!window.gameInstance) return;
-        
+
         // Safety check - ensure balls is an array
         if (!Array.isArray(balls)) {
             return;
         }
-        
+
         // Create multiple empowered strikes
         for (let i = 0; i < 3; i++) {
             setTimeout(() => {
@@ -8500,8 +8526,8 @@ class Ball {
                 if (target) {
                     window.gameInstance.createVisualEffect(
                         target.x, target.y, 'explosion', 1.0,
-                        { 
-                            color: '#FFD700', 
+                        {
+                            color: '#FFD700',
                             size: 30,
                             imageKey: 'herosWrath'
                         }
@@ -8527,10 +8553,10 @@ class Ball {
 
     createGrappleSlamEffect(target) {
         if (!window.gameInstance) return;
-        
+
         // Deal damage immediately
         this.dealDamage(target, 5);
-        
+
         // Apply stun (30% chance)
         if (Math.random() < 0.3) {
             if (!target.checkCCDodge()) {
@@ -8538,21 +8564,21 @@ class Ball {
                 target.stunDuration = stunDuration; // 2 second stun (reduced by Iron Will if active)
             }
         }
-        
+
         // Set grapple slam flag to prevent normal movement
         target.grappleSlamActive = true;
-        
+
         // Calculate throw direction and distance
         const throwDirection = Math.random() < 0.5 ? -1 : 1; // Left or right
         const throwDistance = 200; // Distance to throw (doubled)
         const finalX = target.x + (throwDirection * throwDistance);
         const finalY = target.y + 80; // Fall down 80 pixels (doubled)
-        
+
         // Store original position and size
         const originalX = target.x;
         const originalY = target.y;
         const originalRadius = target.radius;
-        
+
         // Create grab and throw animation
         this.animateGrappleSlam(target, originalX, originalY, finalX, finalY, originalRadius, throwDirection);
     }
@@ -8560,15 +8586,15 @@ class Ball {
     animateGrappleSlam(target, startX, startY, endX, endY, originalRadius, direction) {
         const duration = 1500; // 1.5 seconds total
         const startTime = Date.now();
-        
+
         const animate = () => {
             const elapsed = Date.now() - startTime;
             const progress = Math.min(elapsed / duration, 1.0);
-            
+
             // Calculate position - starts moving immediately
             const throwDistance = 200 * progress; // Move 200 pixels over the full duration
             const currentX = startX + (direction * throwDistance);
-            
+
             // Create an arc: start at original Y, go up, then fall down
             let currentY;
             if (progress < 0.5) {
@@ -8581,11 +8607,11 @@ class Ball {
                 const peakY = startY - 40;
                 currentY = peakY + (downProgress * (endY - peakY)); // Fall to final Y
             }
-            
+
             // Set position
             target.x = currentX;
             target.y = currentY;
-            
+
             // Size animation: grow then shrink
             if (progress < 0.3) {
                 // Growing phase (first 30%)
@@ -8599,7 +8625,7 @@ class Ball {
                 // Normal size for the rest
                 target.radius = originalRadius;
             }
-            
+
             // Continue animation if not finished
             if (progress < 1.0) {
                 requestAnimationFrame(animate);
@@ -8611,7 +8637,7 @@ class Ball {
                 target.grappleSlamActive = false; // Clear the flag
             }
         };
-        
+
         animate();
     }
 
@@ -8620,10 +8646,10 @@ class Ball {
         if (window.gameInstance) {
             window.gameInstance.playSound('herosWrath');
         }
-        
+
         // Set cooldown immediately to prevent multiple triggers
         this.ultimateCooldown = 12; // 12 second cooldown
-        
+
         // Create 3 consecutive effects on the target with 100ms delay
         for (let i = 0; i < 3; i++) {
             setTimeout(() => {
@@ -8638,7 +8664,7 @@ class Ball {
                             }
                         );
                     }
-                    
+
                     // Deal damage
                     this.dealDamage(target, 7, { skillName: 'herosWrath', skillType: 'ultimate' });
                 }
