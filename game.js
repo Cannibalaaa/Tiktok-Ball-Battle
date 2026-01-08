@@ -4028,6 +4028,10 @@ class Ball {
         this.spiritBondBuffTimer = 0;
         this.activeEagles = [];
 
+        // Melee baked bonuses (for stack-based skills)
+        this.meleeCritChance = null;
+        this.meleeExecutionBonusActive = false;
+
         // Unstoppable Strength state
         this.unstoppableStrengthActive = false;
         this.unstoppableStrengthDuration = 0;
@@ -5207,8 +5211,18 @@ class Ball {
         if (!this.weaponActive) return;
 
         // Deal damage
-        const damage = this.getBasicAttackDamage(target);
-        this.dealDamage(target, damage, { skillName: this.attack || 'Basic Attack', skillType: 'basic' });
+        // Pass melee baked bonuses if available
+        const damage = this.getBasicAttackDamage(target, { meleeExecutionBonusActive: this.meleeExecutionBonusActive });
+
+        const damageContext = {
+            skillName: this.attack || 'Basic Attack',
+            skillType: 'basic'
+        };
+        if (this.meleeCritChance !== null) {
+            damageContext.critChance = this.meleeCritChance;
+        }
+
+        this.dealDamage(target, damage, damageContext);
 
         // Deactivate weapon and start cooldown
         this.deactivateWeapon();
@@ -5222,6 +5236,9 @@ class Ball {
             this.weaponEffect.duration = 0;
             this.weaponEffect = null;
         }
+        // Clear melee baked bonuses
+        this.meleeCritChance = null;
+        this.meleeExecutionBonusActive = false;
     }
 
     updateEffects(deltaTime = 0.016) {
@@ -5555,6 +5572,17 @@ class Ball {
         }
 
         // --- CONSUME STACKS AT THE END ---
+        // If this is a melee attack, bake the bonuses for the current swing BEFORE decrementing
+        const isMelee = !rangedWeapons.includes(this.weapon);
+        if (isMelee) {
+            if (this.executionStrikeStacks > 0) {
+                this.meleeExecutionBonusActive = true;
+            }
+            if (this.battleFocusStacks > 0) {
+                this.meleeCritChance = this.getCritChance();
+            }
+        }
+
         // Consume Execution Strike stack if active
         if (this.executionStrikeStacks > 0) {
             this.executionStrikeStacks--;
@@ -7177,7 +7205,7 @@ class Ball {
         }
     }
 
-    getBasicAttackDamage(target = null) {
+    getBasicAttackDamage(target = null, context = {}) {
         const attackData = {
             preciseShot: 5,
             volley: 3,
@@ -7203,7 +7231,7 @@ class Ball {
 
         // Apply Execution Strike bonus if active
         // +3 damage when enemy is above 50% HP, +6 damage when enemy is below 50% HP
-        if (this.executionStrikeStacks > 0) {
+        if (this.executionStrikeStacks > 0 || context.meleeExecutionBonusActive) {
             if (target && target.hp < target.maxHp * 0.5) {
                 baseDamage += 6; // +6 damage bonus when enemy below 50% HP
             } else {
