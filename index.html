@@ -293,8 +293,8 @@
             border-radius: 10px;
             backdrop-filter: blur(10px);
             border: 2px solid rgba(255, 255, 255, 0.2);
-            width: 200px;
-            max-width: 200px;
+            width: 280px;
+            max-width: 280px;
         }
 
         .stats-title {
@@ -345,6 +345,18 @@
             text-overflow: ellipsis;
             max-width: 45%;
             text-align: right;
+        }
+
+        .passive-description {
+            font-size: 0.65em;
+            color: #aaa;
+            font-style: italic;
+            margin-top: 4px;
+            padding: 4px 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 4px;
+            line-height: 1.2;
+            word-wrap: break-word;
         }
     </style>
 </head>
@@ -426,6 +438,13 @@
                         <span class="stat-label">Defence:</span>
                         <span class="stat-value" id="player1Defence">0</span>
                     </div>
+                    <div class="stat-item" style="border-left-color: #9c27b0;">
+                        <span class="stat-label">Passive:</span>
+                        <span class="stat-value" id="player1PassiveName">None</span>
+                    </div>
+                    <div class="passive-description" id="player1PassiveDesc">
+                        No passive skill active.
+                    </div>
                 </div>
             </div>
 
@@ -460,6 +479,13 @@
                     <div class="stat-item">
                         <span class="stat-label">Defence:</span>
                         <span class="stat-value" id="player2Defence">0</span>
+                    </div>
+                    <div class="stat-item" style="border-left-color: #9c27b0;">
+                        <span class="stat-label">Passive:</span>
+                        <span class="stat-value" id="player2PassiveName">None</span>
+                    </div>
+                    <div class="passive-description" id="player2PassiveDesc">
+                        No passive skill active.
                     </div>
                 </div>
             </div>

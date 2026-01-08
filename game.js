@@ -105,6 +105,9 @@ class Game {
             'arrow': 'basic attack/Arrow.png',
             'piercingArrow': 'basic attack/Piercing Arrow.png',
             'staff': 'basic attack/staff.png',
+            'crossbow': 'basic attack/crossbow.png',
+            'crossbowBolt': 'basic attack/crossbow bolt.png',
+            'crossbowExplosiveBolt': 'basic attack/crossbow explosive bolt.png',
             'elementalBurst': 'basic attack/Elemental Burst.png',
             'arcaneBolt': 'basic attack/Arcane Bolt.png',
             'focusedBeam': 'basic attack/Focused Beam.png',
@@ -255,7 +258,10 @@ class Game {
             'whirlwindFrame10': 'basic attack/whirlwind_frame_10.png',
             'whirlwindFrame11': 'basic attack/whirlwind_frame_11.png',
             'whirlwindFrame12': 'basic attack/whirlwind_frame_12.png',
-            'regeneration': 'effects/Regeneration.png'
+
+            'regeneration': 'effects/Regeneration.png',
+            'eagle1': 'passive skills/eagle1.png',
+            'eagle2': 'passive skills/eagle2.png'
         };
 
         let loadedCount = 0;
@@ -280,6 +286,8 @@ class Game {
 
         });
     }
+
+
 
     convertSkillIdToSoundName(skillId) {
         // Convert camelCase to Title Case with spaces
@@ -400,6 +408,35 @@ class Game {
             audio.preload = 'auto';
             this.sounds[`staff_electric${i}`] = audio;
         }
+
+        // Load crossbow-specific sounds
+        // Crossbow hit sounds (3 variations)
+        for (let i = 1; i <= 3; i++) {
+            const audio = new Audio(`Sound Effects/crossbow/crossbow hit/crossbow_hit${i}.mp3`);
+            audio.preload = 'auto';
+            this.sounds[`crossbow_hit${i}`] = audio;
+        }
+
+        // Crossbow shoot sounds (4 variations)
+        for (let i = 1; i <= 4; i++) {
+            const audio = new Audio(`Sound Effects/crossbow/crossbow shoot/crossbow_shoot${i}.mp3`);
+            audio.preload = 'auto';
+            this.sounds[`crossbow_shoot${i}`] = audio;
+        }
+
+        // Crossbow explosion sounds (5 variations)
+        for (let i = 1; i <= 5; i++) {
+            const audio = new Audio(`Sound Effects/crossbow/crossbow explosion/crossbow_explosion${i}.mp3`);
+            audio.preload = 'auto';
+            this.sounds[`crossbow_explosion${i}`] = audio;
+        }
+
+        this.sounds['demonicAscension'] = new Audio('Sound Effects/demonic_ascension.mp3');
+        this.sounds['unbreakableBastion'] = new Audio('Sound Effects/unbreakable_bastion.mp3');
+
+        // Passive Skill Sounds
+        this.sounds['eagleCall'] = new Audio('Sound Effects/eagle call.mp3');
+        this.sounds['eagleFlap'] = new Audio('Sound Effects/eagle flap.mp3');
     }
 
     playRandomBowShootSound() {
@@ -435,6 +472,21 @@ class Game {
     playRandomStaffElectricSound() {
         const soundIndex = Math.floor(Math.random() * 8) + 1;
         this.playSound(`staff_electric${soundIndex}`);
+    }
+
+    playRandomCrossbowShootSound() {
+        const soundIndex = Math.floor(Math.random() * 4) + 1;
+        this.playSound(`crossbow_shoot${soundIndex}`);
+    }
+
+    playRandomCrossbowHitSound() {
+        const soundIndex = Math.floor(Math.random() * 3) + 1;
+        this.playSound(`crossbow_hit${soundIndex}`);
+    }
+
+    playRandomCrossbowExplosionSound() {
+        const soundIndex = Math.floor(Math.random() * 5) + 1;
+        this.playSound(`crossbow_explosion${soundIndex}`);
     }
 
     playSound(soundName) {
@@ -1356,8 +1408,32 @@ class Game {
         // Update Defence
         const defenceElement = document.getElementById(`player${playerNum}Defence`);
         if (defenceElement) {
-            const totalDefence = ball.getTotalDefence();
+            let totalDefence = ball.getTotalDefence();
+            // Add visual indicator if Spirit Bond buff is active
+            if (ball.spiritBondBuffTimer > 0) {
+                totalDefence = `${totalDefence} (+1)`;
+                defenceElement.style.color = '#4CAF50'; // Green
+            } else {
+                defenceElement.style.color = '#fff';
+            }
             defenceElement.textContent = totalDefence;
+        }
+
+        // Update Passive Skill
+        const passiveNameElement = document.getElementById(`player${playerNum}PassiveName`);
+        const passiveDescElement = document.getElementById(`player${playerNum}PassiveDesc`);
+        if (passiveNameElement && passiveDescElement && ball.passiveSkills && ball.passiveSkills.length > 0) {
+            const passiveId = ball.passiveSkills[0];
+            const racePassives = this.getPassiveSkillsForRace(ball.race);
+            const passiveSkill = racePassives.find(s => s.id === passiveId);
+
+            if (passiveSkill) {
+                passiveNameElement.textContent = passiveSkill.name;
+                passiveDescElement.textContent = passiveSkill.description;
+            } else {
+                passiveNameElement.textContent = 'None';
+                passiveDescElement.textContent = 'No passive skill active.';
+            }
         }
     }
 
@@ -1891,6 +1967,9 @@ class VisualEffect {
                 case 'explosion':
                     this.renderExplosion(ctx, progress);
                     break;
+                case 'explosiveBoltCircle':
+                    this.renderExplosiveBoltCircle(ctx, progress);
+                    break;
                 case 'heal':
                     this.renderHeal(ctx, progress);
                     break;
@@ -2094,7 +2173,7 @@ class VisualEffect {
             ctx.save();
             if (this.type === 'weapon' && this.followTarget) {
                 // Special handling for bow, staff, sword, and dual sword - position around ball and rotate to face enemy
-                if (this.imageKey === 'bow' || this.imageKey === 'staff' || this.imageKey === 'sword' || this.imageKey === 'dualSword') {
+                if (this.imageKey === 'bow' || this.imageKey === 'staff' || this.imageKey === 'sword' || this.imageKey === 'dualSword' || this.imageKey === 'crossbow') {
                     if (this.data && this.data.weaponType === 'dualSword') {
                         // For dual sword, draw two swords on the sides of the ball (like hands)
                         const offsetDistance = 25; // Closer to the ball
@@ -2137,6 +2216,8 @@ class VisualEffect {
                         ctx.translate(offsetX, offsetY);
                         if (this.data && this.data.weaponType === 'sword') {
                             ctx.rotate(this.angle + Math.PI / 4); // 45 degrees right tilt (same as dual sword)
+                        } else if (this.imageKey === 'crossbow') {
+                            ctx.rotate(this.angle + Math.PI / 4); // Corrected orientation: -45 deg for (1,1) plus 90 deg right tilt
                         } else {
                             ctx.rotate(this.angle); // Normal rotation for bow and staff
                         }
@@ -2196,6 +2277,15 @@ class VisualEffect {
         ctx.beginPath();
         ctx.arc(this.x, this.y, radius, 0, Math.PI * 2);
         ctx.fill();
+    }
+
+    renderExplosiveBoltCircle(ctx, progress) {
+        const radius = 50 * progress; // Expand to 50
+        ctx.strokeStyle = '#ff8800'; // Orange
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, radius, 0, Math.PI * 2);
+        ctx.stroke();
     }
 
     renderHeal(ctx, progress) {
@@ -3391,6 +3481,18 @@ class Projectile {
             } else if (this.type === 'arcaneBolt' && window.gameInstance) {
                 // Play random electric sound for Arcane Bolt hits
                 window.gameInstance.playRandomStaffElectricSound();
+            } else if (this.type === 'bolt' && window.gameInstance) {
+                // Play random crossbow sounds for bolt hits
+                if (this.explosive) {
+                    window.gameInstance.playRandomCrossbowExplosionSound();
+
+                    // Create hollow orange circle visual effect for explosive bolts
+                    window.gameInstance.createVisualEffect(
+                        this.x, this.y, 'explosiveBoltCircle', 0.5, { size: 50 }
+                    );
+                } else {
+                    window.gameInstance.playRandomCrossbowHitSound();
+                }
             }
 
             if (this.type === 'hammerStrikeProjectile') {
@@ -3441,7 +3543,7 @@ class Projectile {
                 owner.dealDamage(target, this.damage, skillContext);
             }
 
-            if (this.type === 'stoneTossProjectile' && this.dotDamageTotal > 0 && this.dotDuration > 0) {
+            if (this.dotDamageTotal > 0 && this.dotDuration > 0) {
                 owner.dealDamageOverTime(
                     target,
                     this.dotDamageTotal,
@@ -3532,7 +3634,14 @@ class Projectile {
 
                 ctx.save();
                 ctx.translate(this.x, this.y);
-                ctx.rotate(totalAngle);
+
+                // Special rotation for crossbow bolts that point at (1,1)
+                if (this.projectileImageKey === 'crossbowBolt' || this.projectileImageKey === 'crossbowExplosiveBolt') {
+                    ctx.rotate(totalAngle + Math.PI / 4); // Corrected: -45 deg for (1,1) plus 90 deg right tilt
+                } else {
+                    ctx.rotate(totalAngle);
+                }
+
                 ctx.drawImage(img, -size / 2, -size / 2, size, size);
                 ctx.restore();
                 return;
@@ -3911,6 +4020,12 @@ class Ball {
         // Taunt state
         this.tauntTargetId = null;
         this.tauntDuration = 0;
+
+        // Spirit Bond (Passive)
+        this.spiritBondActive = false;
+        this.spiritBondTimer = 10; // Reset to 10s cooldown
+        this.spiritBondBuffTimer = 0;
+        this.activeEagles = [];
 
         // Unstoppable Strength state
         this.unstoppableStrengthActive = false;
@@ -4300,6 +4415,124 @@ class Ball {
         this.spiritBondActive = true;
     }
 
+    updateSpiritBond(deltaTime, canvasWidth, canvasHeight) {
+        if (!this.spiritBondActive) return;
+
+        // Update Cooldown
+        if (this.spiritBondTimer > 0) {
+            this.spiritBondTimer -= deltaTime;
+            if (this.spiritBondTimer <= 0) {
+                // Spawn Eagle
+                this.spawnEagle(canvasWidth, canvasHeight);
+                this.spiritBondTimer = 10; // Reset timer
+                this.spiritBondBuffTimer = 3; // 3 seconds buff
+
+                // Play sounds
+                if (window.gameInstance) {
+                    window.gameInstance.playSound('eagleCall');
+                    window.gameInstance.playSound('eagleFlap');
+                }
+            }
+        }
+
+        // Update Buff Timer
+        if (this.spiritBondBuffTimer > 0) {
+            this.spiritBondBuffTimer -= deltaTime;
+        }
+
+        // Update Active Eagles
+        for (let i = this.activeEagles.length - 1; i >= 0; i--) {
+            const eagle = this.activeEagles[i];
+
+            // Move
+            eagle.x += eagle.vx;
+            eagle.y += eagle.vy;
+
+            // Animate
+            eagle.animationTimer += deltaTime;
+            if (eagle.animationTimer >= 0.15) { // 0.3s total for 2 frames = 0.15 per frame
+                eagle.animationTimer = 0;
+                eagle.frame = eagle.frame === 1 ? 2 : 1;
+            }
+
+            // Remove if out of bounds (give some buffer)
+            if (eagle.x < -100 || eagle.x > canvasWidth + 100 ||
+                eagle.y < -100 || eagle.y > canvasHeight + 100) {
+                this.activeEagles.splice(i, 1);
+            }
+        }
+    }
+
+    spawnEagle(canvasWidth, canvasHeight) {
+        // Random spawn side: 0=Left, 1=Right, 2=Top, 3=Bottom
+        const side = Math.floor(Math.random() * 4);
+        const speed = 2.5; // Reduced speed as requested
+        let x, y, vx, vy, rotation;
+
+        switch (side) {
+            case 0: // Left -> Right
+                x = -50;
+                y = Math.random() * canvasHeight;
+                vx = speed;
+                vy = (Math.random() - 0.5) * 2; // Slight vertical variation
+                rotation = 0;
+                break;
+            case 1: // Right -> Left
+                x = canvasWidth + 50;
+                y = Math.random() * canvasHeight;
+                vx = -speed;
+                vy = (Math.random() - 0.5) * 2;
+                rotation = Math.PI;
+                break;
+            case 2: // Top -> Bottom
+                x = Math.random() * canvasWidth;
+                y = -50;
+                vx = (Math.random() - 0.5) * 2;
+                vy = speed;
+                rotation = Math.PI / 2;
+                break;
+            case 3: // Bottom -> Top
+                x = Math.random() * canvasWidth;
+                y = canvasHeight + 50;
+                vx = (Math.random() - 0.5) * 2;
+                vy = -speed;
+                rotation = -Math.PI / 2;
+                break;
+        }
+
+        // Adjust rotation based on exact velocity
+        // Add Math.PI because the base image faces left and atan2 assumes right-facing
+        rotation = Math.atan2(vy, vx) + Math.PI;
+
+        this.activeEagles.push({
+            x: x,
+            y: y,
+            vx: vx,
+            vy: vy,
+            rotation: rotation,
+            frame: 1,
+            animationTimer: 0
+        });
+    }
+
+    renderSpiritBond(ctx) {
+        if (!this.spiritBondActive) return;
+
+        this.activeEagles.forEach(eagle => {
+            const imageKey = `eagle${eagle.frame}`;
+            const image = window.gameInstance ? window.gameInstance.images[imageKey] : null;
+
+            if (image) {
+                ctx.save();
+                ctx.translate(eagle.x, eagle.y);
+                ctx.rotate(eagle.rotation);
+                // Assume eagle looks right by default. Size? Let's say 60x60
+                ctx.drawImage(image, -30, -30, 60, 60);
+                ctx.restore();
+            }
+        });
+    }
+
     applyStoneflesh() {
         // +2 physical resistance
         this.stonefleshBonus = 2;
@@ -4405,6 +4638,9 @@ class Ball {
 
         // Apply passive skills
         this.applyPassiveSkills();
+
+        // Update Spirit Bond (Passive)
+        this.updateSpiritBond(deltaTime, canvasWidth, canvasHeight);
 
         // Update cooldowns with passive skill bonuses
         const cooldownReduction = this.getCooldownReductionMultiplier();
@@ -4604,11 +4840,14 @@ class Ball {
         if (this.shieldBashActive) {
             this.shieldBashDuration -= deltaTime;
 
-            // Rush toward target
-            this.x += this.shieldBashVx;
-            this.y += this.shieldBashVy;
+            // Only move if not CC'd
+            if (!this.stunDuration && !this.feared && !this.rooted) {
+                // Rush toward target
+                this.x += this.shieldBashVx;
+                this.y += this.shieldBashVy;
+            }
 
-            // Check if we hit the target
+            // Check if we hit the target (remains active even if CC'd - enemy can collide with us)
             if (this.shieldBashTarget) {
                 const distance = Math.sqrt((this.shieldBashTarget.x - this.x) ** 2 + (this.shieldBashTarget.y - this.y) ** 2);
                 if (distance < this.radius + this.shieldBashTarget.radius) {
@@ -4885,8 +5124,11 @@ class Ball {
 
         // Create persistent weapon effect for ranged weapons
         let imageKey = 'bow';
+        let weaponSize = this.radius * 0.8 * 1.2; // 1.2x bigger than before
+
         if (this.weapon === 'crossbow') {
-            imageKey = 'crossbow'; // You can add crossbow image later
+            imageKey = 'crossbow';
+            weaponSize *= 1.5; // Crossbow is 1.5x bigger as requested
         } else if (this.weapon === 'staff') {
             imageKey = 'staff';
         } else if (this.weapon === 'sword') {
@@ -4898,7 +5140,7 @@ class Ball {
         this.weaponEffect = window.gameInstance.createVisualEffect(
             this.x, this.y, 'weapon', 999, // Very long duration
             {
-                size: this.radius * 0.8 * 1.2, // 1.2x bigger than before
+                size: weaponSize,
                 imageKey: imageKey,
                 followTarget: this,
                 offsetX: 0,
@@ -5325,6 +5567,8 @@ class Ball {
             // Special handling for volley attack
             if (this.attack === 'volley') {
                 this.createVolley(target, damage);
+            } else if (this.attack === 'scatterShot') {
+                this.createScatterShot(target, damage);
             } else {
                 this.createProjectile(target, damage);
             }
@@ -5946,26 +6190,27 @@ class Ball {
 
     updateHeadbutt(balls) {
         if (!this.headbuttActive) return;
-        if (this.stunDuration > 0) {
-            this.finishHeadbutt(false);
-            return;
-        }
+
         const target = balls.find(ball => ball.id === this.headbuttTargetId);
         if (!target) {
             this.finishHeadbutt(false);
             return;
         }
 
-        this.updateHeadbuttVelocity(target);
-        this.x += this.vx;
-        this.y += this.vy;
+        // Only move if not CC'd
+        if (!this.stunDuration && !this.feared && !this.rooted) {
+            this.updateHeadbuttVelocity(target);
+            this.x += this.vx;
+            this.y += this.vy;
 
-        if (window.gameInstance && window.gameInstance.canvas) {
-            const canvas = window.gameInstance.canvas;
-            this.x = Math.max(this.radius, Math.min(canvas.width - this.radius, this.x));
-            this.y = Math.max(this.radius, Math.min(canvas.height - this.radius, this.y));
+            if (window.gameInstance && window.gameInstance.canvas) {
+                const canvas = window.gameInstance.canvas;
+                this.x = Math.max(this.radius, Math.min(canvas.width - this.radius, this.x));
+                this.y = Math.max(this.radius, Math.min(canvas.height - this.radius, this.y));
+            }
         }
 
+        // Collision check remains active even if CC'd
         const distanceToTarget = Math.hypot(target.x - this.x, target.y - this.y);
         if (distanceToTarget <= this.radius + target.radius) {
             // Play collision sound
@@ -6773,6 +7018,19 @@ class Ball {
         }
     }
 
+    createScatterShot(target, damage) {
+        // Fire 2 bolts with 0.1 second delay between each
+        for (let i = 0; i < 2; i++) {
+            setTimeout(() => {
+                // Recalculate target position for each bolt
+                const currentTarget = this.aiTarget || target;
+                if (currentTarget && currentTarget.hp > 0) {
+                    this.createProjectile(currentTarget, damage);
+                }
+            }, i * 100); // 100ms delay between bolts
+        }
+    }
+
     createProjectile(target, damage, projectileType = null, context = {}) {
         // Calculate direction to target
         const dx = target.x - this.x;
@@ -6820,7 +7078,11 @@ class Ball {
                     finalProjectileType = 'bolt';
                     if (this.attack === 'explosiveBolt') {
                         explosive = true;
+                        context.projectileImageKey = 'crossbowExplosiveBolt';
+                    } else {
+                        context.projectileImageKey = 'crossbowBolt';
                     }
+                    context.projectileSize = 60; // Size for crossbow bolts (40 * 1.5 = 60)
                     break;
                 case 'staff':
                     // Determine projectile type based on attack
@@ -6843,6 +7105,10 @@ class Ball {
                 case 'dualSword':
                     // Dual sword creates a dual sword projectile
                     finalProjectileType = 'dualSword';
+                    if (this.attack === 'bleedingCuts') {
+                        context.dotDamageTotal = 2;
+                        context.dotDuration = 2;
+                    }
                     break;
                 case 'axeThrow':
                     // Axe throw creates an axe throw projectile
@@ -6895,6 +7161,11 @@ class Ball {
             // Play staff low sound when Arcane Bolt or Elemental Burst is fired
             if (this.weapon === 'staff' && (finalProjectileType === 'arcaneBolt' || finalProjectileType === 'elementalBurst')) {
                 window.gameInstance.playRandomStaffLowSound();
+            }
+
+            // Play crossbow shoot sound
+            if (this.weapon === 'crossbow') {
+                window.gameInstance.playRandomCrossbowShootSound();
             }
         }
     }
@@ -6968,6 +7239,11 @@ class Ball {
         if (this.shadowstepDamageBonus > 0) {
             baseDamage += this.shadowstepDamageBonus;
             this.shadowstepDamageBonus = 0; // Consume after one attack
+        }
+
+        // Apply Spirit Bond attack buff if active
+        if (this.spiritBondBuffTimer > 0) {
+            baseDamage += 2;
         }
 
         return baseDamage;
@@ -7054,6 +7330,11 @@ class Ball {
         // Apply Shadowstep damage bonus if active (preview - don't consume)
         if (this.shadowstepDamageBonus > 0) {
             baseDamage += this.shadowstepDamageBonus;
+        }
+
+        // Apply Spirit Bond attack buff if active
+        if (this.spiritBondBuffTimer > 0) {
+            baseDamage += 2;
         }
 
         // Apply passive skill damage bonuses (multiplicative)
@@ -7331,6 +7612,11 @@ class Ball {
         // Add Shield Bash defense bonus if active
         if (this.shieldBashDefenseDuration > 0) {
             totalDefence += this.shieldBashDefenseBonus;
+        }
+
+        // Spirit Bond Buff
+        if (this.spiritBondBuffTimer > 0) {
+            totalDefence += 1;
         }
 
         return Math.round(totalDefence);
@@ -8481,6 +8767,9 @@ class Ball {
         this.renderBattleRoarOverlay(ctx);
         this.renderBloodFrenzyOverlay(ctx);
         this.renderUnstoppableStrengthOverlay(ctx);
+
+        // Render Spirit Bond Eagle (if active)
+        this.renderSpiritBond(ctx);
 
         ctx.restore();
     }
