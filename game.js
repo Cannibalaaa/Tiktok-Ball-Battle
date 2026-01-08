@@ -10,6 +10,7 @@ class Game {
         this.cancelledMessages = []; // Messages for cancelled moves
         this.gameState = 'selection'; // selection, playing, gameOver
         this.lastFrameTime = performance.now(); // Track frame timing for delta time
+        this.globalVolume = 0.5; // Default volume 50%
 
         // Load images
         this.images = {};
@@ -495,7 +496,7 @@ class Game {
             try {
                 // Clone the audio to allow overlapping sounds
                 const audio = this.sounds[soundName].cloneNode();
-                audio.volume = 0.5; // Set volume to 50%
+                audio.volume = this.globalVolume;
                 audio.play().catch(err => {
                     // Ignore play() errors (e.g., user hasn't interacted with page yet)
                     console.warn(`Could not play sound ${soundName}:`, err);
@@ -511,6 +512,17 @@ class Game {
         const randomBtn = document.getElementById('randomMatchButton');
         if (randomBtn) {
             randomBtn.addEventListener('click', () => this.startRandomMatch());
+        }
+
+        // Volume control listener
+        const volumeSlider = document.getElementById('volumeSlider');
+        const volumeValueDisplay = document.getElementById('volumeValue');
+        if (volumeSlider && volumeValueDisplay) {
+            volumeSlider.addEventListener('input', (e) => {
+                const value = parseInt(e.target.value);
+                this.globalVolume = value / 100;
+                volumeValueDisplay.textContent = `${value}%`;
+            });
         }
     }
 
@@ -591,12 +603,12 @@ class Game {
         title.textContent = `${this[`player${playerNum}`].name} - Choose Your Race`;
 
         const races = [
-            { id: 'human', name: 'Human', stats: 'HP: 220, Defense: 0, Crit: 10%' },
-            { id: 'demon', name: 'Demon', stats: 'HP: 170, Defense: 1, Crit: 15%' },
-            { id: 'orc', name: 'Orc', stats: 'HP: 190, Defense: 1, Crit: 10%' },
-            { id: 'elf', name: 'Elf', stats: 'HP: 160, Defense: 2, Crit: 20%' },
-            { id: 'dwarf', name: 'Dwarf', stats: 'HP: 200, Defense: 1, Crit: 10%' },
-            { id: 'barbarian', name: 'Barbarian', stats: 'HP: 180, Defense: 0, Crit: 20%' }
+            { id: 'human', name: 'Human', stats: 'HP: 110, Defense: 1, Crit: 10%' },
+            { id: 'demon', name: 'Demon', stats: 'HP: 85, Defense: 2, Crit: 15%' },
+            { id: 'orc', name: 'Orc', stats: 'HP: 95, Defense: 2, Crit: 10%' },
+            { id: 'elf', name: 'Elf', stats: 'HP: 70, Defense: 3, Crit: 20%' },
+            { id: 'dwarf', name: 'Dwarf', stats: 'HP: 100, Defense: 2, Crit: 10%' },
+            { id: 'barbarian', name: 'Barbarian', stats: 'HP: 90, Defense: 1, Crit: 20%' }
         ];
 
         content.innerHTML = `
@@ -762,8 +774,7 @@ class Game {
             { id: 'dualSword', name: '⚔️ Dual Sword', description: 'Fast melee combat' },
             { id: 'sword', name: '🗡️ Sword', description: 'Balanced melee weapon' },
             { id: 'staff', name: '🔮 Staff', description: 'Magic-focused weapon' },
-            { id: 'crossbow', name: '🎯 Crossbow', description: 'Heavy ranged weapon' },
-            { id: 'unarmed', name: '✊ Unarmed', description: 'Hand-to-hand combat' }
+            { id: 'crossbow', name: '🎯 Crossbow', description: 'Heavy ranged weapon' }
         ];
 
         content.innerHTML = `
@@ -847,29 +858,29 @@ class Game {
     getAttacksForWeapon(weapon, race = null) {
         const attackData = {
             bow: [
-                { id: 'preciseShot', name: 'Precise Shot', description: '5 damage, 1.2s cooldown' },
-                { id: 'volley', name: 'Volley', description: '3 arrows x 3 damage each, 1.2s cooldown' },
-                { id: 'piercingArrow', name: 'Piercing Arrow', description: '4 damage, pierces enemies, 1.2s cooldown' }
+                { id: 'preciseShot', name: 'Precise Shot', description: '7 damage, 1.2s cooldown' },
+                { id: 'volley', name: 'Volley', description: '3 arrows x 4 damage each, 1.2s cooldown' },
+                { id: 'piercingArrow', name: 'Piercing Arrow', description: '4 damage, ignores defense, pierces enemies, 1.2s cooldown' }
             ],
             dualSword: [
-                { id: 'whirlwindSlash', name: 'Whirlwind Slash', description: '5 damage, 1.2s cooldown' },
-                { id: 'twinStrikes', name: 'Twin Strikes', description: '3 damage x2 hits, 1.2s cooldown' },
-                { id: 'bleedingCuts', name: 'Bleeding Cuts', description: '3 damage + 1 bleed/s for 2s, 1.2s cooldown' }
+                { id: 'whirlwindSlash', name: 'Whirlwind Slash', description: '7 damage, 1.2s cooldown' },
+                { id: 'twinStrikes', name: 'Twin Strikes', description: '5 damage x2 hits, 1.2s cooldown' },
+                { id: 'bleedingCuts', name: 'Bleeding Cuts', description: '3 damage + 2 bleed/s for 2s (ignores defense), 1.2s cooldown' }
             ],
             sword: [
-                { id: 'heavySlash', name: 'Heavy Slash', description: '7 damage, 1.2s cooldown' },
-                { id: 'quickJab', name: 'Quick Jab', description: '4 damage, 30% double hit, 1.2s cooldown' },
+                { id: 'heavySlash', name: 'Heavy Slash', description: '8 damage, 1.2s cooldown' },
+                { id: 'quickJab', name: 'Quick Jab', description: '5 damage, 30% double hit, 1.2s cooldown' },
                 { id: 'shieldBreaker', name: 'Shield Breaker', description: '5 damage, ignores defense, 1.2s cooldown' }
             ],
             staff: [
-                { id: 'arcaneBolt', name: 'Arcane Bolt', description: '5 damage, 1.2s cooldown' },
+                { id: 'arcaneBolt', name: 'Arcane Bolt', description: '7 damage, 1.2s cooldown' },
                 { id: 'elementalBurst', name: 'Elemental Burst', description: '5 damage, ignores defense, 1.2s cooldown' },
-                { id: 'focusedBeam', name: 'Focused Beam', description: '4 damage beam, 3s cooldown' }
+                { id: 'focusedBeam', name: 'Focused Beam', description: '5 damage beam, 3s cooldown' }
             ],
             crossbow: [
-                { id: 'sniperBolt', name: 'Sniper Bolt', description: '6 damage, 1.2s cooldown' },
-                { id: 'scatterShot', name: 'Scatter Shot', description: '3 damage x2 bolts, 1.2s cooldown' },
-                { id: 'explosiveBolt', name: 'Explosive Bolt', description: '4 damage AOE, 1.2s cooldown' }
+                { id: 'sniperBolt', name: 'Sniper Bolt', description: '7 damage, 1.2s cooldown' },
+                { id: 'scatterShot', name: 'Scatter Shot', description: '5 damage x2 bolts, 1.2s cooldown' },
+                { id: 'explosiveBolt', name: 'Explosive Bolt', description: '4 damage AOE, ignores defense, 1.2s cooldown' }
             ],
             unarmed: [
                 { id: 'ironFist', name: 'Iron Fist', description: '4 damage, 1.2s cooldown' },
@@ -1032,7 +1043,6 @@ class Game {
             { id: 'earthshatter', name: 'Earthshatter', description: '12 damage + 1.5s stun (leap attack)' },
 
             // Dwarf
-            { id: 'anvilOfMountain', name: 'Anvil of the Mountain', description: '25 damage + 2s stun (anvil drop)' },
             { id: 'hammerOfMountain', name: 'Hammer of the Mountain', description: '14 damage + 1.2s stun (collision)' },
             { id: 'unbreakableBastion', name: 'Unbreakable Bastion', description: '5 damage + 1.3s taunt + 250 shield (wave)' },
 
@@ -1101,7 +1111,7 @@ class Game {
         this.player2 = { name: name2 };
 
         const races = ['human', 'demon', 'orc', 'elf', 'dwarf', 'barbarian'];
-        const weapons = ['bow', 'dualSword', 'sword', 'staff', 'crossbow', 'unarmed'];
+        const weapons = ['bow', 'dualSword', 'sword', 'staff', 'crossbow'];
         const activeSkills = this.getAllActiveSkills();
         const ultimateSkills = this.getAllUltimateSkills();
 
@@ -2111,13 +2121,22 @@ class VisualEffect {
         let width = this.size * 2;
         let height = this.size * 2;
 
-        // Reduce size for skill images (not basic attacks)
-        if (this.imageKey === 'axeThrow' || this.imageKey === 'warStomp' ||
+        if (this.imageKey === 'battleFocus') {
+            width = this.size * 1.25; // 2.5x of previous 0.5x
+            height = this.size * 1.25;
+        } else if (this.imageKey === 'axeThrow' || this.imageKey === 'warStomp' ||
             this.imageKey === 'anvilOfMountain' || this.imageKey === 'earthshatter' ||
-            this.imageKey === 'battleFocus' || this.imageKey === 'shieldBash') {
+            this.imageKey === 'shieldBash') {
             width = this.size * 0.5; // 1/4 of original size
             height = this.size * 0.5;
         }
+
+        // Increase Bow weapon size by 1.5x
+        if (this.imageKey === 'bow') {
+            width *= 1.5;
+            height *= 1.5;
+        }
+
 
         // Last Stand should match the size we set in createLastStandEffect (half ball size)
         if (this.imageKey === 'lastStand') {
@@ -3513,11 +3532,17 @@ class Projectile {
                 ? { ...this.skillContext }
                 : null;
             if (!skillContext || !skillContext.skillName) {
-                skillContext = { skillName: 'Projectile', skillType: 'basic' };
-                if (owner.attack) {
-                    skillContext = { skillName: owner.attack, skillType: 'basic' };
-                }
+                skillContext = {
+                    skillName: owner.attack || 'Projectile',
+                    skillType: 'basic'
+                };
             }
+
+            // IMPORTANT: Ensure baked critical hit chance is passed to dealDamage
+            if (this.critChance !== null) {
+                skillContext.critChance = this.critChance;
+            }
+
             // Mark as projectile and that dodge was already checked in hitTarget
             skillContext.isProjectile = true;
             skillContext.dodgeAlreadyChecked = true;
@@ -3659,7 +3684,7 @@ class Projectile {
                 if (window.gameInstance && window.gameInstance.images.arrow) {
                     const img = window.gameInstance.images.arrow;
                     if (img.complete) {
-                        const size = 80; // Doubled from 40 to 80 as requested
+                        const size = 100; // Refined to 100 as requested
                         const angle = Math.atan2(this.vy, this.vx) + Math.PI / 2; // Add 90 degrees to correct orientation
 
                         ctx.save();
@@ -3677,7 +3702,7 @@ class Projectile {
                 if (window.gameInstance && window.gameInstance.images.piercingArrow) {
                     const img = window.gameInstance.images.piercingArrow;
                     if (img.complete) {
-                        const size = 80; // Doubled from 40 to 80 as requested
+                        const size = 80; // Reverted to 80 as requested
                         const angle = Math.atan2(this.vy, this.vx) + Math.PI / 2; // Add 90 degrees to correct orientation
 
                         ctx.save();
@@ -3740,7 +3765,7 @@ class Projectile {
                 if (window.gameInstance && window.gameInstance.images.sylvanMarkArrow) {
                     const img = window.gameInstance.images.sylvanMarkArrow;
                     if (img.complete) {
-                        const size = 100; // 5x the previous size (20 * 5 = 100)
+                        const size = 150; // Increased to 1.5x (100 * 1.5 = 150)
                         const angle = Math.atan2(this.vy, this.vx) + Math.PI / 2; // Add 90 degrees (π/2) to correct the orientation
 
                         ctx.save();
@@ -4044,12 +4069,12 @@ class Ball {
 
     setRaceStats() {
         const raceStats = {
-            human: { maxHp: 220, defense: 0, critChance: 0.1 },
-            demon: { maxHp: 170, defense: 1, critChance: 0.15 },
-            orc: { maxHp: 190, defense: 1, critChance: 0.1 },
-            elf: { maxHp: 160, defense: 2, critChance: 0.2 },
-            dwarf: { maxHp: 200, defense: 1, critChance: 0.1 },
-            barbarian: { maxHp: 180, defense: 0, critChance: 0.2 }
+            human: { maxHp: 110, defense: 1, critChance: 0.1 },
+            demon: { maxHp: 85, defense: 2, critChance: 0.15 },
+            orc: { maxHp: 95, defense: 2, critChance: 0.1 },
+            elf: { maxHp: 70, defense: 3, critChance: 0.2 },
+            dwarf: { maxHp: 100, defense: 2, critChance: 0.1 },
+            barbarian: { maxHp: 90, defense: 1, critChance: 0.2 }
         };
 
         const stats = raceStats[this.race];
@@ -7036,26 +7061,40 @@ class Ball {
 
 
     createVolley(target, damage) {
+        // Bake critical hit chance and battle focus status before the delay
+        const bakedCritChance = this.getCritChance();
+        const bakedBattleFocusActive = this.battleFocusStacks > 0;
+
         // Fire 3 arrows with 0.1 second delay between each
         for (let i = 0; i < 3; i++) {
             setTimeout(() => {
                 // Recalculate target position for each arrow (in case target moved)
                 const currentTarget = this.aiTarget || target;
                 if (currentTarget && currentTarget.hp > 0) {
-                    this.createProjectile(currentTarget, damage);
+                    this.createProjectile(currentTarget, damage, null, {
+                        critChance: bakedCritChance,
+                        battleFocusActive: bakedBattleFocusActive
+                    });
                 }
             }, i * 100); // 100ms delay between arrows
         }
     }
 
     createScatterShot(target, damage) {
+        // Bake critical hit chance and battle focus status before the delay
+        const bakedCritChance = this.getCritChance();
+        const bakedBattleFocusActive = this.battleFocusStacks > 0;
+
         // Fire 2 bolts with 0.1 second delay between each
         for (let i = 0; i < 2; i++) {
             setTimeout(() => {
                 // Recalculate target position for each bolt
                 const currentTarget = this.aiTarget || target;
                 if (currentTarget && currentTarget.hp > 0) {
-                    this.createProjectile(currentTarget, damage);
+                    this.createProjectile(currentTarget, damage, null, {
+                        critChance: bakedCritChance,
+                        battleFocusActive: bakedBattleFocusActive
+                    });
                 }
             }, i * 100); // 100ms delay between bolts
         }
@@ -7141,8 +7180,9 @@ class Ball {
                     // Dual sword creates a dual sword projectile
                     finalProjectileType = 'dualSword';
                     if (this.attack === 'bleedingCuts') {
-                        context.dotDamageTotal = 2;
+                        context.dotDamageTotal = 4; // 2 dmg/s for 2 seconds
                         context.dotDuration = 2;
+                        context.fixedDamage = true; // Bleed bypasses defense
                     }
                     break;
                 case 'axeThrow':
@@ -7178,7 +7218,11 @@ class Ball {
         }
 
         // Add heat seeking for bow/crossbow during Battle Focus
-        if (this.battleFocusStacks > 0 && (this.weapon === 'bow' || this.weapon === 'crossbow')) {
+        const isBattleFocusActive = (context && context.battleFocusActive !== undefined)
+            ? context.battleFocusActive
+            : (this.battleFocusStacks > 0);
+
+        if (isBattleFocusActive && (this.weapon === 'bow' || this.weapon === 'crossbow')) {
             projectile.heatSeeking = true;
             projectile.targetId = target.id;
         }
@@ -7207,20 +7251,20 @@ class Ball {
 
     getBasicAttackDamage(target = null, context = {}) {
         const attackData = {
-            preciseShot: 5,
-            volley: 3,
+            preciseShot: 7,
+            volley: 4,
             piercingArrow: 4,
-            whirlwindSlash: 5,
-            twinStrikes: 3,
+            whirlwindSlash: 7,
+            twinStrikes: 5,
             bleedingCuts: 3,
-            heavySlash: 7,
-            quickJab: 4,
+            heavySlash: 8,
+            quickJab: 5,
             shieldBreaker: 5,
-            arcaneBolt: 5,
+            arcaneBolt: 7,
             elementalBurst: 5,
-            focusedBeam: 4,
-            sniperBolt: 6,
-            scatterShot: 3,
+            focusedBeam: 5,
+            sniperBolt: 7,
+            scatterShot: 5,
             explosiveBolt: 4,
             ironFist: 4,
             flurryOfBlows: 2,
@@ -7305,20 +7349,20 @@ class Ball {
     getBasicAttackDamagePreview(target = null) {
         // Calculate basic attack damage without consuming stacks (for UI display)
         const attackData = {
-            preciseShot: 5,
-            volley: 3,
+            preciseShot: 7,
+            volley: 4,
             piercingArrow: 4,
-            whirlwindSlash: 5,
-            twinStrikes: 3,
+            whirlwindSlash: 7,
+            twinStrikes: 5,
             bleedingCuts: 3,
-            heavySlash: 7,
-            quickJab: 4,
+            heavySlash: 8,
+            quickJab: 5,
             shieldBreaker: 5,
-            arcaneBolt: 5,
+            arcaneBolt: 7,
             elementalBurst: 5,
-            focusedBeam: 4,
-            sniperBolt: 6,
-            scatterShot: 3,
+            focusedBeam: 5,
+            sniperBolt: 7,
+            scatterShot: 5,
             explosiveBolt: 4,
             ironFist: 4,
             flurryOfBlows: 2,
@@ -8275,10 +8319,11 @@ class Ball {
             }
         }
 
-        // Apply defense (Shield Breaker and Elemental Burst ignore defense for basic attacks only)
+        // Apply defense (Shield Breaker, Elemental Burst, Piercing Arrow, and Explosive Bolt ignore defense for basic attacks only)
+        // fixedDamage also bypasses defense (used for bleed damage)
         let actualDamage;
-        if ((this.attack === 'shieldBreaker' || this.attack === 'elementalBurst') && (!context.skillType || context.skillType === 'basic')) {
-            // Shield Breaker and Elemental Burst bypass all defense for basic attacks
+        if (fixedDamage || ((this.attack === 'shieldBreaker' || this.attack === 'elementalBurst' || this.attack === 'piercingArrow' || this.attack === 'explosiveBolt') && (!context.skillType || context.skillType === 'basic'))) {
+            // These attacks or fixedDamage bypass all defense
             actualDamage = finalDamage;
         } else {
             // Ale-Fueled Resilience adds +1 defense when active
