@@ -3348,8 +3348,9 @@ class Projectile {
         this.dotDamageTotal = context.dotDamageTotal || 0;
         this.dotDuration = context.dotDuration || 0;
         this.skillContext = context.skillName
-            ? { skillName: context.skillName, skillType: context.skillType || 'basic' }
+            ? { skillName: context.skillName, skillType: context.skillType || 'basic', critChance: context.critChance }
             : null;
+        this.critChance = context.critChance !== undefined ? context.critChance : null;
     }
 
     update(balls, canvasWidth, canvasHeight, deltaTime = 0.016) {
@@ -5528,6 +5529,32 @@ class Ball {
             this.basicAttackCooldown = 1.2; // 1.2 second cooldown
         }
 
+        // Check if this is a ranged weapon
+        const rangedWeapons = ['bow', 'crossbow', 'staff', 'sword', 'dualSword'];
+        if (rangedWeapons.includes(this.weapon)) {
+            const damage = this.getBasicAttackDamage(target);
+            // Special handling for volley attack
+            if (this.attack === 'volley') {
+                this.createVolley(target, damage);
+            } else if (this.attack === 'scatterShot') {
+                this.createScatterShot(target, damage);
+            } else {
+                this.createProjectile(target, damage);
+            }
+        } else {
+            // Melee attack - handled by weapon spinning system
+            // The weapon spinning system will handle damage when weapons hit
+
+            // Add visual effects for specific Human attacks
+            if (this.attack === 'flurryOfBlows') {
+                this.createFlurryOfBlowsEffect(target);
+            } else if (this.attack === 'grappleSlam') {
+                this.createGrappleSlamEffect(target);
+            }
+            // Iron Fist effect is handled by weapon spinning system
+        }
+
+        // --- CONSUME STACKS AT THE END ---
         // Consume Execution Strike stack if active
         if (this.executionStrikeStacks > 0) {
             this.executionStrikeStacks--;
@@ -5558,31 +5585,6 @@ class Ball {
                     );
                 }
             }
-        }
-
-        // Check if this is a ranged weapon
-        const rangedWeapons = ['bow', 'crossbow', 'staff', 'sword', 'dualSword'];
-        if (rangedWeapons.includes(this.weapon)) {
-            const damage = this.getBasicAttackDamage(target);
-            // Special handling for volley attack
-            if (this.attack === 'volley') {
-                this.createVolley(target, damage);
-            } else if (this.attack === 'scatterShot') {
-                this.createScatterShot(target, damage);
-            } else {
-                this.createProjectile(target, damage);
-            }
-        } else {
-            // Melee attack - handled by weapon spinning system
-            // The weapon spinning system will handle damage when weapons hit
-
-            // Add visual effects for specific Human attacks
-            if (this.attack === 'flurryOfBlows') {
-                this.createFlurryOfBlowsEffect(target);
-            } else if (this.attack === 'grappleSlam') {
-                this.createGrappleSlamEffect(target);
-            }
-            // Iron Fist effect is handled by weapon spinning system
         }
     }
 
@@ -7032,6 +7034,11 @@ class Ball {
     }
 
     createProjectile(target, damage, projectileType = null, context = {}) {
+        // Bake critical hit chance at moment of firing
+        if (context.critChance === undefined) {
+            context.critChance = this.getCritChance();
+        }
+
         // Calculate direction to target
         const dx = target.x - this.x;
         const dy = target.y - this.y;
@@ -8263,7 +8270,8 @@ class Ball {
 
         // Apply critical hit
         let critMultiplier = 1;
-        if (Math.random() < this.getCritChance()) {
+        const finalCritChance = (context && context.critChance !== undefined) ? context.critChance : this.getCritChance();
+        if (Math.random() < finalCritChance) {
             critMultiplier = 2;
             // Show "CRITICAL!" text on the target
             this.createFloatingCriticalText(target);
