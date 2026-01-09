@@ -154,105 +154,287 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
+            padding-top: 30px;
             z-index: 1000;
+            overflow-y: auto;
         }
 
-        .selection-panel {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 30px;
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-            max-width: 600px;
+        .selection-main-title {
+            font-size: 2.2em;
+            font-weight: bold;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+            margin-bottom: 25px;
+            color: #fff;
+        }
+
+        .selection-container {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .selection-canvas {
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 20px;
+            width: 550px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .selection-header {
             text-align: center;
-        }
-
-        .selection-title {
-            font-size: 2em;
             margin-bottom: 20px;
         }
 
-        .selection-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
+        .player-name-input {
+            width: 90%;
+            max-width: 300px;
+            padding: 12px 15px;
+            font-size: 1.1em;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.3);
+            color: #fff;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.3s ease;
         }
 
-        .selection-option {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 10px;
+        .player-name-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .player-name-input:focus {
+            border-color: #4CAF50;
+        }
+
+        .selection-categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .selection-category-box {
+            background: rgba(0, 0, 0, 0.35);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 10px;
+            width: 80px;
+            min-height: 90px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
             cursor: pointer;
             transition: all 0.3s ease;
-            border: 2px solid transparent;
+            text-align: center;
         }
 
-        .selection-option:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: #fff;
+        .selection-category-box:hover {
+            background: rgba(76, 175, 80, 0.25);
+            border-color: #4CAF50;
+            transform: translateY(-3px);
         }
 
-        .selection-option.selected {
-            background: rgba(0, 255, 0, 0.3);
-            border-color: #0f0;
+        .selection-category-box.selected {
+            background: rgba(76, 175, 80, 0.35);
+            border-color: #4CAF50;
         }
 
-        .option-title {
+        .category-label {
+            font-size: 0.7em;
             font-weight: bold;
+            color: #aaa;
+            text-transform: uppercase;
             margin-bottom: 5px;
         }
 
-        .option-description {
-            font-size: 0.8em;
-            opacity: 0.8;
+        .category-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .next-button {
-            background: #4CAF50;
+        .category-icon img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 5px;
+        }
+
+        .category-value {
+            font-size: 0.65em;
+            color: #fff;
+            word-wrap: break-word;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+            text-align: center;
+        }
+
+        .selection-actions {
+            margin-top: 25px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .start-game-button {
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
             color: white;
             border: none;
-            padding: 15px 30px;
-            font-size: 1.1em;
-            border-radius: 10px;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 12px;
             cursor: pointer;
-            margin-top: 20px;
-            transition: background 0.3s ease;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
         }
 
-        .next-button:hover {
-            background: #45a049;
+        .start-game-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.5);
         }
 
-        .next-button:disabled {
-            background: #666;
+        .start-game-button:disabled {
+            background: #555;
+            box-shadow: none;
             cursor: not-allowed;
         }
 
         .random-button {
-            background: #9c27b0;
+            background: linear-gradient(135deg, #9c27b0, #6a1b9a);
             color: white;
             border: none;
             padding: 15px 30px;
             font-size: 1.1em;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
-            margin-top: 10px;
-            transition: background 0.3s ease;
-            width: 100%;
-            max-width: 250px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(156, 39, 176, 0.4);
         }
 
         .random-button:hover {
-            background: #7b1fa2;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(156, 39, 176, 0.5);
+        }
+
+        /* Selection Popup Modal */
+        .selection-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1100;
+        }
+
+        .popup-content {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            border-radius: 20px;
+            padding: 25px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+        }
+
+        .popup-title {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .popup-close {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 2em;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .popup-close:hover {
+            color: #ff6666;
+        }
+
+        .popup-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        .popup-option {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .popup-option:hover {
+            background: rgba(76, 175, 80, 0.3);
+            border-color: #4CAF50;
+            transform: scale(1.03);
+        }
+
+        .popup-option-icon {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 8px;
+        }
+
+        .popup-option-icon img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 5px;
+        }
+
+        .popup-option-name {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .popup-option-desc {
+            font-size: 0.7em;
+            color: #aaa;
+            margin-top: 4px;
         }
 
         .hidden {
-            display: none;
+            display: none !important;
         }
 
         /* Skills Cooldown Panel - above HP bars */
@@ -568,22 +750,101 @@
         </div>
     </div>
 
-    <!-- Character Selection Screen -->
+    <!-- New Selection Screen -->
     <div class="selection-screen" id="selectionScreen">
-        <div class="selection-panel">
-            <div class="selection-title" id="selectionTitle">Enter Player Names</div>
-            <div id="selectionContent">
-                <input type="text" id="player1Input" placeholder="Player 1 Name"
-                    style="margin: 10px; padding: 10px; font-size: 1.1em; border-radius: 5px; border: none;">
-                <br>
-                <input type="text" id="player2Input" placeholder="Player 2 Name"
-                    style="margin: 10px; padding: 10px; font-size: 1.1em; border-radius: 5px; border: none;">
-                <br>
-                <button class="next-button" id="nextButton">Next</button>
+        <div class="selection-main-title">Ball Battle Arena - Select Your Fighters</div>
+
+        <div class="selection-container">
+            <!-- Player 1 Canvas (Left) -->
+            <div class="selection-canvas" id="selectionCanvasP1">
+                <div class="selection-header">
+                    <input type="text" class="player-name-input" id="player1NameInput" placeholder="Player 1 Name">
+                </div>
+                <div class="selection-categories">
+                    <div class="selection-category-box" data-player="1" data-category="weapon">
+                        <div class="category-label">Weapon</div>
+                        <div class="category-icon" id="p1WeaponIcon"></div>
+                        <div class="category-value" id="p1WeaponValue">Select...</div>
+                    </div>
+                    <div class="selection-category-box" data-player="1" data-category="attack">
+                        <div class="category-label">Attack</div>
+                        <div class="category-icon" id="p1AttackIcon"></div>
+                        <div class="category-value" id="p1AttackValue">Select...</div>
+                    </div>
+                    <div class="selection-category-box" data-player="1" data-category="skill">
+                        <div class="category-label">Skill</div>
+                        <div class="category-icon" id="p1SkillIcon"></div>
+                        <div class="category-value" id="p1SkillValue">Select...</div>
+                    </div>
+                    <div class="selection-category-box" data-player="1" data-category="ultimate">
+                        <div class="category-label">Ultimate</div>
+                        <div class="category-icon" id="p1UltimateIcon"></div>
+                        <div class="category-value" id="p1UltimateValue">Select...</div>
+                    </div>
+                    <div class="selection-category-box" data-player="1" data-category="race">
+                        <div class="category-label">Race</div>
+                        <div class="category-value" id="p1RaceValue">Select...</div>
+                    </div>
+                    <div class="selection-category-box" data-player="1" data-category="passive">
+                        <div class="category-label">Passive</div>
+                        <div class="category-value" id="p1PassiveValue">Select...</div>
+                    </div>
+                </div>
             </div>
-            <div id="selectionFooter"
-                style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
-                <button class="random-button" id="randomMatchButton">🎲 Random Match</button>
+
+            <!-- Player 2 Canvas (Right) -->
+            <div class="selection-canvas" id="selectionCanvasP2">
+                <div class="selection-header">
+                    <input type="text" class="player-name-input" id="player2NameInput" placeholder="Player 2 Name">
+                </div>
+                <div class="selection-categories">
+                    <div class="selection-category-box" data-player="2" data-category="weapon">
+                        <div class="category-label">Weapon</div>
+                        <div class="category-icon" id="p2WeaponIcon"></div>
+                        <div class="category-value" id="p2WeaponValue">Select...</div>
+                    </div>
+                    <div class="selection-category-box" data-player="2" data-category="attack">
+                        <div class="category-label">Attack</div>
+                        <div class="category-icon" id="p2AttackIcon"></div>
+                        <div class="category-value" id="p2AttackValue">Select...</div>
+                    </div>
+                    <div class="selection-category-box" data-player="2" data-category="skill">
+                        <div class="category-label">Skill</div>
+                        <div class="category-icon" id="p2SkillIcon"></div>
+                        <div class="category-value" id="p2SkillValue">Select...</div>
+                    </div>
+                    <div class="selection-category-box" data-player="2" data-category="ultimate">
+                        <div class="category-label">Ultimate</div>
+                        <div class="category-icon" id="p2UltimateIcon"></div>
+                        <div class="category-value" id="p2UltimateValue">Select...</div>
+                    </div>
+                    <div class="selection-category-box" data-player="2" data-category="race">
+                        <div class="category-label">Race</div>
+                        <div class="category-value" id="p2RaceValue">Select...</div>
+                    </div>
+                    <div class="selection-category-box" data-player="2" data-category="passive">
+                        <div class="category-label">Passive</div>
+                        <div class="category-value" id="p2PassiveValue">Select...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="selection-actions">
+            <button class="start-game-button" id="startGameButton" disabled>Start Game</button>
+            <button class="random-button" id="randomMatchButton">🎲 Random Match</button>
+        </div>
+
+        <!-- Selection Popup Modal -->
+        <div class="selection-popup hidden" id="selectionPopup">
+            <div class="popup-content">
+                <div class="popup-header">
+                    <span class="popup-title" id="popupTitle">Select Option</span>
+                    <button class="popup-close" id="popupClose">&times;</button>
+                </div>
+                <div class="popup-options" id="popupOptions">
+                    <!-- Options will be dynamically populated -->
+                </div>
             </div>
         </div>
     </div>

@@ -6,11 +6,14 @@ class Game {
         this.balls = [];
         this.projectiles = [];
         this.visualEffects = [];
-        this.ccDodgeMessages = []; // Messages for CC dodge text
-        this.cancelledMessages = []; // Messages for cancelled moves
-        this.gameState = 'selection'; // selection, playing, gameOver
-        this.lastFrameTime = performance.now(); // Track frame timing for delta time
-        this.globalVolume = 0.5; // Default volume 50%
+        this.floatingDamageTexts = [];
+        this.floatingCriticalTexts = [];
+        this.floatingSkillTexts = [];
+        this.ccDodgeMessages = [];
+        this.cancelledMessages = [];
+        this.gameState = 'selection';
+        this.lastFrameTime = performance.now();
+        this.globalVolume = 0.5;
 
         // Load images
         this.images = {};
@@ -20,20 +23,12 @@ class Game {
         this.sounds = {};
         this.loadSounds();
 
-        this.currentSelectionStep = 'names';
-        this.player1 = null;
-        this.player2 = null;
-        this.selectedRace1 = null;
-        this.selectedRace2 = null;
-        this.selectedWeapon1 = null;
-        this.selectedWeapon2 = null;
-        this.selectedAttack1 = null;
-        this.selectedAttack2 = null;
-        this.selectedSkill1 = null;
-        this.selectedSkill2 = null;
-        this.selectedUltimate1 = null;
-        this.selectedUltimate2 = null;
-
+        // New Selection State for the dual-canvas UI
+        this.selectionState = {
+            player1: { name: '', weapon: null, attack: null, skill: null, ultimate: null, race: null, passive: null },
+            player2: { name: '', weapon: null, attack: null, skill: null, ultimate: null, race: null, passive: null }
+        };
+        this.currentPopup = { player: null, category: null }; // Tracks which popup is open
 
         this.init();
     }
@@ -508,12 +503,6 @@ class Game {
     }
 
     setupEventListeners() {
-        document.getElementById('nextButton').addEventListener('click', () => this.nextSelectionStep());
-        const randomBtn = document.getElementById('randomMatchButton');
-        if (randomBtn) {
-            randomBtn.addEventListener('click', () => this.startRandomMatch());
-        }
-
         // Volume control listener
         const volumeSlider = document.getElementById('volumeSlider');
         const volumeValueDisplay = document.getElementById('volumeValue');
@@ -524,6 +513,198 @@ class Game {
                 volumeValueDisplay.textContent = `${value}%`;
             });
         }
+
+        // Click listeners for all category boxes
+        document.querySelectorAll('.selection-category-box').forEach(box => {
+            box.addEventListener('click', () => {
+                const player = parseInt(box.dataset.player);
+                const category = box.dataset.category;
+                this.openCategoryPopup(player, category);
+            });
+        });
+
+        // Popup close button
+        document.getElementById('popupClose').addEventListener('click', () => this.closeCategoryPopup());
+
+        // Start Game button
+        document.getElementById('startGameButton').addEventListener('click', () => this.startGame());
+
+        // Random Match button
+        document.getElementById('randomMatchButton').addEventListener('click', () => this.startRandomMatch());
+
+        // Name input listeners to update state and check start button
+        document.getElementById('player1NameInput').addEventListener('input', (e) => {
+            this.selectionState.player1.name = e.target.value.trim();
+            this.checkStartButton();
+        });
+        document.getElementById('player2NameInput').addEventListener('input', (e) => {
+            this.selectionState.player2.name = e.target.value.trim();
+            this.checkStartButton();
+        });
+    }
+
+    openCategoryPopup(player, category) {
+        this.currentPopup = { player, category };
+        const popup = document.getElementById('selectionPopup');
+        const title = document.getElementById('popupTitle');
+        const optionsContainer = document.getElementById('popupOptions');
+
+        const categoryTitles = {
+            weapon: 'Select Weapon', attack: 'Select Attack Type', skill: 'Select Basic Skill',
+            ultimate: 'Select Ultimate Skill', race: 'Select Race', passive: 'Select Passive Skill'
+        };
+        title.textContent = categoryTitles[category] || 'Select';
+
+        let options = [];
+        const playerState = player === 1 ? this.selectionState.player1 : this.selectionState.player2;
+
+        switch (category) {
+            case 'weapon': options = this.getAllWeapons(); break;
+            case 'attack': options = playerState.weapon ? this.getAttacksForWeapon(playerState.weapon) : []; break;
+            case 'skill': options = this.getAllActiveSkills(); break;
+            case 'ultimate': options = this.getAllUltimateSkills(); break;
+            case 'race': options = this.getAllRaces(); break;
+            case 'passive': options = this.getAllPassives(); break;
+        }
+
+        optionsContainer.innerHTML = '';
+        if (options.length === 0 && category === 'attack') {
+            optionsContainer.innerHTML = '<p style="color:#aaa;">Select a weapon first.</p>';
+        } else {
+            options.forEach(opt => {
+                const div = document.createElement('div');
+                div.className = 'popup-option';
+                div.dataset.id = opt.id;
+
+                const iconHtml = opt.hasIcon !== false && this.images[opt.id] ?
+                    `<div class="popup-option-icon"><img src="${this.images[opt.id].src}"></div>` : '';
+
+                div.innerHTML = `
+                    ${iconHtml}
+                    <div class="popup-option-name">${opt.name}</div>
+                    ${opt.description ? `<div class="popup-option-desc">${opt.description}</div>` : ''}
+                `;
+                div.addEventListener('click', () => this.selectOption(player, category, opt.id, opt.name));
+                optionsContainer.appendChild(div);
+            });
+        }
+        popup.classList.remove('hidden');
+    }
+
+    selectOption(player, category, optionId, optionName) {
+        const playerState = player === 1 ? this.selectionState.player1 : this.selectionState.player2;
+        playerState[category] = optionId;
+
+        // Update the category box display
+        const prefix = player === 1 ? 'p1' : 'p2';
+        const valueEl = document.getElementById(`${prefix}${category.charAt(0).toUpperCase() + category.slice(1)}Value`);
+        const iconEl = document.getElementById(`${prefix}${category.charAt(0).toUpperCase() + category.slice(1)}Icon`);
+
+        if (valueEl) valueEl.textContent = optionName;
+        if (iconEl && this.images[optionId]) {
+            iconEl.innerHTML = `<img src="${this.images[optionId].src}">`;
+        } else if (iconEl) {
+            iconEl.innerHTML = '';
+        }
+
+        // Mark box as selected
+        const box = document.querySelector(`.selection-category-box[data-player="${player}"][data-category="${category}"]`);
+        if (box) box.classList.add('selected');
+
+        // If weapon changed, clear attack selection
+        if (category === 'weapon') {
+            playerState.attack = null;
+            const attackValueEl = document.getElementById(`${prefix}AttackValue`);
+            const attackIconEl = document.getElementById(`${prefix}AttackIcon`);
+            if (attackValueEl) attackValueEl.textContent = 'Select...';
+            if (attackIconEl) attackIconEl.innerHTML = '';
+            const attackBox = document.querySelector(`.selection-category-box[data-player="${player}"][data-category="attack"]`);
+            if (attackBox) attackBox.classList.remove('selected');
+        }
+
+        this.closeCategoryPopup();
+        this.checkStartButton();
+    }
+
+    closeCategoryPopup() {
+        document.getElementById('selectionPopup').classList.add('hidden');
+        this.currentPopup = { player: null, category: null };
+    }
+
+    checkStartButton() {
+        const p1 = this.selectionState.player1;
+        const p2 = this.selectionState.player2;
+        const isComplete = p1.name && p1.weapon && p1.attack && p1.skill && p1.ultimate && p1.race && p1.passive &&
+            p2.name && p2.weapon && p2.attack && p2.skill && p2.ultimate && p2.race && p2.passive;
+        document.getElementById('startGameButton').disabled = !isComplete;
+    }
+
+    getAllWeapons() {
+        return [
+            { id: 'bow', name: 'Bow', description: 'Ranged attacks with arrows' },
+            { id: 'crossbow', name: 'Crossbow', description: 'Powerful bolts' },
+            { id: 'sword', name: 'Sword', description: 'Close range slashes' },
+            { id: 'dualSword', name: 'Dual Swords', description: 'Fast dual wielding' },
+            { id: 'staff', name: 'Staff', description: 'Arcane projectiles' }
+        ];
+    }
+
+    getAllRaces() {
+        return [
+            { id: 'human', name: 'Human', description: 'HP: 110, Def: 1, Crit: 10%', hasIcon: false },
+            { id: 'orc', name: 'Orc', description: 'HP: 95, Def: 2, Crit: 10%', hasIcon: false },
+            { id: 'elf', name: 'Elf', description: 'HP: 70, Def: 3, Crit: 20%', hasIcon: false },
+            { id: 'dwarf', name: 'Dwarf', description: 'HP: 100, Def: 2, Crit: 10%', hasIcon: false },
+            { id: 'demon', name: 'Demon', description: 'HP: 85, Def: 2, Crit: 15%', hasIcon: false },
+            { id: 'barbarian', name: 'Barbarian', description: 'HP: 90, Def: 1, Crit: 20%', hasIcon: false }
+        ];
+    }
+
+    getAllPassives() {
+        return [
+            // Human
+            { id: 'battleHardened', name: 'Battle-Hardened', description: '+1% damage/def per second', hasIcon: false },
+            { id: 'tacticalRecall', name: 'Tactical Recall', description: 'Avoid fatal blow (50% HP once)', hasIcon: false },
+            { id: 'jackOfAllTrades', name: 'Jack of All Trades', description: 'Copy enemy passive', hasIcon: false },
+            { id: 'resourcefulMind', name: 'Resourceful Mind', description: 'Speed boost under 50% HP', hasIcon: false },
+            // Demon
+            { id: 'soulReaping', name: 'Soul Reaping', description: 'Heal on damage dealt', hasIcon: false },
+            { id: 'hellfireAura', name: 'Hellfire Aura', description: 'Damage nearby enemies', hasIcon: false },
+            { id: 'painEmpowerment', name: 'Pain Empowerment', description: 'More damage at low HP', hasIcon: false },
+            { id: 'corruptedRegeneration', name: 'Corrupted Regen', description: 'Heal over time, die if heal >200', hasIcon: false },
+            { id: 'shadowPuppeteer', name: 'Shadow Puppeteer', description: '10% cancel enemy move', hasIcon: false },
+            { id: 'bloodPact', name: 'Blood Pact', description: 'HP=1, deal 15 dmg at <=10HP', hasIcon: false },
+            { id: 'chainsOfDespair', name: 'Chains of Despair', description: 'Reduce enemy cooldown speed', hasIcon: false },
+            // Orc
+            { id: 'bloodrage', name: 'Bloodrage', description: 'Damage scales with missing HP', hasIcon: false },
+            { id: 'ironhide', name: 'Ironhide', description: '+1 Defense', hasIcon: false },
+            { id: 'boneCrusher', name: 'Bone Crusher', description: '+3 dmg vs armored', hasIcon: false },
+            { id: 'unbreakableWill', name: 'Unbreakable Will', description: 'Reduced debuff effects', hasIcon: false },
+            { id: 'battleScars', name: 'Battle Scars', description: 'Small HP regen over time', hasIcon: false },
+            // Elf
+            { id: 'sylvanGrace', name: 'Sylvan Grace', description: '10% dodge chance', hasIcon: false },
+            { id: 'manaAffinity', name: 'Mana Affinity', description: '+30% cooldown & skill dmg', hasIcon: false },
+            { id: 'forestsBlessing', name: 'Forest\'s Blessing', description: 'Heal when slow', hasIcon: false },
+            { id: 'keenSight', name: 'Keen Sight', description: '+30% crit chance', hasIcon: false },
+            { id: 'naturesWhisper', name: 'Nature\'s Whisper', description: 'Speed and accuracy buffs', hasIcon: false },
+            { id: 'ancientWisdom', name: 'Ancient Wisdom', description: '30% reduced cooldowns', hasIcon: false },
+            { id: 'spiritBond', name: 'Spirit Bond', description: 'Summon eagle for support', hasIcon: false },
+            // Dwarf
+            { id: 'stoneflesh', name: 'Stoneflesh', description: '+2 physical resistance', hasIcon: false },
+            { id: 'ironWill', name: 'Iron Will', description: 'Debuffs wear off faster', hasIcon: false },
+            { id: 'aleFueledResilience', name: 'Ale-Fueled Res.', description: '+1 Def when healing', hasIcon: false },
+            { id: 'runesmithsBlessing', name: 'Runesmith\'s Bless', description: '5% magic spark on attack', hasIcon: false },
+            { id: 'deepminersStamina', name: 'Deepminer\'s Stam.', description: 'Fast HP regen under 50%', hasIcon: false },
+            { id: 'mountainsEndurance', name: 'Mountain\'s End.', description: 'Shield when dealing dmg', hasIcon: false },
+            // Barbarian
+            { id: 'bloodRage', name: 'Blood Rage', description: '+20% damage under 50% HP', hasIcon: false },
+            { id: 'berserkersEndurance', name: 'Berserker\'s End.', description: 'Heal after 3 hits', hasIcon: false },
+            { id: 'warCry', name: 'War Cry', description: 'Stun nearby on crit', hasIcon: false },
+            { id: 'savageMomentum', name: 'Savage Momentum', description: 'Consecutive hits stronger', hasIcon: false },
+            { id: 'bonebreaker', name: 'Bonebreaker', description: 'Ignore 2 armor', hasIcon: false },
+            { id: 'huntersInstinct', name: 'Hunter\'s Instinct', description: 'Faster vs low HP enemies', hasIcon: false },
+            { id: 'ragingSpirit', name: 'Raging Spirit', description: 'Deal 7 dmg at <=15HP', hasIcon: false }
+        ];
     }
 
     showSelectionScreen() {
@@ -1101,39 +1282,43 @@ class Game {
     }
 
     startRandomMatch() {
-        const name1Input = document.getElementById('player1Input');
-        const name2Input = document.getElementById('player2Input');
-
-        const name1 = name1Input ? (name1Input.value.trim() || 'Player 1') : (this.player1 ? this.player1.name : 'Player 1');
-        const name2 = name2Input ? (name2Input.value.trim() || 'Player 2') : (this.player2 ? this.player2.name : 'Player 2');
-
-        this.player1 = { name: name1 };
-        this.player2 = { name: name2 };
+        const name1Input = document.getElementById('player1NameInput');
+        const name2Input = document.getElementById('player2NameInput');
+        const name1 = name1Input ? (name1Input.value.trim() || 'Player 1') : 'Player 1';
+        const name2 = name2Input ? (name2Input.value.trim() || 'Player 2') : 'Player 2';
 
         const races = ['human', 'demon', 'orc', 'elf', 'dwarf', 'barbarian'];
         const weapons = ['bow', 'dualSword', 'sword', 'staff', 'crossbow'];
         const activeSkills = this.getAllActiveSkills();
         const ultimateSkills = this.getAllUltimateSkills();
+        const passives = this.getAllPassives();
+
+        // Helper to pick random
+        const rand = arr => arr[Math.floor(Math.random() * arr.length)];
 
         // Randomize Player 1
-        this.selectedRace1 = races[Math.floor(Math.random() * races.length)];
-        const p1Passives = this.getPassiveSkillsForRace(this.selectedRace1);
-        this.selectedPassive1 = p1Passives[Math.floor(Math.random() * p1Passives.length)].id;
-        this.selectedWeapon1 = weapons[Math.floor(Math.random() * weapons.length)];
-        const p1Attacks = this.getAttacksForWeapon(this.selectedWeapon1);
-        this.selectedAttack1 = p1Attacks[Math.floor(Math.random() * p1Attacks.length)].id;
-        this.selectedSkill1 = activeSkills[Math.floor(Math.random() * activeSkills.length)].id;
-        this.selectedUltimate1 = ultimateSkills[Math.floor(Math.random() * ultimateSkills.length)].id;
+        const p1Weapon = rand(weapons);
+        this.selectionState.player1 = {
+            name: name1,
+            race: rand(races),
+            weapon: p1Weapon,
+            attack: rand(this.getAttacksForWeapon(p1Weapon)).id,
+            skill: rand(activeSkills).id,
+            ultimate: rand(ultimateSkills).id,
+            passive: rand(passives).id
+        };
 
         // Randomize Player 2
-        this.selectedRace2 = races[Math.floor(Math.random() * races.length)];
-        const p2Passives = this.getPassiveSkillsForRace(this.selectedRace2);
-        this.selectedPassive2 = p2Passives[Math.floor(Math.random() * p2Passives.length)].id;
-        this.selectedWeapon2 = weapons[Math.floor(Math.random() * weapons.length)];
-        const p2Attacks = this.getAttacksForWeapon(this.selectedWeapon2);
-        this.selectedAttack2 = p2Attacks[Math.floor(Math.random() * p2Attacks.length)].id;
-        this.selectedSkill2 = activeSkills[Math.floor(Math.random() * activeSkills.length)].id;
-        this.selectedUltimate2 = ultimateSkills[Math.floor(Math.random() * ultimateSkills.length)].id;
+        const p2Weapon = rand(weapons);
+        this.selectionState.player2 = {
+            name: name2,
+            race: rand(races),
+            weapon: p2Weapon,
+            attack: rand(this.getAttacksForWeapon(p2Weapon)).id,
+            skill: rand(activeSkills).id,
+            ultimate: rand(ultimateSkills).id,
+            passive: rand(passives).id
+        };
 
         this.startGame();
     }
@@ -1142,48 +1327,35 @@ class Game {
         this.hideSelectionScreen();
         this.gameState = 'playing';
 
-        // Create balls
+        const p1 = this.selectionState.player1;
+        const p2 = this.selectionState.player2;
+
+        // Create balls using the new selection state
         this.balls = [
-            new Ball(1, this.player1.name, this.selectedRace1, this.selectedWeapon1, this.selectedAttack1, this.selectedSkill1, this.selectedUltimate1, 100, 150, this.selectedPassive1),
-            new Ball(2, this.player2.name, this.selectedRace2, this.selectedWeapon2, this.selectedAttack2, this.selectedSkill2, this.selectedUltimate2, 300, 150, this.selectedPassive2)
+            new Ball(1, p1.name, p1.race, p1.weapon, p1.attack, p1.skill, p1.ultimate, 100, 150, p1.passive),
+            new Ball(2, p2.name, p2.race, p2.weapon, p2.attack, p2.skill, p2.ultimate, 300, 150, p2.passive)
         ];
 
-        // Handle Jack of All Trades - copy opponent's passive skill
         const ball1 = this.balls[0];
         const ball2 = this.balls[1];
 
-        // Check if ball1 has Jack of All Trades
-        if (ball1.passiveSkills.includes('jackOfAllTrades') && ball2.selectedPassive && ball2.selectedPassive !== 'jackOfAllTrades') {
-            ball1.copiedPassive = ball2.selectedPassive;
-            // Add the copied passive to passiveSkills array so it gets applied
-            if (!ball1.passiveSkills.includes(ball2.selectedPassive)) {
-                ball1.passiveSkills.push(ball2.selectedPassive);
-            }
+        // Handle Jack of All Trades - copy opponent's passive skill
+        if (ball1.passiveSkills.includes('jackOfAllTrades') && p2.passive && p2.passive !== 'jackOfAllTrades') {
+            ball1.copiedPassive = p2.passive;
+            if (!ball1.passiveSkills.includes(p2.passive)) ball1.passiveSkills.push(p2.passive);
+        }
+        if (ball2.passiveSkills.includes('jackOfAllTrades') && p1.passive && p1.passive !== 'jackOfAllTrades') {
+            ball2.copiedPassive = p1.passive;
+            if (!ball2.passiveSkills.includes(p1.passive)) ball2.passiveSkills.push(p1.passive);
         }
 
-        // Check if ball2 has Jack of All Trades
-        if (ball2.passiveSkills.includes('jackOfAllTrades') && ball1.selectedPassive && ball1.selectedPassive !== 'jackOfAllTrades') {
-            ball2.copiedPassive = ball1.selectedPassive;
-            // Add the copied passive to passiveSkills array so it gets applied
-            if (!ball2.passiveSkills.includes(ball1.selectedPassive)) {
-                ball2.passiveSkills.push(ball1.selectedPassive);
-            }
-        }
-
-        // Clear projectiles
         this.projectiles = [];
-
-        // Set global game instance for projectile creation
         window.gameInstance = this;
 
-        // Update UI
-        document.getElementById('player1Name').textContent = this.player1.name;
-        document.getElementById('player2Name').textContent = this.player2.name;
+        document.getElementById('player1Name').textContent = p1.name;
+        document.getElementById('player2Name').textContent = p2.name;
 
-        // Initialize frame timing
         this.lastFrameTime = performance.now();
-
-        // Start game loop
         this.gameLoop();
     }
 
@@ -1434,8 +1606,9 @@ class Game {
         const passiveDescElement = document.getElementById(`player${playerNum}PassiveDesc`);
         if (passiveNameElement && passiveDescElement && ball.passiveSkills && ball.passiveSkills.length > 0) {
             const passiveId = ball.passiveSkills[0];
-            const racePassives = this.getPassiveSkillsForRace(ball.race);
-            const passiveSkill = racePassives.find(s => s.id === passiveId);
+            // Use getAllPassives to find any passive, not just race-specific ones
+            const allPassives = this.getAllPassives();
+            const passiveSkill = allPassives.find(s => s.id === passiveId);
 
             if (passiveSkill) {
                 passiveNameElement.textContent = passiveSkill.name;
@@ -1799,6 +1972,41 @@ class Game {
                 this.ctx.restore();
 
                 return true; // Keep this text
+            });
+        }
+
+        // Draw floating skill texts (large red "Skill Name!")
+        if (this.floatingSkillTexts) {
+            const currentTime = Date.now();
+            this.floatingSkillTexts = this.floatingSkillTexts.filter(skillText => {
+                const elapsed = (currentTime - skillText.startTime) / 1000;
+                const progress = elapsed / skillText.duration;
+
+                if (progress >= 1) return false;
+
+                let x = skillText.followTarget ? skillText.followTarget.x : skillText.x;
+                let y = skillText.followTarget ? skillText.followTarget.y + skillText.offsetY : skillText.y;
+                y -= elapsed * skillText.moveSpeed;
+
+                const alpha = Math.max(0, 1 - progress);
+
+                this.ctx.save();
+                this.ctx.globalAlpha = alpha;
+                this.ctx.fillStyle = '#ff0000'; // Large Red Text
+                this.ctx.font = 'bold 42px Arial'; // Very large
+                this.ctx.textAlign = 'center';
+                this.ctx.textBaseline = 'middle';
+
+                // Stronger shadow for the "HUGE" feeling
+                this.ctx.shadowColor = 'rgba(0, 0, 0, 1)';
+                this.ctx.shadowBlur = 6;
+                this.ctx.shadowOffsetX = 3;
+                this.ctx.shadowOffsetY = 3;
+
+                this.ctx.fillText(skillText.text, x, y);
+                this.ctx.restore();
+
+                return true;
             });
         }
 
@@ -4118,6 +4326,7 @@ class Ball {
         this.berserkerHits = 0;
         this.savageMomentumStacks = 0;
         this.bonebreakerBonus = 0;
+        this.ragingSpiritUsed = false;
     }
 
     getPassiveSkillsForRace() {
@@ -4195,11 +4404,7 @@ class Ball {
     }
 
     applyTacticalRecall() {
-        // Auto-save from death once per game
-        if (this.hp <= 0 && !this.tacticalRecallUsed) {
-            this.hp = this.maxHp * 0.5;
-            this.tacticalRecallUsed = true;
-        }
+        // Handled in dealDamage for reliability
     }
 
     applyJackOfAllTrades() {
@@ -4299,12 +4504,7 @@ class Ball {
     }
 
     applyBloodPact() {
-        // When about to die, sacrifice HP to stay alive with 1 HP
-        if (this.hp <= this.maxHp * 0.1 && !this.bloodPactUsed) {
-            this.hp = 1;
-            this.bloodPactUsed = true;
-            this.bloodPactDamage = 15;
-        }
+        // Handled in dealDamage
     }
 
     applyChainsOfDespair() {
@@ -4658,8 +4858,7 @@ class Ball {
     }
 
     applyRagingSpirit() {
-        // Final attack before falling
-        this.ragingSpiritActive = true;
+        // Handled in dealDamage
     }
 
     update(balls, canvasWidth, canvasHeight, deltaTime = 0.016) {
@@ -6451,6 +6650,33 @@ class Ball {
             window.gameInstance.floatingCriticalTexts = [];
         }
         window.gameInstance.floatingCriticalTexts.push(critText);
+    }
+
+    createFloatingSkillText(text) {
+        if (!window.gameInstance) return;
+
+        // Create floating large skill text above the ball
+        const skillText = {
+            x: this.x,
+            y: this.y - this.radius - 30,
+            text: text + "!",
+            startTime: Date.now(),
+            duration: 1.5, // Longer duration for visibility
+            followTarget: this,
+            offsetY: -this.radius - 30,
+            moveSpeed: 20, // Slower upward movement
+            color: '#ff0000' // Always red as requested
+        };
+
+        if (!window.gameInstance.floatingSkillTexts) {
+            window.gameInstance.floatingSkillTexts = [];
+        }
+        window.gameInstance.floatingSkillTexts.push(skillText);
+
+        // Play a level up/skill sound if available
+        if (window.gameInstance.sounds && window.gameInstance.sounds.Level_Up) {
+            window.gameInstance.playSound('Level_Up');
+        }
     }
 
     createFloatingDodgeText(target) {
@@ -8420,9 +8646,36 @@ class Ball {
         }
 
         // Apply remaining damage to HP
+        const hpBeforeDamage = target.hp;
         target.hp -= actualDamage;
 
-        // Ensure HP doesn't go below 0
+        // --- PASSIVE SKILL TRIGGERS (ON TAKING DAMAGE) ---
+
+        // 1. Tactical Recall (Human) - Works every single time (once per match)
+        if (target.hp <= 0 && target.selectedPassive === 'tacticalRecall' && !target.tacticalRecallUsed) {
+            target.hp = target.maxHp * 0.5;
+            target.tacticalRecallUsed = true;
+            target.createFloatingSkillText("Tactical Recall");
+        }
+
+        // 2. Blood Pact (Demon) - Trigger at 10 HP or below
+        if (target.hp <= 10 && target.hp > 0 && target.selectedPassive === 'bloodPact' && !target.bloodPactUsed) {
+            target.hp = 1;
+            target.bloodPactUsed = true;
+            target.createFloatingSkillText("Blood Pact");
+            // Deal instant 15 damage to attacker (this)
+            this.dealDamage(this, 15, { skillName: 'Blood Pact', skillType: 'passive', fixedDamage: true });
+        }
+
+        // 3. Raging Spirit (Barbarian) - Trigger at 15 HP or below
+        if (target.hp <= 15 && target.hp > 0 && target.selectedPassive === 'ragingSpirit' && !target.ragingSpiritUsed) {
+            target.ragingSpiritUsed = true;
+            target.createFloatingSkillText("Raging Spirit");
+            // Deal instant 7 damage to attacker (this)
+            this.dealDamage(this, 7, { skillName: 'Raging Spirit', skillType: 'passive', fixedDamage: true });
+        }
+
+        // Ensure HP doesn't go below 0 (after tactical recall check)
         target.hp = Math.max(0, target.hp);
 
         // Show floating damage text if damage was dealt
