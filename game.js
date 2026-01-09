@@ -1331,9 +1331,11 @@ class Game {
         const p2 = this.selectionState.player2;
 
         // Create balls using the new selection state
+        // Positions adjusted for 480x360 canvas: P1 at 1/4 width (120), P2 at 3/4 width (360)
+        // Y adjusted to middle (180)
         this.balls = [
-            new Ball(1, p1.name, p1.race, p1.weapon, p1.attack, p1.skill, p1.ultimate, 100, 150, p1.passive),
-            new Ball(2, p2.name, p2.race, p2.weapon, p2.attack, p2.skill, p2.ultimate, 300, 150, p2.passive)
+            new Ball(1, p1.name, p1.race, p1.weapon, p1.attack, p1.skill, p1.ultimate, 120, 180, p1.passive),
+            new Ball(2, p2.name, p2.race, p2.weapon, p2.attack, p2.skill, p2.ultimate, 360, 180, p2.passive)
         ];
 
         const ball1 = this.balls[0];
@@ -1512,6 +1514,15 @@ class Game {
     }
 
     updateStatsDisplay(playerNum, ball, target = null) {
+        // Update Stats Title with Player Name
+        const statsDisplay = document.getElementById(`player${playerNum}Stats`);
+        if (statsDisplay) {
+            const titleElement = statsDisplay.querySelector('.stats-title');
+            if (titleElement) {
+                titleElement.textContent = `${ball.name || 'Player ' + playerNum}'s Stats`;
+            }
+        }
+
         // Update HP
         const hpStatElement = document.getElementById(`player${playerNum}HPStat`);
         if (hpStatElement) {
@@ -1993,7 +2004,7 @@ class Game {
                 this.ctx.save();
                 this.ctx.globalAlpha = alpha;
                 this.ctx.fillStyle = '#ff0000'; // Large Red Text
-                this.ctx.font = 'bold 42px Arial'; // Very large
+                this.ctx.font = 'bold 28px Arial'; // Very large
                 this.ctx.textAlign = 'center';
                 this.ctx.textBaseline = 'middle';
 
@@ -2081,6 +2092,27 @@ class VisualEffect {
             if (this.data.offsetY) {
                 this.y += this.data.offsetY;
             }
+        }
+
+        // Special handling for dreadAuraWave - deal damage when the expanding wave hits enemies
+        if (this.type === 'dreadAuraWave' && this.data.balls && this.data.caster) {
+            const progress = 1 - (this.duration / this.maxDuration);
+            const startRadius = this.data.startRadius || 0;
+            const endRadius = this.data.endRadius || 180;
+            const currentRadius = startRadius + (endRadius - startRadius) * progress;
+            const hitEnemies = this.data.hitEnemies;
+
+            this.data.balls.forEach(ball => {
+                if (ball.id !== this.ownerId && !hitEnemies.has(ball.id)) {
+                    const distance = Math.sqrt((ball.x - this.x) ** 2 + (ball.y - this.y) ** 2);
+                    // Check if the expanding wave (ring) has reached the ball
+                    // We check if currentRadius is within ball radius range
+                    if (distance <= currentRadius + ball.radius) {
+                        this.data.caster.dealDamage(ball, 10, { skillName: 'dreadAura', skillType: 'active' });
+                        hitEnemies.add(ball.id);
+                    }
+                }
+            });
         }
 
         return this.duration > 0;
@@ -4032,7 +4064,7 @@ class Projectile {
                 if (window.gameInstance && window.gameInstance.images.sword) {
                     const img = window.gameInstance.images.sword;
                     if (img.complete) {
-                        const size = 40;
+                        const size = 50; // Increased by 25% from 40
                         const angle = Math.atan2(this.vy, this.vx) + Math.PI / 2 + Math.PI / 4; // Rotate to face direction, tilted 45 degrees right
 
                         ctx.save();
@@ -4050,7 +4082,7 @@ class Projectile {
                 if (window.gameInstance && window.gameInstance.images.sword) {
                     const img = window.gameInstance.images.sword;
                     if (img.complete) {
-                        const size = 40;
+                        const size = 50; // Increased by 25% from 40
                         const angle = Math.atan2(this.vy, this.vx) + Math.PI / 2; // Base direction
 
                         // Draw first sword
@@ -4171,7 +4203,7 @@ class Ball {
         const speed = 3 + Math.random() * 2; // Speed between 3-5
         this.vx = Math.cos(angle) * speed;
         this.vy = Math.sin(angle) * speed;
-        this.radius = 20;
+        this.radius = 25; // Increased by 25% from 20 to fit the larger 480x360 canvas
 
         // Stats based on race
         this.setRaceStats();
@@ -5118,7 +5150,7 @@ class Ball {
                 this.x = this.earthshatterLeapEndX;
                 this.y = this.earthshatterLeapEndY;
                 this.earthshatterLeapActive = false;
-                this.radius = 20; // Reset radius to normal
+                this.radius = 25; // Reset radius to normal (was incorrectly set to 20)
 
                 // Create earthshatter effect on enemy
                 this.createEarthshatterEffect(this.earthshatterTarget);
@@ -5139,7 +5171,7 @@ class Ball {
 
                 // Size scaling: gets bigger, biggest at middle, then smaller
                 const sizeMultiplier = 1 + Math.sin(t * Math.PI) * 0.5; // 1.0 to 1.5 to 1.0
-                this.radius = 20 * sizeMultiplier;
+                this.radius = 25 * sizeMultiplier; // Use correct ball radius (25)
             }
         } else if (!this.grappleSlamActive && !this.rooted && this.stunDuration <= 0 && !this.unbreakableBastionActive && !this.headbuttActive) {
             // Normal movement (skip if grapple slam is active, rooted, or stunned)
@@ -5315,6 +5347,11 @@ class Ball {
             } else {
                 // Other ranged weapons are always visible
                 this.activateRangedWeapon();
+            }
+        } else {
+            // Deactivate sword/dualSword weapon when on cooldown
+            if ((this.weapon === 'sword' || this.weapon === 'dualSword') && this.basicAttackCooldown > 0) {
+                this.deactivateWeapon();
             }
         }
 
@@ -5657,6 +5694,14 @@ class Ball {
                 const minDistance = this.radius + ball.radius;
 
                 if (distance < minDistance) {
+                    // Sword/DualSword collision attack - triggers on ball-to-ball collision
+                    if ((this.weapon === 'sword' || this.weapon === 'dualSword') && this.basicAttackCooldown <= 0) {
+                        this.triggerSwordCollisionAttack(ball);
+                    }
+                    if ((ball.weapon === 'sword' || ball.weapon === 'dualSword') && ball.basicAttackCooldown <= 0) {
+                        ball.triggerSwordCollisionAttack(this);
+                    }
+
                     // Check for Hero's Wrath collision
                     if (this.ultimate === 'herosWrath' && this.ultimateCooldown <= 0) {
                         this.triggerHerosWrath(ball);
@@ -5762,17 +5807,71 @@ class Ball {
             return; // Move cancelled
         }
 
-        // Set cooldown for all weapons
+        // Set cooldown for non-sword weapons (sword/dualSword handle cooldown after successful hit)
         // Focused Beam has a longer cooldown
-        if (this.attack === 'focusedBeam') {
-            this.basicAttackCooldown = 3; // 3 second cooldown for Focused Beam
-        } else {
-            this.basicAttackCooldown = 1.2; // 1.2 second cooldown
+        if (this.weapon !== 'sword' && this.weapon !== 'dualSword') {
+            if (this.attack === 'focusedBeam') {
+                this.basicAttackCooldown = 3; // 3 second cooldown for Focused Beam
+            } else {
+                this.basicAttackCooldown = 1.2; // 1.2 second cooldown
+            }
         }
 
         // Check if this is a ranged weapon
-        const rangedWeapons = ['bow', 'crossbow', 'staff', 'sword', 'dualSword'];
-        if (rangedWeapons.includes(this.weapon)) {
+        const rangedWeapons = ['bow', 'crossbow', 'staff'];
+        // Sword and Dual Sword are now treated as instant melee weapons
+        const instantMeleeWeapons = ['sword', 'dualSword'];
+
+        if (instantMeleeWeapons.includes(this.weapon)) {
+            // Sword/DualSword: Deal damage instantly when within collision range
+            const distanceToTarget = Math.sqrt((target.x - this.x) ** 2 + (target.y - this.y) ** 2);
+            const collisionRange = this.radius + target.radius + 10; // Small buffer for reliability
+
+            if (distanceToTarget <= collisionRange) {
+                // Within collision range - deal instant damage
+                const damage = this.getBasicAttackDamage(target);
+                const skillContext = { skillName: this.attack, skillType: 'basic' };
+
+                // Deal damage
+                this.dealDamage(target, damage, skillContext);
+
+                // Apply bleeding for bleedingCuts
+                if (this.attack === 'bleedingCuts') {
+                    this.dealDamageOverTime(target, 4, 2, { ...skillContext, fixedDamage: true });
+                }
+
+                // Play sword hit sound
+                if (window.gameInstance) {
+                    window.gameInstance.playRandomSwordHitSound();
+                }
+
+                // Create visual effects
+                if (this.attack === 'heavySlash') {
+                    this.createAttackEffect(target, 'heavySlash');
+                } else if (this.attack === 'quickJab') {
+                    this.createAttackEffect(target, 'quickJab');
+                    // Quick Jab has 30% chance for double attack
+                    if (Math.random() < 0.3) {
+                        setTimeout(() => {
+                            this.createAttackEffect(target, 'quickJab');
+                            this.dealDamage(target, damage, skillContext);
+                        }, 500);
+                    }
+                } else if (this.attack === 'shieldBreaker') {
+                    this.createAttackEffect(target, 'shieldBreaker');
+                } else if (this.attack === 'twinStrikes') {
+                    this.createTwinStrikesEffect(target);
+                } else if (this.attack === 'whirlwindSlash') {
+                    this.createWhirlwindSlashEffect(target);
+                }
+
+                // Only set cooldown AFTER a successful hit for sword/dualSword
+                this.basicAttackCooldown = 1.2;
+            } else {
+                // Not in range - DON'T consume cooldown, let AI retry next frame
+                return;
+            }
+        } else if (rangedWeapons.includes(this.weapon)) {
             const damage = this.getBasicAttackDamage(target);
             // Special handling for volley attack
             if (this.attack === 'volley') {
@@ -5949,6 +6048,9 @@ class Ball {
 
         // Play Hammer of Mountain sound on collision
         window.gameInstance.playSound('hammerOfMountain');
+
+        // Display ultimate skill name above the ball
+        this.createFloatingSkillText("Hammer of the Mountain");
 
         // Deal 14 damage
         this.dealDamage(target, 14, { skillName: 'hammerOfMountain', skillType: 'ultimate' });
@@ -7229,48 +7331,21 @@ class Ball {
     createDreadAuraEffect(balls) {
         if (!window.gameInstance) return;
 
-        // Track which enemies have been hit for damage intervals
-        const hitEnemies = new Set();
-        const caster = this;
-
-        // Create expanding purple wave (ring) that expands outward to 160 radius
+        // Create expanding purple wave (ring) that expands outward to 180 radius
         const waveEffect = window.gameInstance.createVisualEffect(
             this.x, this.y, 'dreadAuraWave', 0.8, // 0.8 seconds to expand
             {
                 startRadius: 0,
-                endRadius: 160,
+                endRadius: 180, // Increased by 20 (160 -> 180)
                 color: '#8B008B', // Purple color
                 lineWidth: 8,
                 ownerId: this.id,
                 caster: this,
                 balls: balls,
-                followTarget: this // Make wave follow the caster
+                followTarget: this, // Make wave follow the caster
+                hitEnemies: new Set() // Track which enemies have been hit by the expanding wave
             }
         );
-
-        // Deal damage in 0.5s intervals: 5 damage at 0s, 5 damage at 0.5s = 10 total
-        // First damage tick (immediate)
-        balls.forEach(ball => {
-            if (ball.id !== this.id) {
-                const distance = Math.sqrt((ball.x - this.x) ** 2 + (ball.y - this.y) ** 2);
-                if (distance < 160) {
-                    this.dealDamage(ball, 5, { skillName: 'dreadAura', skillType: 'active' });
-                    hitEnemies.add(ball.id);
-                }
-            }
-        });
-
-        // Second damage tick (at 0.5s)
-        setTimeout(() => {
-            balls.forEach(ball => {
-                if (ball.id !== caster.id) {
-                    const distance = Math.sqrt((ball.x - caster.x) ** 2 + (ball.y - caster.y) ** 2);
-                    if (distance < 160) {
-                        caster.dealDamage(ball, 5, { skillName: 'dreadAura', skillType: 'active' });
-                    }
-                }
-            });
-        }, 500);
 
         // Create dread aura visual effect behind the ball (visual only)
         const auraEffect = window.gameInstance.createVisualEffect(
@@ -7401,10 +7476,14 @@ class Ball {
                 case 'sword':
                     // Sword creates a sword projectile
                     finalProjectileType = 'sword';
+                    // Set collision radius to match ball radius for reliable ball-to-ball collision
+                    context.collisionRadius = 25;
                     break;
                 case 'dualSword':
                     // Dual sword creates a dual sword projectile
                     finalProjectileType = 'dualSword';
+                    // Set collision radius to match ball radius for reliable ball-to-ball collision
+                    context.collisionRadius = 25;
                     if (this.attack === 'bleedingCuts') {
                         context.dotDamageTotal = 4; // 2 dmg/s for 2 seconds
                         context.dotDuration = 2;
@@ -8297,6 +8376,25 @@ class Ball {
             }
         }
 
+        // Display ultimate skill name above the ball (like Tactical Recall)
+        const ultimateNames = {
+            unstoppableRage: 'Unstoppable Rage',
+            earthshatter: 'Earthshatter',
+            anvilOfMountain: 'Anvil of the Mountain',
+            hammerOfMountain: 'Hammer of the Mountain',
+            unbreakableBastion: 'Unbreakable Bastion',
+            rainOfStars: 'Rain of Stars',
+            spiritOfForest: 'Spirit of the Forest',
+            wrathOfWarlord: 'Wrath of the Warlord',
+            unstoppableStrength: 'Unstoppable Strength',
+            lastStand: 'Last Stand',
+            herosWrath: "Hero's Wrath",
+            demonicAscension: 'Demonic Ascension',
+            apocalypseFlame: 'Apocalypse Flame'
+        };
+        const displayName = ultimateNames[this.ultimate] || this.ultimate;
+        this.createFloatingSkillText(displayName);
+
         const ultimateData = {
             // Barbarian
             unstoppableRage: () => {
@@ -8817,7 +8915,7 @@ class Ball {
         ctx.fillText(this.name, this.x, this.y - this.radius - 10);
 
         // Draw HP bar above ball
-        const barWidth = 40;
+        const barWidth = 50;
         const barHeight = 4;
         const barX = this.x - barWidth / 2;
         const barY = this.y - this.radius - 20;
@@ -8844,10 +8942,9 @@ class Ball {
     }
 
     renderEffects(ctx) {
-        // Hellfire aura
         if (this.hellfireAuraActive) {
             ctx.beginPath();
-            ctx.arc(this.x, this.y, 60, 0, Math.PI * 2);
+            ctx.arc(this.x, this.y, 75, 0, Math.PI * 2); // Increased for larger ball (60 -> 75)
             ctx.strokeStyle = '#ff4400';
             ctx.lineWidth = 2;
             ctx.setLineDash([5, 5]);
@@ -8855,10 +8952,9 @@ class Ball {
             ctx.setLineDash([]);
         }
 
-        // Dread aura
         if (this.dreadAuraActive) {
             ctx.beginPath();
-            ctx.arc(this.x, this.y, 50, 0, Math.PI * 2);
+            ctx.arc(this.x, this.y, 85, 0, Math.PI * 2); // Increased for larger ball (65 -> 85)
             ctx.strokeStyle = '#4400ff';
             ctx.lineWidth = 2;
             ctx.setLineDash([3, 3]);
@@ -9051,7 +9147,7 @@ class Ball {
                 ctx.restore();
 
                 // Draw Shield Bash image on top
-                const size = this.radius * 2; // Match ball size
+                const size = this.radius * 2.5; // Increased to fill the ball better
                 ctx.drawImage(img, this.x - size / 2, this.y - size / 2, size, size);
                 return;
             }
@@ -9128,7 +9224,7 @@ class Ball {
         window.gameInstance.createVisualEffect(
             ball.x, ball.y, 'image', 999.0, // Very long duration, will be manually removed when stacks are used
             {
-                size: ball.size * 2, // Match the ball's size
+                size: ball.radius * 1, // 1/4 of previous size (was ball.radius * 2)
                 imageKey: 'executionStrike',
                 followTarget: ball // Make it follow the ball
             }
@@ -9156,7 +9252,7 @@ class Ball {
             this.x, this.y, 'trail', this.shieldBashDuration,
             {
                 color: '#C0C0C0',
-                size: this.size,
+                size: this.radius * 2.5, // Match the enlarged Shield Bash visual
                 followTarget: this,
                 trailLength: 20
             }
@@ -9331,6 +9427,9 @@ class Ball {
             window.gameInstance.playSound('herosWrath');
         }
 
+        // Display ultimate skill name above the ball
+        this.createFloatingSkillText("Hero's Wrath");
+
         // Set cooldown immediately to prevent multiple triggers
         this.ultimateCooldown = 12; // 12 second cooldown
 
@@ -9354,6 +9453,48 @@ class Ball {
                 }
             }, i * 100); // 100ms delay between each hit
         }
+    }
+
+    triggerSwordCollisionAttack(target) {
+        // Deal damage instantly on ball collision
+        const damage = this.getBasicAttackDamage(target);
+        const skillContext = { skillName: this.attack, skillType: 'basic' };
+
+        // Deal damage
+        this.dealDamage(target, damage, skillContext);
+
+        // Apply bleeding for bleedingCuts
+        if (this.attack === 'bleedingCuts') {
+            this.dealDamageOverTime(target, 4, 2, { ...skillContext, fixedDamage: true });
+        }
+
+        // Play sword hit sound
+        if (window.gameInstance) {
+            window.gameInstance.playRandomSwordHitSound();
+        }
+
+        // Create visual effects
+        if (this.attack === 'heavySlash') {
+            this.createAttackEffect(target, 'heavySlash');
+        } else if (this.attack === 'quickJab') {
+            this.createAttackEffect(target, 'quickJab');
+            // Quick Jab has 30% chance for double attack
+            if (Math.random() < 0.3) {
+                setTimeout(() => {
+                    this.createAttackEffect(target, 'quickJab');
+                    this.dealDamage(target, damage, skillContext);
+                }, 500);
+            }
+        } else if (this.attack === 'shieldBreaker') {
+            this.createAttackEffect(target, 'shieldBreaker');
+        } else if (this.attack === 'twinStrikes') {
+            this.createTwinStrikesEffect(target);
+        } else if (this.attack === 'whirlwindSlash') {
+            this.createWhirlwindSlashEffect(target);
+        }
+
+        // Set cooldown after successful hit
+        this.basicAttackCooldown = 1.2;
     }
 }
 
