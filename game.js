@@ -1483,8 +1483,7 @@ class Game {
 
         // Calculate delta time (time since last frame in seconds)
         const currentTime = performance.now();
-        const rawDeltaTime = Math.min((currentTime - this.lastFrameTime) / 1000, 0.1); // Cap at 0.1s to prevent large jumps
-        const deltaTime = rawDeltaTime * this.gameSpeed; // Apply game speed multiplier
+        const deltaTime = Math.min((currentTime - this.lastFrameTime) / 1000, 0.1); // Cap at 0.1s to prevent large jumps
         this.lastFrameTime = currentTime;
 
         this.update(deltaTime);
@@ -3799,9 +3798,10 @@ class Projectile {
             }
         }
 
-        // Move projectile (delta time scaled - 60 is base frame rate)
-        this.x += this.vx * deltaTime * 60;
-        this.y += this.vy * deltaTime * 60;
+        // Move projectile (delta time scaled - 60 is base frame rate, gameSpeed for speed adjustment)
+        const gameSpeed = window.gameInstance ? window.gameInstance.gameSpeed : 1;
+        this.x += this.vx * deltaTime * 60 * gameSpeed;
+        this.y += this.vy * deltaTime * 60 * gameSpeed;
 
         // Check if projectile is out of bounds
         if (this.x < 0 || this.x > canvasWidth || this.y < 0 || this.y > canvasHeight) {
@@ -5330,9 +5330,10 @@ class Ball {
                 this.radius = 25 * sizeMultiplier; // Use correct ball radius (25)
             }
         } else if (!this.grappleSlamActive && !this.rooted && this.stunDuration <= 0 && !this.unbreakableBastionActive && !this.headbuttActive) {
-            // Normal movement (delta time scaled - 60 is base frame rate)
-            this.x += this.vx * speedMultiplier * deltaTime * 60;
-            this.y += this.vy * speedMultiplier * deltaTime * 60;
+            // Normal movement (delta time scaled - 60 is base frame rate, gameSpeed for speed adjustment)
+            const gameSpeed = window.gameInstance ? window.gameInstance.gameSpeed : 1;
+            this.x += this.vx * speedMultiplier * deltaTime * 60 * gameSpeed;
+            this.y += this.vy * speedMultiplier * deltaTime * 60 * gameSpeed;
         }
 
         // Bounce off walls (skip if rooted or stunned)
