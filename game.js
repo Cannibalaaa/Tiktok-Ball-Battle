@@ -1,4 +1,4 @@
-// Ball Battle Arena - Main Game File
+// Wheel of Warriors - Main Game File
 class Game {
     constructor() {
         this.canvas = document.getElementById('gameCanvas');
