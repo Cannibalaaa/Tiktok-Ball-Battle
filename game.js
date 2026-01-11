@@ -14,6 +14,7 @@ class Game {
         this.gameState = 'selection';
         this.lastFrameTime = performance.now();
         this.globalVolume = 0.5;
+        this.animationFrameId = null; // Store animation frame ID to prevent multiple loops
 
         // Load images
         this.images = {};
@@ -541,6 +542,9 @@ class Game {
             this.selectionState.player2.name = e.target.value.trim();
             this.checkStartButton();
         });
+
+        // Reselect button click handler
+        document.getElementById('reselectButton').addEventListener('click', () => this.goToReselect());
     }
 
     openCategoryPopup(player, category) {
@@ -714,6 +718,89 @@ class Game {
     hideSelectionScreen() {
         document.getElementById('selectionScreen').classList.add('hidden');
     }
+
+    goToReselect() {
+        // Hide reselect button
+        const reselectBtn = document.getElementById('reselectButton');
+        if (reselectBtn) reselectBtn.style.display = 'none';
+
+        // Restore selection state from last match
+        if (this.lastMatchSelections) {
+            this.selectionState = JSON.parse(JSON.stringify(this.lastMatchSelections));
+
+            // Update the UI to reflect the restored selections
+            const p1 = this.selectionState.player1;
+            const p2 = this.selectionState.player2;
+
+            // Restore Player 1 name input
+            document.getElementById('player1NameInput').value = p1.name || '';
+
+            // Restore Player 2 name input
+            document.getElementById('player2NameInput').value = p2.name || '';
+
+            // Update category boxes to show selected values
+            const categories = ['weapon', 'attack', 'skill', 'ultimate', 'race', 'passive'];
+            categories.forEach(cat => {
+                // Player 1
+                const p1Value = p1[cat];
+                if (p1Value) {
+                    const p1Element = document.getElementById(`p1${cat.charAt(0).toUpperCase() + cat.slice(1)}Value`);
+                    if (p1Element) {
+                        const allOptions = this.getOptionsForCategory(cat);
+                        const option = allOptions.find(o => o.id === p1Value);
+                        p1Element.textContent = option ? option.name : p1Value;
+                    }
+                    const p1Box = document.querySelector(`.selection-category-box[data-player="1"][data-category="${cat}"]`);
+                    if (p1Box) p1Box.classList.add('selected');
+                }
+
+                // Player 2
+                const p2Value = p2[cat];
+                if (p2Value) {
+                    const p2Element = document.getElementById(`p2${cat.charAt(0).toUpperCase() + cat.slice(1)}Value`);
+                    if (p2Element) {
+                        const allOptions = this.getOptionsForCategory(cat);
+                        const option = allOptions.find(o => o.id === p2Value);
+                        p2Element.textContent = option ? option.name : p2Value;
+                    }
+                    const p2Box = document.querySelector(`.selection-category-box[data-player="2"][data-category="${cat}"]`);
+                    if (p2Box) p2Box.classList.add('selected');
+                }
+            });
+
+            // Enable start button since all selections are restored
+            this.checkStartButton();
+        }
+
+        // Reset game state
+        this.gameState = 'selection';
+        this.winnerName = null;
+        this.balls = [];
+        this.projectiles = [];
+        this.visualEffects = [];
+
+        // Show selection screen
+        this.showSelectionScreen();
+    }
+
+    getOptionsForCategory(category) {
+        switch (category) {
+            case 'weapon': return this.getAllWeapons();
+            case 'race': return this.getAllRaces();
+            case 'passive': return this.getAllPassives();
+            case 'skill': return this.getAllActiveSkills();
+            case 'ultimate': return this.getAllUltimateSkills();
+            case 'attack':
+                // For attack, we need to return all possible attacks
+                const allAttacks = [];
+                ['bow', 'crossbow', 'sword', 'dualSword', 'staff'].forEach(weapon => {
+                    allAttacks.push(...this.getAttacksForWeapon(weapon));
+                });
+                return allAttacks;
+            default: return [];
+        }
+    }
+
 
     nextSelectionStep() {
         switch (this.currentSelectionStep) {
@@ -1324,8 +1411,15 @@ class Game {
     }
 
     startGame() {
+        // Store last match selections for reselect feature
+        this.lastMatchSelections = JSON.parse(JSON.stringify(this.selectionState));
+
         this.hideSelectionScreen();
         this.gameState = 'playing';
+
+        // Hide reselect button when game starts
+        const reselectBtn = document.getElementById('reselectButton');
+        if (reselectBtn) reselectBtn.style.display = 'none';
 
         const p1 = this.selectionState.player1;
         const p2 = this.selectionState.player2;
@@ -1358,12 +1452,20 @@ class Game {
         document.getElementById('player2Name').textContent = p2.name;
 
         this.lastFrameTime = performance.now();
+
+        // Cancel any existing game loop before starting a new one
+        if (this.animationFrameId) {
+            cancelAnimationFrame(this.animationFrameId);
+            this.animationFrameId = null;
+        }
+
         this.gameLoop();
     }
 
     gameLoop() {
-        if (this.gameState !== 'playing' && this.gameState !== 'victory') {
-            requestAnimationFrame(() => this.gameLoop());
+        // Stop the loop entirely when in selection state
+        if (this.gameState === 'selection') {
+            this.animationFrameId = null;
             return;
         }
 
@@ -1375,7 +1477,7 @@ class Game {
         this.update(deltaTime);
         this.render();
 
-        requestAnimationFrame(() => this.gameLoop());
+        this.animationFrameId = requestAnimationFrame(() => this.gameLoop());
     }
 
     update(deltaTime) {
@@ -1778,6 +1880,9 @@ class Game {
         const winner = this.balls[0].hp > 0 ? this.balls[0] : this.balls[1];
         const loser = this.balls[0].hp <= 0 ? this.balls[0] : this.balls[1];
 
+        // Store winner name for victory text
+        this.winnerName = winner.name || 'Player';
+
         // Remove the loser's weapon effect
         if (loser.weaponEffect) {
             loser.weaponEffect.duration = 0;
@@ -1795,6 +1900,12 @@ class Game {
 
         // Set game state to victory (keeps the game loop running)
         this.gameState = 'victory';
+
+        // Show the Reselect button
+        const reselectBtn = document.getElementById('reselectButton');
+        if (reselectBtn) {
+            reselectBtn.style.display = 'block';
+        }
     }
 
     createVisualEffect(x, y, type, duration = 1, data = {}) {
@@ -2058,6 +2169,24 @@ class Game {
                 return true; // Keep this text
             });
         }
+
+        // Draw victory text when game is over
+        if (this.gameState === 'victory' && this.winnerName) {
+            this.ctx.save();
+            this.ctx.fillStyle = '#FFD700'; // Gold color
+            this.ctx.font = 'bold 36px Arial';
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+
+            // Add text shadow for visibility
+            this.ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+            this.ctx.shadowBlur = 6;
+            this.ctx.shadowOffsetX = 3;
+            this.ctx.shadowOffsetY = 3;
+
+            this.ctx.fillText(`${this.winnerName} Won!`, this.canvas.width / 2, this.canvas.height / 2);
+            this.ctx.restore();
+        }
     }
 }
 
@@ -2205,6 +2334,13 @@ class VisualEffect {
                 this.renderTwinStrikes(ctx, progress);
             } else if (this.type === 'whirlwindSlash') {
                 this.renderWhirlwindSlash(ctx, progress);
+            } else if (this.type === 'blood') {
+                // Blood effect with pulsing fade in/out
+                const pulseRate = 2; // Pulses per second
+                const time = Date.now() / 1000;
+                const pulseAlpha = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(time * pulseRate * Math.PI * 2)); // Fades between 0.3 and 1.0
+                ctx.globalAlpha = pulseAlpha;
+                this.renderImage(ctx, progress);
             } else {
                 this.renderImage(ctx, progress);
             }
@@ -2658,6 +2794,13 @@ class VisualEffect {
     }
 
     renderBlood(ctx, progress) {
+        // Flicker effect - rapidly toggle visibility
+        const flickerRate = 4; // Flickers per second
+        const time = Date.now() / 1000;
+        const shouldShow = Math.sin(time * flickerRate * Math.PI * 2) > 0;
+
+        if (!shouldShow) return; // Skip rendering for flicker effect
+
         ctx.fillStyle = '#ff0000';
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size * progress, 0, Math.PI * 2);
@@ -3984,7 +4127,7 @@ class Projectile {
                 if (window.gameInstance && window.gameInstance.images.arcaneBolt) {
                     const img = window.gameInstance.images.arcaneBolt;
                     if (img.complete) {
-                        const size = 40; // Same size as arrows
+                        const size = 60; // Same size as arrows
                         const angle = Math.atan2(this.vy, this.vx) + Math.PI / 2; // Add 90 degrees to correct orientation
 
                         ctx.save();
@@ -5752,6 +5895,11 @@ class Ball {
     }
 
     useSkills(balls) {
+        // Disable all skills during victory state
+        if (window.gameInstance && window.gameInstance.gameState === 'victory') {
+            return;
+        }
+
         // Skills can be used even when rooted
 
         // Use basic attack (skip if stunned)
@@ -6687,9 +6835,9 @@ class Ball {
     createBloodEffect(target) {
         if (!window.gameInstance) return;
 
-        // Create blood effect that follows the target and lasts for bleed duration
+        // Create blood effect that follows the target and lasts for bleed duration (2 seconds)
         window.gameInstance.createVisualEffect(
-            target.x, target.y, 'blood', 3.0, // Last for 3 seconds (bleed duration)
+            target.x, target.y, 'blood', 2.0, // Last for 2 seconds (matches bleed duration)
             { size: 15, color: '#ff0000', imageKey: 'bloodEffect', followTarget: target }
         );
     }
@@ -8231,11 +8379,11 @@ class Ball {
                 const dx = target.x - this.x;
                 const dy = target.y - this.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
-                this.shieldBashVx = (dx / distance) * 3.75; // Quarter speed
-                this.shieldBashVy = (dy / distance) * 3.75;
+                this.shieldBashVx = (dx / distance) * 7; // Quarter speed
+                this.shieldBashVy = (dy / distance) * 7;
 
                 // Create trail effect
-                this.createShieldBashTrailEffect();
+
             },
             tacticalRoll: () => {
                 this.createTacticalRollEffect();
