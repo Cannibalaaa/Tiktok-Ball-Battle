@@ -14,6 +14,7 @@ class Game {
         this.gameState = 'selection';
         this.lastFrameTime = performance.now();
         this.globalVolume = 0.5;
+        this.gameSpeed = 1.0; // Game speed multiplier (1.0 = normal, 2.0 = 2x speed, etc.)
         this.animationFrameId = null; // Store animation frame ID to prevent multiple loops
 
         // Load images
@@ -512,6 +513,17 @@ class Game {
                 const value = parseInt(e.target.value);
                 this.globalVolume = value / 100;
                 volumeValueDisplay.textContent = `${value}%`;
+            });
+        }
+
+        // Game Speed control listener
+        const speedSlider = document.getElementById('speedSlider');
+        const speedValueDisplay = document.getElementById('speedValue');
+        if (speedSlider && speedValueDisplay) {
+            speedSlider.addEventListener('input', (e) => {
+                const value = parseFloat(e.target.value);
+                this.gameSpeed = value;
+                speedValueDisplay.textContent = `${value.toFixed(1)}x`;
             });
         }
 
@@ -1471,7 +1483,8 @@ class Game {
 
         // Calculate delta time (time since last frame in seconds)
         const currentTime = performance.now();
-        const deltaTime = Math.min((currentTime - this.lastFrameTime) / 1000, 0.1); // Cap at 0.1s to prevent large jumps
+        const rawDeltaTime = Math.min((currentTime - this.lastFrameTime) / 1000, 0.1); // Cap at 0.1s to prevent large jumps
+        const deltaTime = rawDeltaTime * this.gameSpeed; // Apply game speed multiplier
         this.lastFrameTime = currentTime;
 
         this.update(deltaTime);
@@ -3786,9 +3799,9 @@ class Projectile {
             }
         }
 
-        // Move projectile
-        this.x += this.vx;
-        this.y += this.vy;
+        // Move projectile (delta time scaled - 60 is base frame rate)
+        this.x += this.vx * deltaTime * 60;
+        this.y += this.vy * deltaTime * 60;
 
         // Check if projectile is out of bounds
         if (this.x < 0 || this.x > canvasWidth || this.y < 0 || this.y > canvasHeight) {
@@ -5317,9 +5330,9 @@ class Ball {
                 this.radius = 25 * sizeMultiplier; // Use correct ball radius (25)
             }
         } else if (!this.grappleSlamActive && !this.rooted && this.stunDuration <= 0 && !this.unbreakableBastionActive && !this.headbuttActive) {
-            // Normal movement (skip if grapple slam is active, rooted, or stunned)
-            this.x += this.vx * speedMultiplier;
-            this.y += this.vy * speedMultiplier;
+            // Normal movement (delta time scaled - 60 is base frame rate)
+            this.x += this.vx * speedMultiplier * deltaTime * 60;
+            this.y += this.vy * speedMultiplier * deltaTime * 60;
         }
 
         // Bounce off walls (skip if rooted or stunned)
