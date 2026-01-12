@@ -2218,6 +2218,7 @@ class VisualEffect {
         this.targetY = data.targetY || y;
         this.imageKey = data.imageKey || null;
         this.followTarget = data.followTarget || null;
+        this.ownerId = data.ownerId || null; // Extract ownerId for damage checks
     }
 
     update(deltaTime = 0.016) {
